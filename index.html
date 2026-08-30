@@ -572,7 +572,7 @@ function setUnlocked(state){
   unlocked = state;
   try {
     if (state) localStorage.setItem(UNLOCK_KEY, PIN_HASH);
-    else localStorage.removeItem(UNLOCK_KEY);
+    else { localStorage.removeItem(UNLOCK_KEY); localStorage.removeItem(PIN_KEY); }
   } catch (e) {}
   renderScoring('comp'); renderScoring('social');
   renderDerived();
@@ -597,11 +597,34 @@ document.addEventListener('submit', async (e) => {
   e.preventDefault();
   const input = form.querySelector('input');
   const msg = form.parentElement.querySelector('.lk-msg');
-  let entered = '';
-  try { entered = await sha256Hex(input.value.trim()); }
-  catch (err) { if (msg){ msg.hidden = false; msg.textContent = 'This browser will not hash the PIN here.'; } return; }
-  if (entered === PIN_HASH) setUnlocked(true);
-  else if (msg){ msg.hidden = false; msg.textContent = 'That PIN is not right.'; input.value = ''; input.focus(); }
+  const pin = input.value.trim();
+  let good = false;
+  try {
+    const res = await fetch(API + '/unlock', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({pin})
+    });
+    good = res.ok;
+  } catch (err) {
+    // No signal: fall back to the hash baked into this page so the desk can
+    // still record scores locally and sync them later.
+    try { good = (await sha256Hex(pin)) === PIN_HASH; } catch (e2) { good = false; }
+  }
+  if (good){
+    try { localStorage.setItem(PIN_KEY, pin); } catch (e) {}
+    setUnlocked(true);
+    // First desk to unlock seeds the shared copy from what it already has;
+    // after that the shared copy is the record and is only ever patched.
+    if (!remoteStored){
+      const brackets = {};
+      ['comp','social'].forEach(d => { brackets[d] = BR[d]; });
+      queuePatch({scores: Object.assign({}, SCORES), brackets});
+    }
+    push();
+  } else if (msg){
+    msg.hidden = false; msg.textContent = 'That PIN is not right.';
+    input.value = ''; input.focus();
+  }
 });
 document.addEventListener('click', (e) => {
   if (e.target.closest('[data-lock="off"]')) setUnlocked(false);
@@ -700,10 +723,19 @@ function winnerOf(g){
   return a > b ? g.a : g.b;
 }
 function noteSaved(){
+  const el = $('saveNote');
+  if (!el) return;
   const done = DATA.games.filter(isFinal).length;
-  $('saveNote').textContent = !storageOK
-    ? 'This browser is blocking local storage — scores will not survive a refresh.'
-    : done + ' of ' + DATA.games.length + ' pool games recorded · saved on this device';
+  const count = done + ' of ' + DATA.games.length + ' pool games recorded';
+  const at = syncedAt ? syncedAt.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
+  let tail;
+  if (syncState === 'live') tail = ' · live for everyone' + (at ? ' · synced ' + at : '');
+  else if (syncState === 'idle') tail = ' · shared scoring not started yet — this device only';
+  else if (syncState === 'offline') tail = queued
+    ? ' · offline — this device only, will sync when the signal is back'
+    : ' · offline — this device only';
+  else tail = ' · connecting…';
+  el.textContent = (storageOK ? '' : 'This browser is blocking local storage. ') + count + tail;
 }
 
 /* Wins, then point differential, then points for, then name. */
@@ -866,6 +898,7 @@ document.addEventListener('input', e => {
   if (cur[0] === null && cur[1] === null) delete SCORES[gid];
   else SCORES[gid] = cur;
   saveScores();
+  queuePatch({scores: {[gid]: SCORES[gid] || null}});
 
   const g = DATA.games.find(x => GID(x) === gid);
   const st = stateOf(g), cell = row.querySelector('.m-state');
@@ -875,8 +908,11 @@ document.addEventListener('input', e => {
 });
 
 $('clearScores').addEventListener('click', e => armConfirm(e.currentTarget, 'Tap again to erase every score', () => {
+  const cleared = {};
+  DATA.games.forEach(g => { cleared[GID(g)] = null; });
   SCORES = {};
   saveScores();
+  queuePatch({scores: cleared});
   renderScoring('comp'); renderScoring('social');
   renderDerived();
   postHeight();
@@ -1003,6 +1039,7 @@ function loadBrackets(){
 }
 function saveBracket(div){
   try { localStorage.setItem(CFG[div].key, JSON.stringify(BR[div])); } catch (e) {}
+  queuePatch({brackets: {[div]: BR[div]}});
 }
 
 const attr = s => esc(s).replace(/"/g, '&quot;');
@@ -1329,6 +1366,102 @@ secnav.addEventListener('click', e => {
   }));
 });
 
+/* ═══ Live sync ═════════════════════════════════════════
+   One shared copy of the tournament lives in the site's Wix backend, so the
+   desk types a score once and every phone sees it. Reads are open to anyone;
+   writes carry the PIN and are checked on the server, which is the check that
+   actually holds.
+
+   Local first, deliberately: a grass field is a bad place to depend on a
+   network. If the backend is unreachable - or the collection does not exist
+   yet - every call fails quietly and the page runs exactly as it did before,
+   off this device's own copy, pushing whatever it has once it can. */
+const API = 'https://www.surfandturfvolleyball.net/_functions';
+const PIN_KEY = 'es2026_desk_pin';
+const POLL_MS = 10000;
+let syncRev = -1, syncedAt = null, syncState = 'connecting', remoteStored = false;
+let pushing = 0, queued = null, pushTimer = null, applying = false;
+
+function deskPin(){ try { return localStorage.getItem(PIN_KEY) || ''; } catch (e) { return ''; } }
+function mergePatch(older, newer){
+  return {
+    scores: Object.assign({}, older.scores, newer.scores),
+    brackets: Object.assign({}, older.brackets, newer.brackets)
+  };
+}
+/* Changes are queued and sent together a moment later, so typing both halves
+   of a score is one write rather than two. */
+function queuePatch(patch){
+  if (applying) return;                     // don't echo a change we just pulled
+  queued = queued ? mergePatch(queued, patch) : patch;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(push, 400);
+  noteSaved();
+}
+function applyRemote(remote){
+  if (!remote || typeof remote !== 'object' || typeof remote.rev !== 'number') return false;
+  // Nothing shared yet: an empty response here means "not started", not "all
+  // scores cleared", so leave this device's own copy alone.
+  if (!remote.stored) return false;
+  if (remote.rev === syncRev) return false;
+  syncRev = remote.rev;
+  applying = true;
+  SCORES = (remote.scores && typeof remote.scores === 'object') ? remote.scores : {};
+  try { localStorage.setItem(SCORE_KEY, JSON.stringify(SCORES)); } catch (e) {}
+  ['comp','social'].forEach(div => {
+    const r = remote.brackets && remote.brackets[div];
+    const fresh = emptyBracket(CFG[div]);
+    BR[div] = (r && Array.isArray(r.rounds) && r.rounds.length === fresh.rounds.length)
+      ? Object.assign(fresh, r) : fresh;
+    saveBracket(div);
+  });
+  applying = false;
+  return true;
+}
+async function pull(){
+  try {
+    const res = await fetch(API + '/state', {cache: 'no-store'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const remote = await res.json();
+    remoteStored = !!remote.stored;
+    syncState = remoteStored ? 'live' : 'idle'; syncedAt = new Date();
+    // Never overwrite an edit that has not reached the server yet.
+    if (pushing === 0 && !queued && applyRemote(remote)){
+      renderScoring('comp'); renderScoring('social'); renderDerived();
+      return;
+    }
+  } catch (e) {
+    syncState = 'offline';
+  }
+  noteSaved();
+}
+async function push(){
+  if (!queued) return;
+  const patch = queued; queued = null; pushing++;
+  try {
+    const res = await fetch(API + '/state', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(Object.assign({pin: deskPin()}, patch))
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const remote = await res.json();
+    if (remote.error) throw new Error(remote.error);
+    syncRev = remote.rev; remoteStored = true;
+    syncState = 'live'; syncedAt = new Date();
+  } catch (e) {
+    syncState = 'offline';
+    queued = queued ? mergePatch(patch, queued) : patch;   // keep it for the next try
+  } finally {
+    pushing--; noteSaved();
+  }
+}
+function startSync(){
+  pull();
+  setInterval(pull, POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
+  window.addEventListener('online', () => { pull(); push(); });
+}
+
 /* ═══ Boot ══════════════════════════════════════════════ */
 loadScores();
 loadBrackets();
@@ -1336,6 +1469,7 @@ renderFormatNotes();
 renderScoring('comp');
 renderScoring('social');
 renderDerived();
+startSync();
 </script>
 
 </body>
