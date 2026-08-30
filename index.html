@@ -173,6 +173,23 @@
   .panel[hidden]{display:none}
 
   .round{margin-bottom:16px;background:var(--paper);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  /* Collapsers keep every view shorter than the Wix frame. Without them the
+     frame scrolls inside itself and a phone bounces at its edge instead of
+     carrying on down the page. */
+  details.round > summary,
+  details.pool > summary{cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent}
+  details.round > summary::-webkit-details-marker,
+  details.pool > summary::-webkit-details-marker{display:none}
+  details.round > summary::after,
+  details.pool > summary::after{content:'+';margin-left:auto;font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:19px;line-height:1;opacity:.75;padding-left:8px}
+  details[open].round > summary::after,
+  details[open].pool > summary::after{content:'\2212'}
+  details.round > summary:focus-visible,
+  details.pool > summary:focus-visible{outline:3px solid var(--sun);outline-offset:-3px}
+  .acc-tally{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+    letter-spacing:.1em;background:rgba(255,255,255,0.22);padding:2px 8px;border-radius:3px}
+  .acc-tally.done{background:var(--sun);color:var(--night)}
   .round.now{border-color:var(--sun-deep);box-shadow:0 0 0 2px var(--sun)}
   .round-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;padding:10px 14px;
             background:var(--turf);color:var(--cream)}
@@ -819,30 +836,34 @@ function renderSchedule(){
       return '<div class="slot" data-pool="'+g.pool+'"><div class="ct">Court '+ct+'</div>'+
              '<div class="mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div>'+ finalLine(g) +'</div>';
     }).join('');
-    return '<div class="round'+(i === LIVE ? ' now' : '')+'"><div class="round-hd"><b>Round '+r+'</b>'+
+    const open = i === (LIVE >= 0 ? LIVE : 0);
+    return '<details class="round'+(i === LIVE ? ' now' : '')+'" data-acc="by-round"'+(open ? ' open' : '')+'>'+
+           '<summary class="round-hd"><b>Round '+r+'</b>'+
            '<span class="tnum">'+esc(time)+'</span>'+
-           (i === LIVE ? '<span class="nowtag">On now</span>' : '')+'</div><div class="slots">'+slots+'</div></div>';
+           (i === LIVE ? '<span class="nowtag">On now</span>' : '')+'</summary><div class="slots">'+slots+'</div></details>';
   }).join('');
 
   $('p-court').innerHTML = COURTS.map(ct => {
     const pool = DATA.pools.find(p => p.courts.includes(ct));
     const gs = DATA.games.filter(g => g.ct === ct).sort((a,b) => a.r - b.r);
-    return '<div class="round"><div class="round-hd"><b>Court '+ct+'</b><span>'+esc(pool.name)+' &middot; '+gs.length+' games</span>'+
-      '<button class="btn mini" data-print-court="'+ct+'">Print</button></div>'+
+    return '<details class="round" data-acc="by-court"'+(ct === 1 ? ' open' : '')+'>'+
+      '<summary class="round-hd"><b>Court '+ct+'</b><span>'+esc(pool.name)+' &middot; '+gs.length+' games</span>'+
+      '<button class="btn mini" data-print-court="'+ct+'">Print</button></summary>'+
       '<div class="slots" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">' + gs.map(g =>
         '<div class="slot'+(g.r-1 === LIVE ? ' hl' : '')+'" data-pool="'+g.pool+'">'+
         '<div class="ct tnum">Round '+g.r+' &middot; '+esc(DATA.rounds[g.r-1])+'</div>'+
         '<div class="mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div>'+ finalLine(g) +'</div>').join('') +
-      '</div></div>';
+      '</div></details>';
   }).join('');
 }
 
-$('p-teams').innerHTML = '<div class="teamgrid">' + DATA.pools.map(p =>
-  '<div class="pool"><div class="pool-hd" data-pool="'+p.key+'">'+esc(p.name)+
-    '<em>Courts '+p.courts.join('&ndash;')+'</em></div><ol>' +
+$('p-teams').innerHTML = '<div class="teamgrid">' + DATA.pools.map((p, pi) =>
+  '<details class="pool" data-acc="pools"'+(pi === 0 ? ' open' : '')+'>'+
+  '<summary class="pool-hd" data-pool="'+p.key+'">'+esc(p.name)+
+    '<em>Courts '+p.courts.join('&ndash;')+'</em></summary><ol>' +
     p.teams.slice().sort((a,b) => a.name.localeCompare(b.name)).map(t =>
       '<li><b>'+esc(t.name)+'</b>'+(t.players ? '<span>'+esc(t.players)+'</span>' : '')+'</li>').join('') +
-  '</ol></div>').join('') + '</div>';
+  '</ol></details>').join('') + '</div>';
 
 /* ═══ Live scoring ══════════════════════════════════════ */
 function stateOf(g){
@@ -850,14 +871,28 @@ function stateOf(g){
   const [a,b] = scoreOf(g);
   return a === b ? ['tied', 'Tied — check the sheet'] : ['done', 'Final · ' + esc(winnerOf(g))];
 }
+/* Open the round the desk is most likely to want: the live one, else the
+   earliest with a game still unrecorded, else the first. */
+function firstOpenRound(games){
+  if (LIVE >= 0) return LIVE + 1;
+  for (let r = 1; r <= DATA.rounds.length; r++){
+    const ms = games.filter(g => g.r === r);
+    if (ms.length && ms.some(g => !isFinal(g))) return r;
+  }
+  return 1;
+}
 function renderScoring(div){
   const games = gamesOfDiv(div);
+  const openRound = firstOpenRound(games);
   $('p-sc-' + div).innerHTML = DATA.rounds.map((time, i) => {
     const r = i + 1, ms = games.filter(g => g.r === r).sort((a,b) => a.ct - b.ct);
     if (!ms.length) return '';
-    return '<div class="round'+(i === LIVE ? ' now' : '')+'">'+
-      '<div class="round-hd"><b>Round '+r+'</b><span class="tnum">'+esc(time)+'</span>'+
-      (i === LIVE ? '<span class="nowtag">On now</span>' : '')+'</div>'+
+    const inRound = ms.filter(isFinal).length;
+    return '<details class="round'+(i === LIVE ? ' now' : '')+'" data-acc="sc-'+div+'"'+
+      (r === openRound ? ' open' : '')+'>'+
+      '<summary class="round-hd"><b>Round '+r+'</b><span class="tnum">'+esc(time)+'</span>'+
+      (i === LIVE ? '<span class="nowtag">On now</span>' : '')+
+      '<span class="acc-tally'+(inRound === ms.length ? ' done' : '')+'">'+inRound+'/'+ms.length+'</span></summary>'+
       ms.map(g => {
         const [sa, sb] = scoreOf(g), st = stateOf(g);
         return '<div class="match" data-pool="'+g.pool+'" data-g="'+GID(g)+'">'+
@@ -872,7 +907,7 @@ function renderScoring(div){
           '</div>'+
           '<div class="m-state" data-s="'+st[0]+'">'+st[1]+'</div>'+
         '</div>';
-      }).join('') + '</div>';
+      }).join('') + '</details>';
   }).join('');
 }
 
@@ -1206,7 +1241,10 @@ document.addEventListener('click', e => {
     return;
   }
   const pc = e.target.closest('[data-print-court]');
-  if (pc) printSheets([Number(pc.dataset.printCourt)]);
+  if (pc){
+    e.preventDefault();          // it lives in a <summary>; don't toggle the section
+    printSheets([Number(pc.dataset.printCourt)]);
+  }
 });
 
 /* Seed the bracket the instant the division's last pool score is entered. */
@@ -1301,8 +1339,9 @@ $('printCourts').addEventListener('click', () => printSheets(COURTS));
 $('printMaster').addEventListener('click', () => doPrint(masterSheet(), true));
 
 /* ═══ Height reporting ══════════════════════════════════
-   Tell the host page how tall we are, so a Wix HTML embed can size itself
-   instead of giving this page its own scrollbar. Harmless if nothing listens.
+   Reports our height to whatever embeds us. Wix cannot act on it - its HTML
+   component has no settable height - which is why the views above collapse to
+   stay inside a fixed frame. Kept for any host that can use it.
    Debounced, and only sent on a real change — otherwise a host that resizes
    the frame feeds its own resize straight back in and the page jitters. */
 let lastH = 0, hTimer = null;
@@ -1363,6 +1402,15 @@ secnav.addEventListener('click', e => {
     postHeight();
   }));
 });
+
+/* Only one section open at a time, so a view can never grow past the frame.
+   Native `name` grouping would do this but is too new to rely on here. */
+document.addEventListener('toggle', (e) => {
+  const d = e.target;
+  if (!(d instanceof HTMLDetailsElement) || !d.open || !d.dataset.acc) return;
+  document.querySelectorAll('details[data-acc="' + d.dataset.acc + '"][open]')
+    .forEach(other => { if (other !== d) other.open = false; });
+}, true);
 
 /* ═══ Live sync ═════════════════════════════════════════
    One shared copy of the tournament lives in the site's Wix backend, so the
