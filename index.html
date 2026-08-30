@@ -1392,7 +1392,10 @@ function mergePatch(older, newer){
 /* Changes are queued and sent together a moment later, so typing both halves
    of a score is one write rather than two. */
 function queuePatch(patch){
-  if (applying) return;                     // don't echo a change we just pulled
+  // Only the desk writes. A viewer's bracket still fills in locally from the
+  // synced scores, but pushing it would be refused for want of a PIN and would
+  // leave the page claiming to be offline when it is perfectly connected.
+  if (applying || !unlocked) return;        // don't echo a change we just pulled
   queued = queued ? mergePatch(queued, patch) : patch;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(push, 400);
