@@ -70,6 +70,31 @@
   .scorenote p{font-size:15.5px;line-height:1.45;color:var(--cream);opacity:.92;max-width:60ch}
   .scorenote b{color:var(--sun);font-weight:700}
 
+  /* ── Update banner ──────────────────────────────────── */
+  .updated{background:var(--turf-deep);color:var(--cream);padding:13px 22px;
+           display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+  .updated .when{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+                 letter-spacing:.16em;text-transform:uppercase;color:var(--sun);white-space:nowrap}
+  .updated .what{font-size:14.5px;line-height:1.4;flex:1;min-width:200px}
+  .updated .new{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+                letter-spacing:.14em;text-transform:uppercase;background:var(--sun);color:var(--night);
+                padding:2px 8px;border-radius:3px}
+
+  /* ── Desk lock ──────────────────────────────────────── */
+  .lockbar{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--sun-deep);
+           border-radius:5px;padding:14px 16px;margin-bottom:16px}
+  .lockbar.open{border-left-color:var(--turf)}
+  .lockbar .lk{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+               letter-spacing:.16em;text-transform:uppercase;color:var(--sun-deep);display:block}
+  .lockbar.open .lk{color:var(--turf-deep)}
+  .lockbar p{font-size:14.5px;line-height:1.45;margin:5px 0 10px;color:var(--turf-ink)}
+  .lockbar form{display:flex;gap:8px;flex-wrap:wrap}
+  .lockbar input{font-family:'Barlow',sans-serif;font-size:17px;font-weight:600;letter-spacing:.2em;
+                 padding:11px 13px;border:2px solid var(--line);border-radius:5px;
+                 background:var(--cream);color:var(--turf-ink);width:150px;min-height:44px}
+  .lockbar input:focus-visible{outline:3px solid var(--sun);outline-offset:1px;border-color:var(--turf)}
+  .lockbar .lk-msg{color:var(--loss);font-weight:700;font-size:14px;margin:8px 0 0}
+
   /* ── Section nav ────────────────────────────────────── */
   .secnav{display:flex;gap:0;overflow-x:auto;background:var(--paper);
           border-bottom:2px solid var(--turf);scroll-margin-top:10px;-webkit-overflow-scrolling:touch}
@@ -369,6 +394,7 @@
     <span style="background:var(--turf)"></span><span style="background:var(--night)"></span>
   </div>
   <dl class="facts" id="facts"></dl>
+  <div class="updated" id="updated"></div>
 
   <aside class="scorenote">
     <div class="scorenote-in">
@@ -403,7 +429,7 @@
     <div class="view" id="v-sched" role="tabpanel" hidden>
       <section>
         <h2 class="display">Full schedule</h2>
-        <p class="sub">All six courts run every round. Courts 1&ndash;2 are Social, 3&ndash;4 Comp Pool A, 5&ndash;6 Comp Pool B &mdash; nobody changes courts during pool play.</p>
+        <p class="sub">Courts 1&ndash;2 are Social, 3&ndash;4 Comp Pool A, 5&ndash;6 Comp Pool B &mdash; nobody changes courts during pool play. All six courts run Rounds 1&ndash;9; in Round 10 only Comp Pool A is still playing.</p>
         <div class="btnbar">
           <button class="btn" id="printCourts">Print all 6 court sheets</button>
           <button class="btn ghost" id="printMaster">Print master schedule (1 page)</button>
@@ -422,7 +448,7 @@
     <div class="view" id="v-teams" role="tabpanel" hidden>
       <section>
         <h2 class="display">Teams</h2>
-        <p class="sub">27 teams &mdash; 18 Competitive across two pools of 9, and 9 Social in one pool.</p>
+        <p class="sub" id="teamsNote"></p>
         <div id="p-teams"></div>
       </section>
     </div>
@@ -432,6 +458,7 @@
       <section>
         <h2 class="display">Live scoring</h2>
         <p class="sub">Enter each final as it comes off the sheet. Games are to 25, win by 2, hard cap 30. Scores save on this device and drive standings and the bracket.</p>
+        <div id="lock-scores"></div>
         <p class="savenote" id="saveNote"></p>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-sc-comp" aria-controls="p-sc-comp" aria-selected="true">Competitive</button>
@@ -464,6 +491,7 @@
       <section>
         <h2 class="display">Bracket</h2>
         <p class="sub">Fills itself in the moment the last pool score lands. Tap a team to advance them.</p>
+        <div id="lock-bracket"></div>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-br-comp" aria-controls="p-br-comp" aria-selected="true">Competitive</button>
           <button class="tab" role="tab" id="tab-br-social" aria-controls="p-br-social" aria-selected="false">Social</button>
@@ -492,7 +520,7 @@
 <div id="printRoot"></div>
 
 <script>
-const DATA = {"event":{"name":"Endless Summer Grass Tournament","org":"Surf and Turf","date":"Sunday, August 30, 2026","venue":"Mance Buchanan Park, Oceanside","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~3:30 PM","format":"3v3 Coed","iso":"2026-08-30","startMin":510,"roundMin":25},"rounds":["8:30 – 8:55 AM","8:55 – 9:20 AM","9:20 – 9:45 AM","9:45 – 10:10 AM","10:10 – 10:35 AM","10:35 – 11:00 AM","11:00 – 11:25 AM","11:25 – 11:50 AM","11:50 AM – 12:15 PM"],"pools":[{"key":"S","name":"Social Pool","div":"social","courts":[1,2],"teams":[{"name":"IHOP","players":"David Williams / Mike Gascoine / Courtney Schwingle","tier":"A-Tier"},{"name":"Edge Masters","players":"Maggie Cincotta / Melanie Neilson / Adrian Avila","tier":"B-Tier"},{"name":"Generic team name","players":"Spencer Page / Chelsey Cunningham / Julio","tier":"B-Tier"},{"name":"Jolli-B's","players":"Juvenal Perez / Kirsten Uy / Ken Michael","tier":"B-Tier"},{"name":"OG's","players":"Francisco Cazares / Alan Curiel / Grace Lashley","tier":"C-Tier"},{"name":"Urban Rangers","players":"Dedrean Walton / Faith Swoverland / Faiths Friend","tier":"C-Tier"},{"name":"Waka waka","players":"Joy Agpawa / Jordan Luz / Allison Rogowski","tier":"C-Tier"},{"name":"Lobster too Buttery","players":"Rober / Celine / Zeth","tier":"Unrated"},{"name":"We Like Dykes!","players":"Chip Dykes / Shannon Dykes / Isa","tier":"B-Tier"}]},{"key":"A","name":"Comp Pool A","div":"comp","courts":[3,4],"teams":[{"name":"Beans & Rice","players":"Samuel Garcia / Rojanna Tayco / Abdi Santiago","tier":"S-Tier"},{"name":"'-","players":"Ryan Friedman / Trevor Friedman / Caroline Welsh","tier":"A-Tier"},{"name":"Kiss My Ace","players":"Ruben Sevilla / Maile Sellers / Tritai Ngyuen","tier":"A-Tier"},{"name":"See ball Hit ball","players":"Jared Yamada / Declan / Some girl, figuring it out","tier":"A-Tier"},{"name":"Ace or Out","players":"Diego Schreck / Noah Franco / Amayrani Mondragon","tier":"B-Tier"},{"name":"High impact","players":"Nela Rodriguez Corcuy / Fray Ramirez / Brandon Trugzo","tier":"B-Tier"},{"name":"Hit Happens","players":"Randy Yip / Brandon Luna / Linzi Carter","tier":"B-Tier"},{"name":"Sini Gang","players":"Grover Nuguid / Kimberly Guillen / Jose Cedro III","tier":"B-Tier"},{"name":"Two men and a baby","players":"Benjamin Beltran / Tessa Young / Austin Davis","tier":"B-Tier"}]},{"key":"B","name":"Comp Pool B","div":"comp","courts":[5,6],"teams":[{"name":"Defense is overrated","players":"Jack Vermaak / Christian Gallardi / Haylee Stoner","tier":"S-Tier"},{"name":"Shots fired","players":"Randahl Schreck / James Santos / Kimberly","tier":"S-Tier"},{"name":"Low Expectations","players":"Mia Rose / Abraham Gonzalez / Alexander Kariithi","tier":"A-Tier"},{"name":"Putang ina","players":"Nathaniel Basinger / Claire Henderson / Donovan Dickerson","tier":"A-Tier"},{"name":"Bacon eggs & dih","players":"Victor Saldana / Shyann Bolos / Alijah Saelao","tier":"B-Tier"},{"name":"Butterfly Effect","players":"Lucas-Rex Cube / Avery Diers / Devin Meekins","tier":"B-Tier"},{"name":"JEN","players":"Jennifer NA / Natalie NA / Evan NA","tier":"B-Tier"},{"name":"Lumpia legends","players":"Josh mendoza / Jesse guevara / Keanu cubillan","tier":"B-Tier"},{"name":"CierraIsidroAndres","players":"Andres / Cierra / Isidro","tier":"B-Tier"}]}],"games":[{"r":1,"ct":1,"pool":"S","a":"IHOP","b":"Edge Masters"},{"r":1,"ct":2,"pool":"S","a":"Generic team name","b":"OG's"},{"r":2,"ct":1,"pool":"S","a":"Jolli-B's","b":"OG's"},{"r":2,"ct":2,"pool":"S","a":"Urban Rangers","b":"Lobster too Buttery"},{"r":3,"ct":1,"pool":"S","a":"Waka waka","b":"Lobster too Buttery"},{"r":3,"ct":2,"pool":"S","a":"We Like Dykes!","b":"Edge Masters"},{"r":4,"ct":1,"pool":"S","a":"Edge Masters","b":"Generic team name"},{"r":4,"ct":2,"pool":"S","a":"Jolli-B's","b":"Urban Rangers"},{"r":5,"ct":1,"pool":"S","a":"OG's","b":"Urban Rangers"},{"r":5,"ct":2,"pool":"S","a":"Waka waka","b":"We Like Dykes!"},{"r":6,"ct":1,"pool":"S","a":"Lobster too Buttery","b":"We Like Dykes!"},{"r":6,"ct":2,"pool":"S","a":"IHOP","b":"Generic team name"},{"r":7,"ct":1,"pool":"S","a":"Generic team name","b":"Jolli-B's"},{"r":7,"ct":2,"pool":"S","a":"OG's","b":"Waka waka"},{"r":8,"ct":1,"pool":"S","a":"Urban Rangers","b":"Waka waka"},{"r":8,"ct":2,"pool":"S","a":"Lobster too Buttery","b":"IHOP"},{"r":9,"ct":1,"pool":"S","a":"We Like Dykes!","b":"IHOP"},{"r":9,"ct":2,"pool":"S","a":"Edge Masters","b":"Jolli-B's"},{"r":1,"ct":3,"pool":"A","a":"Beans & Rice","b":"'-"},{"r":1,"ct":4,"pool":"A","a":"Kiss My Ace","b":"Ace or Out"},{"r":2,"ct":3,"pool":"A","a":"See ball Hit ball","b":"Ace or Out"},{"r":2,"ct":4,"pool":"A","a":"High impact","b":"Sini Gang"},{"r":3,"ct":3,"pool":"A","a":"Hit Happens","b":"Sini Gang"},{"r":3,"ct":4,"pool":"A","a":"Two men and a baby","b":"'-"},{"r":4,"ct":3,"pool":"A","a":"'-","b":"Kiss My Ace"},{"r":4,"ct":4,"pool":"A","a":"See ball Hit ball","b":"High impact"},{"r":5,"ct":3,"pool":"A","a":"Ace or Out","b":"High impact"},{"r":5,"ct":4,"pool":"A","a":"Hit Happens","b":"Two men and a baby"},{"r":6,"ct":3,"pool":"A","a":"Sini Gang","b":"Two men and a baby"},{"r":6,"ct":4,"pool":"A","a":"Beans & Rice","b":"Kiss My Ace"},{"r":7,"ct":3,"pool":"A","a":"Kiss My Ace","b":"See ball Hit ball"},{"r":7,"ct":4,"pool":"A","a":"Ace or Out","b":"Hit Happens"},{"r":8,"ct":3,"pool":"A","a":"High impact","b":"Hit Happens"},{"r":8,"ct":4,"pool":"A","a":"Sini Gang","b":"Beans & Rice"},{"r":9,"ct":3,"pool":"A","a":"Two men and a baby","b":"Beans & Rice"},{"r":9,"ct":4,"pool":"A","a":"'-","b":"See ball Hit ball"},{"r":1,"ct":5,"pool":"B","a":"Defense is overrated","b":"Shots fired"},{"r":1,"ct":6,"pool":"B","a":"Low Expectations","b":"Bacon eggs & dih"},{"r":2,"ct":5,"pool":"B","a":"Putang ina","b":"Bacon eggs & dih"},{"r":2,"ct":6,"pool":"B","a":"Butterfly Effect","b":"Lumpia legends"},{"r":3,"ct":5,"pool":"B","a":"JEN","b":"Lumpia legends"},{"r":3,"ct":6,"pool":"B","a":"CierraIsidroAndres","b":"Shots fired"},{"r":4,"ct":5,"pool":"B","a":"Shots fired","b":"Low Expectations"},{"r":4,"ct":6,"pool":"B","a":"Putang ina","b":"Butterfly Effect"},{"r":5,"ct":5,"pool":"B","a":"Bacon eggs & dih","b":"Butterfly Effect"},{"r":5,"ct":6,"pool":"B","a":"JEN","b":"CierraIsidroAndres"},{"r":6,"ct":5,"pool":"B","a":"Lumpia legends","b":"CierraIsidroAndres"},{"r":6,"ct":6,"pool":"B","a":"Defense is overrated","b":"Low Expectations"},{"r":7,"ct":5,"pool":"B","a":"Low Expectations","b":"Putang ina"},{"r":7,"ct":6,"pool":"B","a":"Bacon eggs & dih","b":"JEN"},{"r":8,"ct":5,"pool":"B","a":"Butterfly Effect","b":"JEN"},{"r":8,"ct":6,"pool":"B","a":"Lumpia legends","b":"Defense is overrated"},{"r":9,"ct":5,"pool":"B","a":"CierraIsidroAndres","b":"Defense is overrated"},{"r":9,"ct":6,"pool":"B","a":"Shots fired","b":"Putang ina"}]};
+const DATA = {"event":{"name":"Endless Summer Grass Tournament","org":"Surf and Turf","date":"Sunday, August 30, 2026","venue":"Mance Buchanan Park, Oceanside","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~4:00 PM","format":"3v3 Coed","iso":"2026-08-30","startMin":510,"roundMin":25},"rounds":["8:30 – 8:55 AM","8:55 – 9:20 AM","9:20 – 9:45 AM","9:45 – 10:10 AM","10:10 – 10:35 AM","10:35 – 11:00 AM","11:00 – 11:25 AM","11:25 – 11:50 AM","11:50 AM – 12:15 PM","12:15 – 12:40 PM"],"pools":[{"key":"S","name":"Social Pool","div":"social","courts":[1,2],"teams":[{"name":"IHOP","players":"David Williams / Mike Gascoine / Courtney Schwingle","tier":"A-Tier"},{"name":"Edge Masters","players":"Maggie Cincotta / Melanie Neilson / Adrian Avila","tier":"B-Tier"},{"name":"Generic team name","players":"Spencer Page / Chelsey Cunningham / Julio","tier":"B-Tier"},{"name":"Jolli-B's","players":"Juvenal Perez / Kirsten Uy / Ken Michael","tier":"B-Tier"},{"name":"OG's","players":"Francisco Cazares / Alan Curiel / Grace Lashley","tier":"C-Tier"},{"name":"Urban Rangers","players":"Dedrean Walton / Faith Swoverland / Faiths Friend","tier":"C-Tier"},{"name":"Waka waka","players":"Joy Agpawa / Jordan Luz / Allison Rogowski","tier":"C-Tier"},{"name":"Lobster too Buttery","players":"Rober / Celine / Zeth","tier":"Unrated"},{"name":"We Like Dykes!","players":"Chip Dykes / Shannon Dykes / Isa","tier":"B-Tier"}]},{"key":"A","name":"Comp Pool A","div":"comp","courts":[3,4],"teams":[{"name":"Beans & Rice","players":"Samuel Garcia / Rojanna Tayco / Abdi Santiago","tier":"S-Tier"},{"name":"Triple Dragon","players":"Ryan Friedman / Trevor Friedman / Caroline Welsh","tier":"A-Tier"},{"name":"Kiss My Ace","players":"Ruben Sevilla / Maile Sellers / Tritai Ngyuen","tier":"A-Tier"},{"name":"See ball Hit ball","players":"Jared Yamada / Declan / Some girl, figuring it out","tier":"A-Tier"},{"name":"The goats","players":"Landon lopez / Eli Molina / Brooklyn licalzi","tier":"A-Tier"},{"name":"Ace or Out","players":"Diego Schreck / Noah Franco / Amayrani Mondragon","tier":"B-Tier"},{"name":"High impact","players":"Nela Rodriguez Corcuy / Fray Ramirez / Brandon Trugzo","tier":"B-Tier"},{"name":"Hit Happens","players":"Randy Yip / Brandon Luna / Linzi Carter","tier":"B-Tier"},{"name":"Sini Gang","players":"Grover Nuguid / Kimberly Guillen / Jose Cedro III","tier":"B-Tier"},{"name":"Two men and a baby","players":"Benjamin Beltran / Tessa Young / Austin Davis","tier":"B-Tier"}]},{"key":"B","name":"Comp Pool B","div":"comp","courts":[5,6],"teams":[{"name":"Defense is overrated","players":"Jack Vermaak / Christian Gallardi / Haylee Stoner","tier":"S-Tier"},{"name":"Shots fired","players":"Randahl Schreck / James Santos / Kimberly","tier":"S-Tier"},{"name":"Low Expectations","players":"Mia Rose / Abraham Gonzalez / Alexander Kariithi","tier":"A-Tier"},{"name":"Putang ina","players":"Nathaniel Basinger / Claire Henderson / Donovan Dickerson","tier":"A-Tier"},{"name":"Bacon eggs & dih","players":"Victor Saldana / Shyann Bolos / Alijah Saelao","tier":"B-Tier"},{"name":"Butterfly Effect","players":"Lucas-Rex Cube / Avery Diers / Devin Meekins","tier":"B-Tier"},{"name":"JEN","players":"Jennifer NA / Natalie NA / Evan NA","tier":"B-Tier"},{"name":"Lumpia legends","players":"Josh mendoza / Jesse guevara / Keanu cubillan","tier":"B-Tier"},{"name":"CierraIsidroAndres","players":"Andres / Cierra / Isidro","tier":"B-Tier"}]}],"games":[{"r":1,"ct":1,"pool":"S","a":"IHOP","b":"Edge Masters"},{"r":1,"ct":2,"pool":"S","a":"Generic team name","b":"OG's"},{"r":2,"ct":1,"pool":"S","a":"Jolli-B's","b":"OG's"},{"r":2,"ct":2,"pool":"S","a":"Urban Rangers","b":"Lobster too Buttery"},{"r":3,"ct":1,"pool":"S","a":"Waka waka","b":"Lobster too Buttery"},{"r":3,"ct":2,"pool":"S","a":"We Like Dykes!","b":"Edge Masters"},{"r":4,"ct":1,"pool":"S","a":"Edge Masters","b":"Generic team name"},{"r":4,"ct":2,"pool":"S","a":"Jolli-B's","b":"Urban Rangers"},{"r":5,"ct":1,"pool":"S","a":"OG's","b":"Urban Rangers"},{"r":5,"ct":2,"pool":"S","a":"Waka waka","b":"We Like Dykes!"},{"r":6,"ct":1,"pool":"S","a":"Lobster too Buttery","b":"We Like Dykes!"},{"r":6,"ct":2,"pool":"S","a":"IHOP","b":"Generic team name"},{"r":7,"ct":1,"pool":"S","a":"Generic team name","b":"Jolli-B's"},{"r":7,"ct":2,"pool":"S","a":"OG's","b":"Waka waka"},{"r":8,"ct":1,"pool":"S","a":"Urban Rangers","b":"Waka waka"},{"r":8,"ct":2,"pool":"S","a":"Lobster too Buttery","b":"IHOP"},{"r":9,"ct":1,"pool":"S","a":"We Like Dykes!","b":"IHOP"},{"r":9,"ct":2,"pool":"S","a":"Edge Masters","b":"Jolli-B's"},{"r":1,"ct":3,"pool":"A","a":"Beans & Rice","b":"Triple Dragon"},{"r":1,"ct":4,"pool":"A","a":"The goats","b":"Kiss My Ace"},{"r":2,"ct":3,"pool":"A","a":"See ball Hit ball","b":"Ace or Out"},{"r":2,"ct":4,"pool":"A","a":"High impact","b":"Sini Gang"},{"r":3,"ct":3,"pool":"A","a":"Hit Happens","b":"Sini Gang"},{"r":3,"ct":4,"pool":"A","a":"Two men and a baby","b":"Triple Dragon"},{"r":4,"ct":3,"pool":"A","a":"Triple Dragon","b":"Kiss My Ace"},{"r":4,"ct":4,"pool":"A","a":"The goats","b":"See ball Hit ball"},{"r":5,"ct":3,"pool":"A","a":"Ace or Out","b":"High impact"},{"r":5,"ct":4,"pool":"A","a":"Hit Happens","b":"Two men and a baby"},{"r":6,"ct":3,"pool":"A","a":"Sini Gang","b":"Two men and a baby"},{"r":6,"ct":4,"pool":"A","a":"Beans & Rice","b":"Kiss My Ace"},{"r":7,"ct":3,"pool":"A","a":"Kiss My Ace","b":"See ball Hit ball"},{"r":7,"ct":4,"pool":"A","a":"Ace or Out","b":"Hit Happens"},{"r":8,"ct":3,"pool":"A","a":"The goats","b":"High impact"},{"r":8,"ct":4,"pool":"A","a":"Sini Gang","b":"Beans & Rice"},{"r":9,"ct":3,"pool":"A","a":"Two men and a baby","b":"Beans & Rice"},{"r":9,"ct":4,"pool":"A","a":"Triple Dragon","b":"See ball Hit ball"},{"r":10,"ct":3,"pool":"A","a":"High impact","b":"Hit Happens"},{"r":10,"ct":4,"pool":"A","a":"The goats","b":"Ace or Out"},{"r":1,"ct":5,"pool":"B","a":"Defense is overrated","b":"Shots fired"},{"r":1,"ct":6,"pool":"B","a":"Low Expectations","b":"Bacon eggs & dih"},{"r":2,"ct":5,"pool":"B","a":"Putang ina","b":"Bacon eggs & dih"},{"r":2,"ct":6,"pool":"B","a":"Butterfly Effect","b":"Lumpia legends"},{"r":3,"ct":5,"pool":"B","a":"JEN","b":"Lumpia legends"},{"r":3,"ct":6,"pool":"B","a":"CierraIsidroAndres","b":"Shots fired"},{"r":4,"ct":5,"pool":"B","a":"Shots fired","b":"Low Expectations"},{"r":4,"ct":6,"pool":"B","a":"Putang ina","b":"Butterfly Effect"},{"r":5,"ct":5,"pool":"B","a":"Bacon eggs & dih","b":"Butterfly Effect"},{"r":5,"ct":6,"pool":"B","a":"JEN","b":"CierraIsidroAndres"},{"r":6,"ct":5,"pool":"B","a":"Lumpia legends","b":"CierraIsidroAndres"},{"r":6,"ct":6,"pool":"B","a":"Defense is overrated","b":"Low Expectations"},{"r":7,"ct":5,"pool":"B","a":"Low Expectations","b":"Putang ina"},{"r":7,"ct":6,"pool":"B","a":"Bacon eggs & dih","b":"JEN"},{"r":8,"ct":5,"pool":"B","a":"Butterfly Effect","b":"JEN"},{"r":8,"ct":6,"pool":"B","a":"Lumpia legends","b":"Defense is overrated"},{"r":9,"ct":5,"pool":"B","a":"CierraIsidroAndres","b":"Defense is overrated"},{"r":9,"ct":6,"pool":"B","a":"Shots fired","b":"Putang ina"}]};
 
 /* ═══ Lookups ═══════════════════════════════════════════ */
 const POOL_OF = {}; DATA.pools.forEach(p => p.teams.forEach(t => POOL_OF[t.name] = p));
@@ -508,6 +536,77 @@ const gamesOfDiv = d => DATA.games.filter(g => divOf(g) === d);
 const teamsInDiv = d => DATA.pools.filter(p => p.div === d).reduce((n,p) => n + p.teams.length, 0);
 const DIV_LABEL  = {comp:'Competitive', social:'Social'};
 
+/* ═══ What changed, and when ════════════════════════════
+   Bump `id` whenever the schedule changes: anyone whose browser remembers a
+   different id gets the "new" flag, so teams can tell at a glance that the
+   page is not what they saw last time. */
+const UPDATE = {
+  id: '2026-08-29-2',
+  when: 'Sat Aug 29, 10:59 PM',
+  note: 'Added <b>The goats</b> to Comp Pool A, so Pool A now plays a 10th round at 12:15. ' +
+        '<b>\'-</b> is now <b>Triple Dragon</b>. Four Pool A games changed to make room; ' +
+        'Social and Comp Pool B are exactly as they were.'
+};
+const SEEN_KEY = 'es2026_seen_update';
+
+/* ═══ Desk lock ═════════════════════════════════════════
+   Recording scores and advancing the bracket need the desk PIN. Everyone can
+   still read everything.
+
+   This is a guard against stray taps, not real security. The page is static,
+   so anyone with browser dev tools can get past it - and scores are stored per
+   device anyway, so someone editing on their own phone changes nothing for
+   anybody else. Only the hash of the PIN is stored here, so the PIN itself is
+   not sitting in a public repo. Regenerate with:
+     node -e "crypto.subtle.digest('SHA-256',new TextEncoder().encode('NEWPIN')).then(b=>console.log(Buffer.from(b).toString('hex')))" */
+const PIN_HASH = '91bca017d06790f59b5d54a86a592298c5ad8e88e0b7fc98cae7bdee361473ba';
+const UNLOCK_KEY = 'es2026_desk_unlocked';
+let unlocked = false;
+try { unlocked = localStorage.getItem(UNLOCK_KEY) === PIN_HASH; } catch (e) {}
+
+async function sha256Hex(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function setUnlocked(state){
+  unlocked = state;
+  try {
+    if (state) localStorage.setItem(UNLOCK_KEY, PIN_HASH);
+    else localStorage.removeItem(UNLOCK_KEY);
+  } catch (e) {}
+  renderScoring('comp'); renderScoring('social');
+  renderDerived();
+}
+function renderLocks(){
+  const bar = unlocked
+    ? '<div class="lockbar open"><span class="lk">Desk unlocked</span>' +
+      '<p>Scores and bracket picks can be edited on this device.</p>' +
+      '<button class="btn ghost" data-lock="off">Lock again</button></div>'
+    : '<div class="lockbar"><span class="lk">Locked</span>' +
+      '<p>Anyone can read the scores, standings and bracket. Entering results needs the desk PIN.</p>' +
+      '<form data-lock="on"><input type="password" inputmode="numeric" autocomplete="off" ' +
+      'placeholder="Desk PIN" aria-label="Desk PIN"><button class="btn" type="submit">Unlock</button></form>' +
+      '<p class="lk-msg" hidden></p></div>';
+  ['scores','bracket'].forEach(w => { const el = $('lock-' + w); if (el) el.innerHTML = bar; });
+  const clear = $('clearScores');
+  if (clear) clear.disabled = !unlocked;
+}
+document.addEventListener('submit', async (e) => {
+  const form = e.target.closest('form[data-lock="on"]');
+  if (!form) return;
+  e.preventDefault();
+  const input = form.querySelector('input');
+  const msg = form.parentElement.querySelector('.lk-msg');
+  let entered = '';
+  try { entered = await sha256Hex(input.value.trim()); }
+  catch (err) { if (msg){ msg.hidden = false; msg.textContent = 'This browser will not hash the PIN here.'; } return; }
+  if (entered === PIN_HASH) setUnlocked(true);
+  else if (msg){ msg.hidden = false; msg.textContent = 'That PIN is not right.'; input.value = ''; input.focus(); }
+});
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-lock="off"]')) setUnlocked(false);
+});
+
 /* ═══ Header ════════════════════════════════════════════ */
 $('when').textContent  = E.date;
 $('where').textContent = E.venue;
@@ -517,26 +616,51 @@ $('facts').innerHTML = [
   ['Wraps up', E.finish, 'After the finals']
 ].map(([k,v,s]) => '<div class="fact"><dt>'+k+'</dt><dd>'+v+(s?'<small>'+s+'</small>':'')+'</dd></div>').join('');
 
-$('fmt').innerHTML = [
-  'Two divisions: <b>Competitive</b> (18 teams, two pools of 9) and <b>Social</b> (9 teams, one pool).',
-  'Every team plays <b>4 pool games</b> to 25, win by 2, hard cap 30. No repeat opponents.',
-  'In each pool 4 teams play per round and 5 rest &mdash; check your round numbers, they are not back to back.',
-  'After pool play <b>every team makes the bracket</b>. Single elimination, seeded on pool record.',
-  'Competitive is 18 into a 16-team draw: seeds 1&ndash;14 go straight to the Round of 16, seeds 15&ndash;18 play two play-in games. Social is 9 into 8: seeds 8 and 9 play in.',
-  'Every bracket match is one game to 25. <b>Both finals are best 2 of 3.</b>',
-  'Rules: <a href="https://www.surfandturfvolleyball.net/tournaments">surfandturfvolleyball.net/tournaments</a>'
-].map(t => '<li>'+t+'</li>').join('');
+(function renderUpdated(){
+  let seen = null;
+  try { seen = localStorage.getItem(SEEN_KEY); } catch (e) {}
+  const isNew = seen !== UPDATE.id;
+  $('updated').innerHTML =
+    '<span class="when">Updated ' + esc(UPDATE.when) + '</span>' +
+    (isNew ? '<span class="new">New since you last checked</span>' : '') +
+    '<span class="what">' + UPDATE.note + '</span>';
+  try { localStorage.setItem(SEEN_KEY, UPDATE.id); } catch (e) {}
+})();
+
+const compPools = DATA.pools.filter(p => p.div === 'comp');
+const socialPool = DATA.pools.find(p => p.div === 'social');
+const nComp = teamsInDiv('comp'), nSocial = teamsInDiv('social');
+$('teamsNote').textContent = (nComp + nSocial) + ' teams \u2014 ' + nComp + ' Competitive across ' +
+  (compPools.length === 2 ? 'two pools' : compPools.length + ' pools') + ' of ' +
+  compPools.map(p => p.teams.length).join(' and ') + ', and ' + nSocial + ' Social in one pool.';
+
+function renderFormatNotes(){
+  $('fmt').innerHTML = [
+    'Two divisions: <b>Competitive</b> (' + nComp + ' teams, pools of ' +
+      compPools.map(p => p.teams.length).join(' and ') + ') and <b>Social</b> (' + nSocial + ' teams, one pool).',
+    'Every team plays <b>4 pool games</b> to 25, win by 2, hard cap 30. No repeat opponents.',
+    'In each pool 4 teams play per round and the rest sit &mdash; check your round numbers, they are not back to back.',
+    'Comp Pool A has ten teams, so it alone plays a <b>10th round at 12:15</b>. Everyone else finishes pool play at 12:15.',
+    'After pool play <b>every team makes the bracket</b>. Single elimination, seeded on pool record.',
+    'Competitive is ' + nComp + ' into a 16-team draw: the bottom ' + (CFG.comp.pis.length * 2) +
+      ' seeds play ' + CFG.comp.pis.length + ' play-in games, everyone else starts in the Round of 16. ' +
+      'Social is ' + nSocial + ' into 8: seeds 8 and 9 play in.',
+    'Every bracket match is one game to 25. <b>Both finals are best 2 of 3.</b>',
+    'Rules: <a href="https://www.surfandturfvolleyball.net/tournaments">surfandturfvolleyball.net/tournaments</a>'
+  ].map(t => '<li>'+t+'</li>').join('');
+}
 
 $('timeline').innerHTML = [
   ['8:30 &ndash; 11:50 AM', 'Pool play, Rounds 1&ndash;8 on all six courts.'],
-  ['11:50 AM &ndash; 12:15 PM', 'Round 9 &mdash; the last pool game for every pool.'],
-  ['12:15 &ndash; 12:40 PM', 'Seeding break. Comp play-ins (15v18, 16v17) on Courts 3&ndash;4 &middot; Social play-in (8v9) on Court 1.'],
-  ['12:40 &ndash; 1:30 PM', 'Comp Round of 16 on Courts 3&ndash;6, two waves of four &middot; Social Quarterfinals on Courts 1&ndash;2, two waves of two.'],
-  ['1:30 &ndash; 1:55 PM', 'Comp Quarterfinals on Courts 3&ndash;6, all four at once &middot; Social Semifinals on Courts 1&ndash;2.'],
-  ['1:55 &ndash; 2:20 PM', 'Comp Semifinals on Courts 3&ndash;4 &middot; Social Final, Game 1.'],
-  ['2:20 &ndash; 2:45 PM', 'Comp Final, Game 1 &middot; Social Final, Game 2.'],
-  ['2:45 &ndash; 3:10 PM', 'Comp Final, Game 2 &middot; Social Final, Game 3 if needed, then Social awards.'],
-  ['3:10 &ndash; 3:35 PM', 'Comp Final, Game 3 if needed, then awards. A 2&ndash;0 final wraps the day nearer 3:10.', 'end']
+  ['11:50 AM &ndash; 12:15 PM', 'Round 9 &mdash; last pool game for Social and Comp Pool B.'],
+  ['12:15 &ndash; 12:40 PM', 'Round 10 &mdash; Comp Pool A only, Courts 3&ndash;4 &middot; Social play-in (8v9) on Court 1.'],
+  ['12:40 &ndash; 1:05 PM', 'Comp play-ins (14v19, 15v18, 16v17) on Courts 3&ndash;5 &middot; Social Quarterfinals begin on Courts 1&ndash;2.'],
+  ['1:05 &ndash; 1:55 PM', 'Comp Round of 16 on Courts 3&ndash;6, two waves of four &middot; Social Semifinals on Courts 1&ndash;2.'],
+  ['1:55 &ndash; 2:20 PM', 'Comp Quarterfinals on Courts 3&ndash;6, all four at once &middot; Social Final, Game 1.'],
+  ['2:20 &ndash; 2:45 PM', 'Comp Semifinals on Courts 3&ndash;4 &middot; Social Final, Game 2.'],
+  ['2:45 &ndash; 3:10 PM', 'Comp Final, Game 1 &middot; Social Final, Game 3 if needed, then Social awards.'],
+  ['3:10 &ndash; 3:35 PM', 'Comp Final, Game 2.'],
+  ['3:35 &ndash; 4:00 PM', 'Comp Final, Game 3 if needed, then awards. A 2&ndash;0 final wraps the day nearer 3:35.', 'end']
 ].map(([t,d,cls]) => '<div class="tl-i'+(cls?' '+cls:'')+'"><div class="tl-t tnum">'+t+'</div><div class="tl-d">'+d+'</div></div>').join('');
 
 /* Which round is live right now (tournament day only). */
@@ -711,10 +835,10 @@ function renderScoring(div){
             '<div class="m-mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div></div>'+
           '<div class="m-in">'+
             '<input type="number" inputmode="numeric" min="0" max="'+CAP+'" step="1" placeholder="&ndash;" '+
-              'aria-label="'+esc(g.a)+' score" data-side="0" value="'+(sa === null ? '' : sa)+'">'+
+              'aria-label="'+esc(g.a)+' score" data-side="0" value="'+(sa === null ? '' : sa)+'"'+(unlocked ? '' : ' disabled')+'>'+
             '<span class="dash">&ndash;</span>'+
             '<input type="number" inputmode="numeric" min="0" max="'+CAP+'" step="1" placeholder="&ndash;" '+
-              'aria-label="'+esc(g.b)+' score" data-side="1" value="'+(sb === null ? '' : sb)+'">'+
+              'aria-label="'+esc(g.b)+' score" data-side="1" value="'+(sb === null ? '' : sb)+'"'+(unlocked ? '' : ' disabled')+'>'+
           '</div>'+
           '<div class="m-state" data-s="'+st[0]+'">'+st[1]+'</div>'+
         '</div>';
@@ -727,7 +851,7 @@ function renderScoring(div){
    here and the derived views are refreshed around it. */
 document.addEventListener('input', e => {
   const input = e.target.closest('input[data-side]');
-  if (!input) return;
+  if (!input || !unlocked) return;
   const row = input.closest('.match');
   if (!row) return;
   const gid = row.dataset.g, side = Number(input.dataset.side);
@@ -800,15 +924,17 @@ function renderStandings(){
     comp.map(p => '<h3 class="display">'+esc(p.name)+'</h3>' +
       '<p class="sub">Courts '+p.courts.join('&ndash;')+' &middot; '+p.teams.length+' teams</p>' +
       stTable(tally(DATA.games.filter(g => g.pool === p.key)), {})).join('') +
-    '<h3 class="display">Seeding &mdash; all 18 advance</h3>' +
-    '<p class="sub">Both comp pools combined. Seeds 1&ndash;14 go straight to the Round of 16; the dashed line is where the play-in starts.</p>' +
-    stTable(tally(gamesOfDiv('comp')), {seed:true, cut:14});
+    '<h3 class="display">Seeding &mdash; all ' + teamsInDiv('comp') + ' advance</h3>' +
+    '<p class="sub">Both comp pools combined. Seeds 1&ndash;' + (CFG.comp.draw - CFG.comp.pis.length) +
+      ' go straight to the Round of 16; the dashed line is where the play-in starts.</p>' +
+    stTable(tally(gamesOfDiv('comp')), {seed:true, cut: CFG.comp.draw - CFG.comp.pis.length});
 
   const soc = DATA.pools.find(p => p.div === 'social');
   $('p-sd-social').innerHTML =
-    '<h3 class="display">'+esc(soc.name)+' &mdash; all 9 advance</h3>' +
-    '<p class="sub">Courts '+soc.courts.join('&ndash;')+'. Seeds 1&ndash;7 go straight to the Quarterfinals; seeds 8 and 9 play in.</p>' +
-    stTable(tally(gamesOfDiv('social')), {seed:true, cut:7});
+    '<h3 class="display">'+esc(soc.name)+' &mdash; all ' + teamsInDiv('social') + ' advance</h3>' +
+    '<p class="sub">Courts '+soc.courts.join('&ndash;')+'. Seeds 1&ndash;' + (CFG.social.draw - CFG.social.pis.length) +
+      ' go straight to the Quarterfinals; the rest play in.</p>' +
+    stTable(tally(gamesOfDiv('social')), {seed:true, cut: CFG.social.draw - CFG.social.pis.length});
 }
 
 /* ═══ Bracket ═══════════════════════════════════════════
@@ -893,7 +1019,7 @@ function clearFrom(cfg, st, r){                    // r = first round to wipe
 }
 
 function btnTeam(div, kind, r, i, name, won, seedLabel){
-  const live = !!name && !won2(div);
+  const live = !!name && !won2(div) && unlocked;
   return '<button class="bteam'+(won ? ' won' : '')+(name ? '' : ' tbd')+'" '+
     'data-div="'+div+'" data-kind="'+kind+'" data-r="'+r+'" data-i="'+i+'" '+
     (name ? 'data-name="'+attr(name)+'" ' : '') + (live ? '' : 'disabled ') + '>'+
@@ -933,7 +1059,7 @@ function renderBracket(div){
           : 'Every '+DIV_LABEL[div]+' pool game is final. Locking in the seeding now.')+
       '</div>'+
       (live.length ? '<h4 style="font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.16em;text-transform:uppercase;font-size:13px;color:var(--turf-deep);margin-bottom:8px">Seeding as it stands</h4>' + stTable(tally(games), {seed:true}) : '')+
-      '<div class="btnbar"><button class="btn" data-lock="'+div+'">Fill the bracket now</button></div>';
+      (unlocked ? '<div class="btnbar"><button class="btn" data-fill="'+div+'">Fill the bracket now</button></div>' : '');
     return;
   }
 
@@ -945,8 +1071,10 @@ function renderBracket(div){
         ? 'Seeds 1&ndash;'+(cfg.draw - cfg.pis.length)+' start in the '+roundName(cfg.draw, 0)+'; the bottom '+(cfg.pis.length * 2)+' play in for the last '+cfg.pis.length+' line'+(cfg.pis.length === 1 ? '' : 's')+'. '
         : '') +
       'Every match is one game to 25 &mdash; the Final is best 2 of 3. Tap a team to advance them.</div>'+
-    '<div class="btnbar"><button class="btn ghost" data-clear="'+div+'">Clear picks</button>'+
-      '<button class="btn danger" data-unlock="'+div+'">Unlock &amp; re-seed</button></div>';
+    (unlocked
+      ? '<div class="btnbar"><button class="btn ghost" data-clear="'+div+'">Clear picks</button>'+
+        '<button class="btn danger" data-reseed="'+div+'">Unlock &amp; re-seed</button></div>'
+      : '');
 
   if (cfg.pis.length){
     html += '<div class="bround"><h4>Play-in &mdash; winner takes the seed line</h4><div class="bgrid">' +
@@ -1009,9 +1137,9 @@ document.addEventListener('click', e => {
     saveBracket(div); renderBracket(div); postHeight();
     return;
   }
-  const lock = e.target.closest('[data-lock]');
+  const lock = e.target.closest('[data-fill]');
   if (lock){
-    const div = lock.dataset.lock, seeds = seedsOf(div);
+    const div = lock.dataset.fill, seeds = seedsOf(div);
     if (seeds.length < CFG[div].field){
       lock.insertAdjacentHTML('afterend',
         '<p class="warn" style="margin:10px 0 0">All '+CFG[div].field+' '+DIV_LABEL[div]+
@@ -1033,10 +1161,10 @@ document.addEventListener('click', e => {
     });
     return;
   }
-  const unl = e.target.closest('[data-unlock]');
+  const unl = e.target.closest('[data-reseed]');
   if (unl){
     armConfirm(unl, 'Tap again to unlock', () => {
-      const div = unl.dataset.unlock;
+      const div = unl.dataset.reseed;
       BR[div] = emptyBracket(CFG[div]);
       saveBracket(div); renderBracket(div); postHeight();
     });
@@ -1059,6 +1187,7 @@ function autoLock(div){
 
 /* Everything downstream of a score, in one call. */
 function renderDerived(){
+  renderLocks();
   renderMine();
   renderSchedule();
   renderStandings();
@@ -1203,6 +1332,7 @@ secnav.addEventListener('click', e => {
 /* ═══ Boot ══════════════════════════════════════════════ */
 loadScores();
 loadBrackets();
+renderFormatNotes();
 renderScoring('comp');
 renderScoring('social');
 renderDerived();
