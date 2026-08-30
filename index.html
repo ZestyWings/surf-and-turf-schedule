@@ -23,7 +23,8 @@
     font-family:'Barlow',system-ui,-apple-system,sans-serif;
     font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:940px;margin:0 auto}
+  .wrap{max-width:940px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+  .wrap > main{flex:1 0 auto}
   .display{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;
            text-transform:uppercase;letter-spacing:.005em;line-height:.92}
   .cond{font-family:'Barlow Condensed','Barlow',sans-serif}
@@ -989,14 +990,20 @@ function stTable(rows, opts){
 }
 function renderStandings(){
   const comp = DATA.pools.filter(p => p.div === 'comp');
+  const straight = CFG.comp.draw - CFG.comp.pis.length;
   $('p-sd-comp').innerHTML =
-    comp.map(p => '<h3 class="display">'+esc(p.name)+'</h3>' +
-      '<p class="sub">Courts '+p.courts.join('&ndash;')+' &middot; '+p.teams.length+' teams</p>' +
-      stTable(tally(DATA.games.filter(g => g.pool === p.key)), {})).join('') +
-    '<h3 class="display">Seeding &mdash; all ' + teamsInDiv('comp') + ' advance</h3>' +
-    '<p class="sub">Both comp pools combined. Seeds 1&ndash;' + (CFG.comp.draw - CFG.comp.pis.length) +
-      ' go straight to the Round of 16; the dashed line is where the play-in starts.</p>' +
-    stTable(tally(gamesOfDiv('comp')), {seed:true, cut: CFG.comp.draw - CFG.comp.pis.length});
+    '<details class="round" data-acc="standings" open>' +
+      '<summary class="round-hd"><b>Seeding</b><span>all ' + teamsInDiv('comp') + ' advance</span></summary>' +
+      '<div style="padding:12px 14px 2px">' +
+      '<p class="sub">Both comp pools combined. Seeds 1&ndash;' + straight +
+        ' go straight to the Round of 16; the dashed line is where the play-in starts.</p>' +
+      stTable(tally(gamesOfDiv('comp')), {seed:true, cut: straight}) + '</div></details>' +
+    comp.map(p =>
+      '<details class="round" data-acc="standings">' +
+        '<summary class="round-hd"><b>' + esc(p.name) + '</b><span>Courts ' +
+          p.courts.join('&ndash;') + ' &middot; ' + p.teams.length + ' teams</span></summary>' +
+        '<div style="padding:12px 14px 2px">' +
+        stTable(tally(DATA.games.filter(g => g.pool === p.key)), {}) + '</div></details>').join('');
 
   const soc = DATA.pools.find(p => p.div === 'social');
   $('p-sd-social').innerHTML =
