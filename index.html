@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endless Summer Grass Tournament</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+</head>
+<body>
+<style>
+  :root{
+    --turf:#4E9375; --turf-deep:#2C6350; --turf-ink:#173A2E;
+    --sun:#EFC63F; --sun-deep:#C9A11C;
+    --cream:#F7F3E6; --paper:#FFFDF6; --night:#16283A;
+    --line:#DDD6C0; --dim:#6D7A6C;
+    --win:#2C6350; --loss:#C0492B;
+    --pool-S:var(--sun); --pool-A:var(--turf); --pool-B:var(--night);
+    --step:clamp(14px,3vw,22px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--cream); color:var(--turf-ink);
+    font-family:'Barlow',system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto}
+  .display{font-family:'Anton',Impact,'Arial Narrow',sans-serif;font-weight:400;
+           text-transform:uppercase;letter-spacing:.005em;line-height:.92}
+  .cond{font-family:'Barlow Condensed','Barlow',sans-serif}
+  .tnum{font-variant-numeric:tabular-nums}
+
+  /* ── Hero ───────────────────────────────────────────── */
+  .hero{position:relative;background:var(--turf);color:var(--cream);
+        padding:34px 22px 30px;overflow:hidden}
+  .hero-blob{position:absolute;right:-18%;top:-30%;width:78%;height:150%;
+             background:var(--sun);border-radius:48% 52% 44% 56%/56% 44% 56% 44%;opacity:.95}
+  .hero-steps{position:absolute;right:4%;top:8%;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+  .hero-steps i{display:block;height:9px;background:var(--turf-deep);border-radius:2px}
+  .hero-in{position:relative;z-index:2;max-width:620px}
+  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+           letter-spacing:.22em;text-transform:uppercase;color:var(--cream);opacity:.9;margin-bottom:10px}
+  h1.display{font-size:clamp(40px,11vw,74px);color:var(--cream);text-wrap:balance;margin-bottom:14px}
+  .badge{display:inline-block;background:var(--night);color:var(--sun);
+         font-family:'Anton',sans-serif;text-transform:uppercase;letter-spacing:.09em;
+         font-size:15px;padding:7px 15px 6px;border-radius:3px}
+  .when{margin-top:16px;font-weight:600;font-size:17px;color:var(--cream)}
+  .where{font-size:15px;color:var(--cream);opacity:.88}
+
+  /* stepped divider echoing the flyer graphic */
+  .steps{display:flex;height:var(--step)}
+  .steps span{flex:1}
+
+  /* ── Facts ──────────────────────────────────────────── */
+  .facts{background:var(--sun);padding:16px 22px;display:grid;
+         grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:14px}
+  .fact dt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+           letter-spacing:.13em;text-transform:uppercase;color:var(--night);opacity:.72}
+  .fact dd{font-family:'Anton',sans-serif;font-size:23px;color:var(--night);line-height:1.05;margin-top:3px}
+  .fact dd small{font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;display:block;
+                 letter-spacing:0;opacity:.75;margin-top:2px}
+
+  /* ── Scorekeeping notice ────────────────────────────── */
+  .scorenote{background:var(--night);color:var(--cream);padding:18px 22px}
+  .scorenote-in{display:grid;grid-template-columns:auto 1fr;gap:0 16px;align-items:start;max-width:760px}
+  .scorenote .rule{grid-row:1/3;width:5px;align-self:stretch;background:var(--sun);border-radius:2px}
+  .scorenote .kicker{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+                     letter-spacing:.2em;text-transform:uppercase;color:var(--sun)}
+  .scorenote h2{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
+                font-size:clamp(19px,4.4vw,25px);line-height:1.05;color:var(--cream);margin:5px 0 7px}
+  .scorenote p{font-size:15.5px;line-height:1.45;color:var(--cream);opacity:.92;max-width:60ch}
+  .scorenote b{color:var(--sun);font-weight:700}
+
+  /* ── Section nav ────────────────────────────────────── */
+  .secnav{display:flex;gap:0;overflow-x:auto;background:var(--paper);
+          border-bottom:2px solid var(--turf);scroll-margin-top:10px;-webkit-overflow-scrolling:touch}
+  .secnav button{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
+                 letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+                 padding:14px 15px;border:0;border-bottom:4px solid transparent;
+                 background:none;color:var(--dim);cursor:pointer;min-height:48px}
+  .secnav button[aria-selected="true"]{color:var(--turf-deep);border-bottom-color:var(--sun-deep)}
+  .secnav button:focus-visible{outline:3px solid var(--sun);outline-offset:-3px}
+
+  main{padding:26px 22px 60px}
+  .view[hidden]{display:none}
+  section{margin-bottom:34px}
+  h2.display{font-size:clamp(24px,5vw,32px);color:var(--turf-deep);margin-bottom:4px}
+  h3.display{font-size:clamp(18px,3.6vw,22px);color:var(--turf-deep);margin-bottom:8px}
+  .sub{color:var(--dim);font-size:15px;margin-bottom:16px;max-width:62ch}
+
+  /* ── Team picker ────────────────────────────────────── */
+  .picker{background:var(--paper);border:2px solid var(--turf);border-radius:6px;padding:18px}
+  .picker label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--turf-deep);margin-bottom:7px}
+  select{width:100%;font-family:'Barlow',sans-serif;font-size:17px;font-weight:600;
+         padding:13px 14px;border:2px solid var(--line);border-radius:5px;
+         background:var(--cream);color:var(--turf-ink);appearance:none;cursor:pointer;
+         background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%232C6350' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+         background-repeat:no-repeat;background-position:right 15px center}
+  select:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-color:var(--turf)}
+
+  .mine{margin-top:18px}
+  .mine-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin-bottom:4px}
+  .mine-name{font-family:'Anton',sans-serif;font-size:26px;color:var(--turf-deep);text-transform:uppercase}
+  .roster{color:var(--dim);font-size:14.5px;margin-bottom:14px}
+  .chip{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+        letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:3px;
+        background:var(--turf);color:var(--cream)}
+  .chip[data-pool="S"]{background:var(--sun);color:var(--night)}
+  .chip[data-pool="A"]{background:var(--turf);color:var(--cream)}
+  .chip[data-pool="B"]{background:var(--night);color:var(--cream)}
+
+  .games{display:grid;gap:9px}
+  .game{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:14px;
+        background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--turf);
+        border-radius:5px;padding:12px 14px}
+  .game[data-pool="S"]{border-left-color:var(--sun)}
+  .game[data-pool="A"]{border-left-color:var(--turf)}
+  .game[data-pool="B"]{border-left-color:var(--night)}
+  .game.now{border-color:var(--sun-deep);background:#FFF8DF;box-shadow:0 0 0 2px var(--sun)}
+  .g-rd{font-family:'Anton',sans-serif;font-size:26px;color:var(--turf);line-height:1;text-align:center}
+  .g-rd small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+              letter-spacing:.13em;color:var(--dim);margin-top:2px}
+  .g-main{min-width:0}
+  .g-time{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;
+          letter-spacing:.04em;color:var(--dim)}
+  .g-opp{font-weight:700;font-size:17.5px;line-height:1.25;word-break:break-word}
+  .g-opp span{color:var(--dim);font-weight:500}
+  .g-res{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+         letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+  .g-res.w{color:var(--win)} .g-res.l{color:var(--loss)}
+  .g-court{font-family:'Anton',sans-serif;font-size:15px;text-transform:uppercase;
+           background:var(--turf-ink);color:var(--cream);padding:7px 10px 6px;border-radius:4px;
+           white-space:nowrap;text-align:center;line-height:1.1}
+  .g-court small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:9px;
+                 letter-spacing:.14em;opacity:.7}
+  .nowtag{display:inline-block;background:var(--sun-deep);color:var(--night);
+          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+          letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-left:8px}
+  .empty{color:var(--dim);font-style:italic;padding:12px 0}
+
+  /* ── Tabs ───────────────────────────────────────────── */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;scroll-margin-top:14px}
+  .tab{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.11em;
+       text-transform:uppercase;padding:9px 16px;border:2px solid var(--turf);border-radius:4px;
+       background:transparent;color:var(--turf-deep);cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--turf);color:var(--cream)}
+  .tab:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+  .panel[hidden]{display:none}
+
+  .round{margin-bottom:16px;background:var(--paper);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .round.now{border-color:var(--sun-deep);box-shadow:0 0 0 2px var(--sun)}
+  .round-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;padding:10px 14px;
+            background:var(--turf);color:var(--cream)}
+  .round-hd b{font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+  .round-hd span{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:.05em;opacity:.9}
+  .slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .slot{padding:10px 14px;border-top:1px solid var(--line);border-left:4px solid transparent}
+  .slot[data-pool="S"]{border-left-color:var(--sun)}
+  .slot[data-pool="A"]{border-left-color:var(--turf)}
+  .slot[data-pool="B"]{border-left-color:var(--night)}
+  .slot .ct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+            letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
+  .slot .mu{font-weight:600;font-size:15.5px;line-height:1.3}
+  .slot .mu em{font-style:normal;color:var(--dim);font-weight:500;font-size:13px}
+  .slot .fin{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+             letter-spacing:.08em;color:var(--turf-deep);margin-top:2px}
+  .slot.idle .mu{color:var(--dim);font-style:italic;font-weight:500}
+  .slot.hl{background:#FFF8DF}
+
+  .teamgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .pool{background:var(--paper);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .pool-hd{padding:10px 14px;font-family:'Anton',sans-serif;font-size:17px;text-transform:uppercase;
+           display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .pool-hd[data-pool="S"]{background:var(--sun);color:var(--night)}
+  .pool-hd[data-pool="A"]{background:var(--turf);color:var(--cream)}
+  .pool-hd[data-pool="B"]{background:var(--night);color:var(--cream)}
+  .pool-hd em{font-family:'Barlow Condensed',sans-serif;font-style:normal;font-size:12.5px;
+              font-weight:600;letter-spacing:.1em;opacity:.85}
+  .pool ol{list-style:none;counter-reset:t}
+  .pool li{counter-increment:t;padding:9px 14px;border-top:1px solid var(--line);
+           display:grid;grid-template-columns:22px 1fr;gap:10px}
+  .pool li::before{content:counter(t);font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                   font-size:13px;color:var(--dim);padding-top:2px}
+  .pool li b{font-weight:700;font-size:15.5px;display:block;line-height:1.25}
+  .pool li span{color:var(--dim);font-size:13.5px}
+
+  /* ── Buttons ────────────────────────────────────────── */
+  .btnbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.11em;
+       text-transform:uppercase;padding:11px 16px;border:2px solid var(--turf-deep);border-radius:4px;
+       background:var(--turf-deep);color:var(--cream);cursor:pointer;min-height:44px}
+  .btn.ghost{background:transparent;color:var(--turf-deep)}
+  .btn.danger{background:transparent;border-color:var(--loss);color:var(--loss)}
+  .btn.danger.armed{background:var(--loss);color:var(--cream)}
+  .btn:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+  .btn.mini{padding:5px 10px;font-size:11.5px;letter-spacing:.08em;min-height:0;
+            background:transparent;color:var(--cream);border-color:currentColor}
+
+  /* ── Live scoring ───────────────────────────────────── */
+  .savenote{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+            letter-spacing:.1em;text-transform:uppercase;color:var(--turf-deep);margin-bottom:14px}
+  .match{display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;
+         padding:11px 14px;border-top:1px solid var(--line);border-left:4px solid transparent}
+  .match[data-pool="S"]{border-left-color:var(--sun)}
+  .match[data-pool="A"]{border-left-color:var(--turf)}
+  .match[data-pool="B"]{border-left-color:var(--night)}
+  .m-teams{min-width:0}
+  .m-ct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+        letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
+  .m-mu{font-weight:700;font-size:16px;line-height:1.3;word-break:break-word}
+  .m-mu em{font-style:normal;color:var(--dim);font-weight:500;font-size:13px}
+  .m-in{display:flex;align-items:center;gap:7px}
+  .m-in input{font-family:'Barlow',sans-serif;font-variant-numeric:tabular-nums;
+              width:62px;height:48px;text-align:center;font-size:21px;font-weight:700;
+              color:var(--turf-ink);background:var(--cream);
+              border:2px solid var(--line);border-radius:5px}
+  .m-in input:focus-visible{outline:3px solid var(--sun);outline-offset:1px;border-color:var(--turf)}
+  .m-in .dash{color:var(--dim);font-weight:700}
+  .m-state{grid-column:1/-1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+           letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
+  .m-state[data-s="done"]{color:var(--win)}
+  .m-state[data-s="tied"]{color:var(--loss)}
+
+  /* ── Standings ──────────────────────────────────────── */
+  .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;
+             background:var(--paper);border:1px solid var(--line);border-radius:5px;margin-bottom:18px}
+  table.st{width:100%;border-collapse:collapse;font-size:15px}
+  table.st th{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+              letter-spacing:.13em;text-transform:uppercase;text-align:center;
+              background:var(--turf);color:var(--cream);padding:9px 7px;white-space:nowrap}
+  table.st th.tm{text-align:left;padding-left:14px}
+  table.st td{padding:9px 7px;text-align:center;border-top:1px solid var(--line);
+              font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.st td.tm{text-align:left;padding-left:14px;font-weight:700;white-space:normal;min-width:170px}
+  table.st td.tm small{display:block;font-weight:500;color:var(--dim);font-size:13px}
+  table.st tr.cut td{border-bottom:2px dashed var(--sun-deep)}
+  .seedno{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;
+          border-radius:4px;background:var(--turf-deep);color:var(--cream);
+          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;padding:0 5px}
+  .pos{color:var(--win);font-weight:700} .neg{color:var(--loss);font-weight:700}
+
+  /* ── Bracket ────────────────────────────────────────── */
+  .bnote{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--sun);
+         border-radius:5px;padding:15px 17px;margin-bottom:16px;font-size:15.5px;line-height:1.45}
+  .bnote b{color:var(--turf-deep)}
+  .warn{background:#FFF3D6;border:1px solid var(--sun-deep);border-left:5px solid var(--sun-deep);
+        border-radius:5px;padding:13px 15px;margin-bottom:14px;font-size:15px;font-weight:600;color:var(--night)}
+  .bround{margin-bottom:22px}
+  .bround > h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+               letter-spacing:.16em;text-transform:uppercase;color:var(--turf-deep);
+               padding-bottom:6px;margin-bottom:10px;border-bottom:2px solid var(--line)}
+  .bgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+  .bmatch{background:var(--paper);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .bmatch.pi{border-left:5px solid var(--sun-deep)}
+  .bmatch > .lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+                 letter-spacing:.13em;text-transform:uppercase;color:var(--dim);padding:8px 12px 2px}
+  .bteam{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+         background:none;border:0;border-top:1px solid var(--line);
+         padding:11px 12px;min-height:46px;cursor:pointer;font:inherit;color:var(--turf-ink)}
+  .bmatch > .lbl + .bteam{border-top:0}
+  .bteam:hover:not(:disabled){background:#F0F6F1}
+  .bteam:focus-visible{outline:3px solid var(--sun);outline-offset:-3px}
+  .bteam:disabled{cursor:default}
+  .bteam .nm{flex:1;font-weight:700;font-size:16px;line-height:1.25;word-break:break-word}
+  .bteam .nm small{display:block;font-weight:500;font-size:12.5px;color:var(--dim)}
+  .bteam .sd{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+             color:var(--dim);min-width:22px}
+  .bteam .tick{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+               letter-spacing:.12em;text-transform:uppercase;color:transparent}
+  .bteam.won{background:#E9F3EC}
+  .bteam.won .nm{color:var(--turf-deep)}
+  .bteam.won .tick{color:var(--turf-deep)}
+  .bteam.tbd .nm{color:var(--dim);font-style:italic;font-weight:500}
+  .champ{background:var(--turf-deep);color:var(--cream);border:3px solid var(--sun);
+         border-radius:6px;padding:22px 18px;text-align:center;margin-top:6px}
+  .champ .lbl2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+               letter-spacing:.2em;text-transform:uppercase;color:var(--sun)}
+  .champ .nm2{font-family:'Anton',sans-serif;font-size:clamp(24px,6vw,34px);
+              text-transform:uppercase;line-height:1;margin-top:8px}
+  .series{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
+          letter-spacing:.1em;text-transform:uppercase;color:var(--turf-deep);margin-bottom:10px}
+
+  /* ── Day plan ───────────────────────────────────────── */
+  .tl{position:relative;padding-left:20px;border-left:3px solid var(--line);margin-bottom:26px}
+  .tl-i{position:relative;padding:0 0 18px 18px}
+  .tl-i::before{content:'';position:absolute;left:-29px;top:5px;width:13px;height:13px;
+                background:var(--sun);border:3px solid var(--cream);border-radius:50%}
+  .tl-i.end::before{background:var(--turf)}
+  .tl-t{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+        letter-spacing:.08em;color:var(--turf-deep);font-variant-numeric:tabular-nums}
+  .tl-d{font-size:15px;line-height:1.4}
+
+  .note{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--sun);
+        border-radius:5px;padding:16px 18px}
+  .note h3{font-family:'Anton',sans-serif;font-size:17px;text-transform:uppercase;
+           color:var(--turf-deep);margin-bottom:8px}
+  .note ul{list-style:none;display:grid;gap:7px}
+  .note li{padding-left:18px;position:relative;font-size:15.5px}
+  .note li::before{content:'';position:absolute;left:0;top:9px;width:8px;height:8px;
+                   background:var(--turf);border-radius:1px}
+  .note a{color:var(--turf-deep);font-weight:700}
+  footer{background:var(--turf-deep);color:var(--cream);padding:22px;text-align:center;font-size:14px}
+  footer b{font-family:'Anton',sans-serif;font-size:16px;text-transform:uppercase;letter-spacing:.04em}
+  @media (prefers-reduced-motion:no-preference){.game,.tab,.bteam{transition:box-shadow .15s,background .15s}}
+  @media (max-width:380px){
+    .game{grid-template-columns:44px 1fr;row-gap:9px}
+    .g-court{grid-column:2;justify-self:start}
+    .match{grid-template-columns:1fr}
+  }
+
+  /* ── Print: court sheets + master schedule ──────────── */
+  #printRoot{display:none}
+  @media print{
+    @page{margin:11mm}
+    html,body{background:#fff!important}
+    body{font-family:'Barlow',Arial,sans-serif;font-size:11pt;
+         -webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .wrap{display:none!important}
+    #printRoot{display:block!important}
+    .sheet{page-break-after:always;break-after:page}
+    .sheet:last-child{page-break-after:auto;break-after:auto}
+    .sh-hd{display:flex;justify-content:space-between;align-items:baseline;
+           border-bottom:2.5pt solid #2C6350;padding-bottom:5pt}
+    .sh-brand{font-family:'Anton',Arial,sans-serif;font-size:10pt;letter-spacing:.08em;
+              text-transform:uppercase;color:#2C6350}
+    .sh-date{font-size:8.5pt;color:#555}
+    .sh-ttl{display:flex;justify-content:space-between;align-items:baseline;margin:10pt 0 3pt}
+    .sh-ct{font-family:'Anton',Arial,sans-serif;font-size:30pt;line-height:1;color:#173A2E;text-transform:uppercase}
+    .sh-pool{font-family:'Anton',Arial,sans-serif;font-size:14pt;color:#2C6350;text-transform:uppercase}
+    .sh-sub{font-size:9pt;color:#555;font-style:italic;margin-bottom:9pt}
+    table.sh-t{width:100%;border-collapse:collapse;margin-bottom:10pt}
+    table.sh-t th{font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:#555;
+                  text-align:left;border-bottom:1pt solid #333;padding:0 4pt 3pt}
+    table.sh-t td{border-bottom:.75pt solid #bbb;padding:13pt 4pt;vertical-align:middle}
+    .sh-rd{font-family:'Anton',Arial,sans-serif;font-size:15pt;color:#173A2E;width:8%}
+    .sh-tm{font-size:13.5pt;font-weight:700;color:#000}
+    .sh-a{text-align:right;padding-right:9pt!important}
+    .sh-b{text-align:left;padding-left:9pt!important}
+    .sh-box{width:13%;border:1.25pt solid #333;height:32pt}
+    .sh-ft{border-top:1.5pt solid #2C6350;padding-top:6pt;font-size:8.5pt;color:#333;line-height:1.5}
+    .sh-ft b{color:#173A2E}
+    table.sh-m{width:100%;border-collapse:collapse;font-size:8pt;table-layout:fixed}
+    table.sh-m th,table.sh-m td{border:.75pt solid #999;padding:3.5pt 3pt;vertical-align:top}
+    table.sh-m th{background:#2C6350;color:#fff;text-align:center;letter-spacing:.04em}
+    table.sh-m td.mrd{background:#F7F3E6;text-align:center;font-weight:700;font-size:9pt;width:10%}
+    table.sh-m td.mrd span{display:block;font-size:6.5pt;font-weight:600;line-height:1.35;margin-top:1pt}
+    .mtm{font-weight:700;line-height:1.25}
+    .mvs{color:#999;font-size:6.5pt;font-weight:700}
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-blob"></div>
+    <div class="hero-steps" aria-hidden="true">
+      <i style="width:64px"></i><i style="width:48px"></i><i style="width:32px"></i><i style="width:16px"></i>
+    </div>
+    <div class="hero-in">
+      <p class="eyebrow">Surf and Turf presents</p>
+      <h1 class="display">Endless Summer<br>Grass Tournament</h1>
+      <span class="badge">3v3 &middot; Coed</span>
+      <p class="when" id="when"></p>
+      <p class="where" id="where"></p>
+    </div>
+  </header>
+  <div class="steps" aria-hidden="true">
+    <span style="background:var(--sun)"></span><span style="background:var(--turf)"></span>
+    <span style="background:var(--night)"></span><span style="background:var(--sun)"></span>
+    <span style="background:var(--turf)"></span><span style="background:var(--night)"></span>
+  </div>
+  <dl class="facts" id="facts"></dl>
+
+  <aside class="scorenote">
+    <div class="scorenote-in">
+      <span class="rule" aria-hidden="true"></span>
+      <div>
+        <p class="kicker">Scorekeeping</p>
+        <h2>Teams record their own scores</h2>
+        <p>Every net has a <b>clipboard with that court&rsquo;s printed schedule</b>. After each game, write the
+           final score on that sheet &mdash; it is the official record. The desk types the same scores into
+           <b>Scores</b> here, and standings and the bracket fill themselves in.</p>
+      </div>
+    </div>
+  </aside>
+
+  <nav class="secnav" id="secnav" role="tablist" aria-label="Tournament sections"></nav>
+
+  <main>
+    <!-- ── My team ─────────────────────────────────────── -->
+    <div class="view" id="v-team" role="tabpanel">
+      <section>
+        <h2 class="display">Find your team</h2>
+        <p class="sub">Pick your team to see your four pool games &mdash; round, time, court and opponent.</p>
+        <div class="picker">
+          <label for="teamSel">Your team</label>
+          <select id="teamSel"><option value="">Choose your team&hellip;</option></select>
+          <div class="mine" id="mine"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ── Schedule ────────────────────────────────────── -->
+    <div class="view" id="v-sched" role="tabpanel" hidden>
+      <section>
+        <h2 class="display">Full schedule</h2>
+        <p class="sub">All six courts run every round. Courts 1&ndash;2 are Social, 3&ndash;4 Comp Pool A, 5&ndash;6 Comp Pool B &mdash; nobody changes courts during pool play.</p>
+        <div class="btnbar">
+          <button class="btn" id="printCourts">Print all 6 court sheets</button>
+          <button class="btn ghost" id="printMaster">Print master schedule (1 page)</button>
+        </div>
+        <p class="sub">Court sheets print one court per page with blank score boxes &mdash; tape one to each net. The master is all 54 games on a single landscape page for the desk.</p>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tab-round" aria-controls="p-round" aria-selected="true">By round</button>
+          <button class="tab" role="tab" id="tab-court" aria-controls="p-court" aria-selected="false">By court</button>
+        </div>
+        <div class="panel" id="p-round" role="tabpanel" aria-labelledby="tab-round"></div>
+        <div class="panel" id="p-court" role="tabpanel" aria-labelledby="tab-court" hidden></div>
+      </section>
+    </div>
+
+    <!-- ── Teams ───────────────────────────────────────── -->
+    <div class="view" id="v-teams" role="tabpanel" hidden>
+      <section>
+        <h2 class="display">Teams</h2>
+        <p class="sub">27 teams &mdash; 18 Competitive across two pools of 9, and 9 Social in one pool.</p>
+        <div id="p-teams"></div>
+      </section>
+    </div>
+
+    <!-- ── Scores ──────────────────────────────────────── -->
+    <div class="view" id="v-scores" role="tabpanel" hidden>
+      <section>
+        <h2 class="display">Live scoring</h2>
+        <p class="sub">Enter each final as it comes off the sheet. Games are to 25, win by 2, hard cap 30. Scores save on this device and drive standings and the bracket.</p>
+        <p class="savenote" id="saveNote"></p>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tab-sc-comp" aria-controls="p-sc-comp" aria-selected="true">Competitive</button>
+          <button class="tab" role="tab" id="tab-sc-social" aria-controls="p-sc-social" aria-selected="false">Social</button>
+        </div>
+        <div class="panel" id="p-sc-comp" role="tabpanel" aria-labelledby="tab-sc-comp"></div>
+        <div class="panel" id="p-sc-social" role="tabpanel" aria-labelledby="tab-sc-social" hidden></div>
+        <div class="btnbar" style="margin-top:18px">
+          <button class="btn danger" id="clearScores">Clear all scores</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ── Standings ───────────────────────────────────── -->
+    <div class="view" id="v-standings" role="tabpanel" hidden>
+      <section>
+        <h2 class="display">Standings</h2>
+        <p class="sub">Wins first, then point differential, then points scored. If two teams finish dead even, settle it head to head at the desk.</p>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tab-sd-comp" aria-controls="p-sd-comp" aria-selected="true">Competitive</button>
+          <button class="tab" role="tab" id="tab-sd-social" aria-controls="p-sd-social" aria-selected="false">Social</button>
+        </div>
+        <div class="panel" id="p-sd-comp" role="tabpanel" aria-labelledby="tab-sd-comp"></div>
+        <div class="panel" id="p-sd-social" role="tabpanel" aria-labelledby="tab-sd-social" hidden></div>
+      </section>
+    </div>
+
+    <!-- ── Bracket ─────────────────────────────────────── -->
+    <div class="view" id="v-bracket" role="tabpanel" hidden>
+      <section>
+        <h2 class="display">Bracket</h2>
+        <p class="sub">Fills itself in the moment the last pool score lands. Tap a team to advance them.</p>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tab-br-comp" aria-controls="p-br-comp" aria-selected="true">Competitive</button>
+          <button class="tab" role="tab" id="tab-br-social" aria-controls="p-br-social" aria-selected="false">Social</button>
+        </div>
+        <div class="panel" id="p-br-comp" role="tabpanel" aria-labelledby="tab-br-comp"></div>
+        <div class="panel" id="p-br-social" role="tabpanel" aria-labelledby="tab-br-social" hidden></div>
+      </section>
+    </div>
+
+    <!-- ── Day plan ────────────────────────────────────── -->
+    <div class="view" id="v-day" role="tabpanel" hidden>
+      <section>
+        <h2 class="display">How the day runs</h2>
+        <p class="sub">Rounds are 25 minutes &mdash; a game to 25 plus changeover. Everything below is the plan, not a promise; the desk calls the real start of each round.</p>
+        <div class="tl" id="timeline"></div>
+        <div class="note">
+          <h3>Format</h3>
+          <ul id="fmt"></ul>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer><b>See you on the grass.</b></footer>
+</div>
+
+<div id="printRoot"></div>
+
+<script>
+const DATA = {"event":{"name":"Endless Summer Grass Tournament","org":"Surf and Turf","date":"Sunday, August 30, 2026","venue":"Mance Buchanan Park, Oceanside","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~3:30 PM","format":"3v3 Coed","iso":"2026-08-30","startMin":510,"roundMin":25},"rounds":["8:30 – 8:55 AM","8:55 – 9:20 AM","9:20 – 9:45 AM","9:45 – 10:10 AM","10:10 – 10:35 AM","10:35 – 11:00 AM","11:00 – 11:25 AM","11:25 – 11:50 AM","11:50 AM – 12:15 PM"],"pools":[{"key":"S","name":"Social Pool","div":"social","courts":[1,2],"teams":[{"name":"IHOP","players":"David Williams / Mike Gascoine / Courtney Schwingle","tier":"A-Tier"},{"name":"Edge Masters","players":"Maggie Cincotta / Melanie Neilson / Adrian Avila","tier":"B-Tier"},{"name":"Generic team name","players":"Spencer Page / Chelsey Cunningham / Julio","tier":"B-Tier"},{"name":"Jolli-B's","players":"Juvenal Perez / Kirsten Uy / Ken Michael","tier":"B-Tier"},{"name":"OG's","players":"Francisco Cazares / Alan Curiel / Grace Lashley","tier":"C-Tier"},{"name":"Urban Rangers","players":"Dedrean Walton / Faith Swoverland / Faiths Friend","tier":"C-Tier"},{"name":"Waka waka","players":"Joy Agpawa / Jordan Luz / Allison Rogowski","tier":"C-Tier"},{"name":"Lobster too Buttery","players":"Rober / Celine / Zeth","tier":"Unrated"},{"name":"We Like Dykes!","players":"Chip Dykes / Shannon Dykes / Isa","tier":"B-Tier"}]},{"key":"A","name":"Comp Pool A","div":"comp","courts":[3,4],"teams":[{"name":"Beans & Rice","players":"Samuel Garcia / Rojanna Tayco / Abdi Santiago","tier":"S-Tier"},{"name":"'-","players":"Ryan Friedman / Trevor Friedman / Caroline Welsh","tier":"A-Tier"},{"name":"Kiss My Ace","players":"Ruben Sevilla / Maile Sellers / Tritai Ngyuen","tier":"A-Tier"},{"name":"See ball Hit ball","players":"Jared Yamada / Declan / Some girl, figuring it out","tier":"A-Tier"},{"name":"Ace or Out","players":"Diego Schreck / Noah Franco / Amayrani Mondragon","tier":"B-Tier"},{"name":"High impact","players":"Nela Rodriguez Corcuy / Fray Ramirez / Brandon Trugzo","tier":"B-Tier"},{"name":"Hit Happens","players":"Randy Yip / Brandon Luna / Linzi Carter","tier":"B-Tier"},{"name":"Sini Gang","players":"Grover Nuguid / Kimberly Guillen / Jose Cedro III","tier":"B-Tier"},{"name":"Two men and a baby","players":"Benjamin Beltran / Tessa Young / Austin Davis","tier":"B-Tier"}]},{"key":"B","name":"Comp Pool B","div":"comp","courts":[5,6],"teams":[{"name":"Defense is overrated","players":"Jack Vermaak / Christian Gallardi / Haylee Stoner","tier":"S-Tier"},{"name":"Shots fired","players":"Randahl Schreck / James Santos / Kimberly","tier":"S-Tier"},{"name":"Low Expectations","players":"Mia Rose / Abraham Gonzalez / Alexander Kariithi","tier":"A-Tier"},{"name":"Putang ina","players":"Nathaniel Basinger / Claire Henderson / Donovan Dickerson","tier":"A-Tier"},{"name":"Bacon eggs & dih","players":"Victor Saldana / Shyann Bolos / Alijah Saelao","tier":"B-Tier"},{"name":"Butterfly Effect","players":"Lucas-Rex Cube / Avery Diers / Devin Meekins","tier":"B-Tier"},{"name":"JEN","players":"Jennifer NA / Natalie NA / Evan NA","tier":"B-Tier"},{"name":"Lumpia legends","players":"Josh mendoza / Jesse guevara / Keanu cubillan","tier":"B-Tier"},{"name":"CierraIsidroAndres","players":"Andres / Cierra / Isidro","tier":"B-Tier"}]}],"games":[{"r":1,"ct":1,"pool":"S","a":"IHOP","b":"Edge Masters"},{"r":1,"ct":2,"pool":"S","a":"Generic team name","b":"OG's"},{"r":2,"ct":1,"pool":"S","a":"Jolli-B's","b":"OG's"},{"r":2,"ct":2,"pool":"S","a":"Urban Rangers","b":"Lobster too Buttery"},{"r":3,"ct":1,"pool":"S","a":"Waka waka","b":"Lobster too Buttery"},{"r":3,"ct":2,"pool":"S","a":"We Like Dykes!","b":"Edge Masters"},{"r":4,"ct":1,"pool":"S","a":"Edge Masters","b":"Generic team name"},{"r":4,"ct":2,"pool":"S","a":"Jolli-B's","b":"Urban Rangers"},{"r":5,"ct":1,"pool":"S","a":"OG's","b":"Urban Rangers"},{"r":5,"ct":2,"pool":"S","a":"Waka waka","b":"We Like Dykes!"},{"r":6,"ct":1,"pool":"S","a":"Lobster too Buttery","b":"We Like Dykes!"},{"r":6,"ct":2,"pool":"S","a":"IHOP","b":"Generic team name"},{"r":7,"ct":1,"pool":"S","a":"Generic team name","b":"Jolli-B's"},{"r":7,"ct":2,"pool":"S","a":"OG's","b":"Waka waka"},{"r":8,"ct":1,"pool":"S","a":"Urban Rangers","b":"Waka waka"},{"r":8,"ct":2,"pool":"S","a":"Lobster too Buttery","b":"IHOP"},{"r":9,"ct":1,"pool":"S","a":"We Like Dykes!","b":"IHOP"},{"r":9,"ct":2,"pool":"S","a":"Edge Masters","b":"Jolli-B's"},{"r":1,"ct":3,"pool":"A","a":"Beans & Rice","b":"'-"},{"r":1,"ct":4,"pool":"A","a":"Kiss My Ace","b":"Ace or Out"},{"r":2,"ct":3,"pool":"A","a":"See ball Hit ball","b":"Ace or Out"},{"r":2,"ct":4,"pool":"A","a":"High impact","b":"Sini Gang"},{"r":3,"ct":3,"pool":"A","a":"Hit Happens","b":"Sini Gang"},{"r":3,"ct":4,"pool":"A","a":"Two men and a baby","b":"'-"},{"r":4,"ct":3,"pool":"A","a":"'-","b":"Kiss My Ace"},{"r":4,"ct":4,"pool":"A","a":"See ball Hit ball","b":"High impact"},{"r":5,"ct":3,"pool":"A","a":"Ace or Out","b":"High impact"},{"r":5,"ct":4,"pool":"A","a":"Hit Happens","b":"Two men and a baby"},{"r":6,"ct":3,"pool":"A","a":"Sini Gang","b":"Two men and a baby"},{"r":6,"ct":4,"pool":"A","a":"Beans & Rice","b":"Kiss My Ace"},{"r":7,"ct":3,"pool":"A","a":"Kiss My Ace","b":"See ball Hit ball"},{"r":7,"ct":4,"pool":"A","a":"Ace or Out","b":"Hit Happens"},{"r":8,"ct":3,"pool":"A","a":"High impact","b":"Hit Happens"},{"r":8,"ct":4,"pool":"A","a":"Sini Gang","b":"Beans & Rice"},{"r":9,"ct":3,"pool":"A","a":"Two men and a baby","b":"Beans & Rice"},{"r":9,"ct":4,"pool":"A","a":"'-","b":"See ball Hit ball"},{"r":1,"ct":5,"pool":"B","a":"Defense is overrated","b":"Shots fired"},{"r":1,"ct":6,"pool":"B","a":"Low Expectations","b":"Bacon eggs & dih"},{"r":2,"ct":5,"pool":"B","a":"Putang ina","b":"Bacon eggs & dih"},{"r":2,"ct":6,"pool":"B","a":"Butterfly Effect","b":"Lumpia legends"},{"r":3,"ct":5,"pool":"B","a":"JEN","b":"Lumpia legends"},{"r":3,"ct":6,"pool":"B","a":"CierraIsidroAndres","b":"Shots fired"},{"r":4,"ct":5,"pool":"B","a":"Shots fired","b":"Low Expectations"},{"r":4,"ct":6,"pool":"B","a":"Putang ina","b":"Butterfly Effect"},{"r":5,"ct":5,"pool":"B","a":"Bacon eggs & dih","b":"Butterfly Effect"},{"r":5,"ct":6,"pool":"B","a":"JEN","b":"CierraIsidroAndres"},{"r":6,"ct":5,"pool":"B","a":"Lumpia legends","b":"CierraIsidroAndres"},{"r":6,"ct":6,"pool":"B","a":"Defense is overrated","b":"Low Expectations"},{"r":7,"ct":5,"pool":"B","a":"Low Expectations","b":"Putang ina"},{"r":7,"ct":6,"pool":"B","a":"Bacon eggs & dih","b":"JEN"},{"r":8,"ct":5,"pool":"B","a":"Butterfly Effect","b":"JEN"},{"r":8,"ct":6,"pool":"B","a":"Lumpia legends","b":"Defense is overrated"},{"r":9,"ct":5,"pool":"B","a":"CierraIsidroAndres","b":"Defense is overrated"},{"r":9,"ct":6,"pool":"B","a":"Shots fired","b":"Putang ina"}]};
+
+/* ═══ Lookups ═══════════════════════════════════════════ */
+const POOL_OF = {}; DATA.pools.forEach(p => p.teams.forEach(t => POOL_OF[t.name] = p));
+const TEAM    = {}; DATA.pools.forEach(p => p.teams.forEach(t => TEAM[t.name] = t));
+const POOL    = {}; DATA.pools.forEach(p => POOL[p.key] = p);
+const COURTS  = [1,2,3,4,5,6];
+const E = DATA.event;
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+
+const divOf      = g => POOL[g.pool].div;
+const gamesOfDiv = d => DATA.games.filter(g => divOf(g) === d);
+const teamsInDiv = d => DATA.pools.filter(p => p.div === d).reduce((n,p) => n + p.teams.length, 0);
+const DIV_LABEL  = {comp:'Competitive', social:'Social'};
+
+/* ═══ Header ════════════════════════════════════════════ */
+$('when').textContent  = E.date;
+$('where').textContent = E.venue;
+$('facts').innerHTML = [
+  ['Check-in', E.checkin, ''], ['First serve', E.firstServe, 'All 6 courts'],
+  ['Pool games', '4', 'Guaranteed, every team'], ['Bracket', 'Everyone', 'No cut'],
+  ['Wraps up', E.finish, 'After the finals']
+].map(([k,v,s]) => '<div class="fact"><dt>'+k+'</dt><dd>'+v+(s?'<small>'+s+'</small>':'')+'</dd></div>').join('');
+
+$('fmt').innerHTML = [
+  'Two divisions: <b>Competitive</b> (18 teams, two pools of 9) and <b>Social</b> (9 teams, one pool).',
+  'Every team plays <b>4 pool games</b> to 25, win by 2, hard cap 30. No repeat opponents.',
+  'In each pool 4 teams play per round and 5 rest &mdash; check your round numbers, they are not back to back.',
+  'After pool play <b>every team makes the bracket</b>. Single elimination, seeded on pool record.',
+  'Competitive is 18 into a 16-team draw: seeds 1&ndash;14 go straight to the Round of 16, seeds 15&ndash;18 play two play-in games. Social is 9 into 8: seeds 8 and 9 play in.',
+  'Every bracket match is one game to 25. <b>Both finals are best 2 of 3.</b>',
+  'Rules: <a href="https://www.surfandturfvolleyball.net/tournaments">surfandturfvolleyball.net/tournaments</a>'
+].map(t => '<li>'+t+'</li>').join('');
+
+$('timeline').innerHTML = [
+  ['8:30 &ndash; 11:50 AM', 'Pool play, Rounds 1&ndash;8 on all six courts.'],
+  ['11:50 AM &ndash; 12:15 PM', 'Round 9 &mdash; the last pool game for every pool.'],
+  ['12:15 &ndash; 12:40 PM', 'Seeding break. Comp play-ins (15v18, 16v17) on Courts 3&ndash;4 &middot; Social play-in (8v9) on Court 1.'],
+  ['12:40 &ndash; 1:30 PM', 'Comp Round of 16 on Courts 3&ndash;6, two waves of four &middot; Social Quarterfinals on Courts 1&ndash;2, two waves of two.'],
+  ['1:30 &ndash; 1:55 PM', 'Comp Quarterfinals on Courts 3&ndash;6, all four at once &middot; Social Semifinals on Courts 1&ndash;2.'],
+  ['1:55 &ndash; 2:20 PM', 'Comp Semifinals on Courts 3&ndash;4 &middot; Social Final, Game 1.'],
+  ['2:20 &ndash; 2:45 PM', 'Comp Final, Game 1 &middot; Social Final, Game 2.'],
+  ['2:45 &ndash; 3:10 PM', 'Comp Final, Game 2 &middot; Social Final, Game 3 if needed, then Social awards.'],
+  ['3:10 &ndash; 3:35 PM', 'Comp Final, Game 3 if needed, then awards. A 2&ndash;0 final wraps the day nearer 3:10.', 'end']
+].map(([t,d,cls]) => '<div class="tl-i'+(cls?' '+cls:'')+'"><div class="tl-t tnum">'+t+'</div><div class="tl-d">'+d+'</div></div>').join('');
+
+/* Which round is live right now (tournament day only). */
+function liveRound(){
+  const now = new Date(), d = new Date(DATA.event.iso + 'T00:00:00');
+  if (now.toDateString() !== d.toDateString()) return -1;
+  const mins = now.getHours()*60 + now.getMinutes();
+  const i = Math.floor((mins - DATA.event.startMin) / DATA.event.roundMin);
+  return (i >= 0 && i < DATA.rounds.length) ? i : -1;
+}
+const LIVE = liveRound();
+
+/* ═══ Scores ════════════════════════════════════════════
+   One entry per game, keyed "round-court", persisted on this device.
+   Everything downstream — standings, seeding, the bracket — is derived,
+   so this object is the only scoring state there is.                    */
+const SCORE_KEY = 'es2026_scores_v1';
+const CAP = 30;                       // to 25, win by 2, hard cap 30
+const GID = g => g.r + '-' + g.ct;
+let SCORES = {};
+let storageOK = true;
+
+function loadScores(){
+  try { SCORES = JSON.parse(localStorage.getItem(SCORE_KEY) || '{}') || {}; }
+  catch (e) { SCORES = {}; storageOK = false; }
+}
+function saveScores(){
+  try { localStorage.setItem(SCORE_KEY, JSON.stringify(SCORES)); storageOK = true; }
+  catch (e) { storageOK = false; }
+  noteSaved();
+}
+function scoreOf(g){ return SCORES[GID(g)] || [null, null]; }
+function isFinal(g){ const s = scoreOf(g); return s[0] !== null && s[1] !== null; }
+function winnerOf(g){
+  const [a,b] = scoreOf(g);
+  if (a === null || b === null || a === b) return null;
+  return a > b ? g.a : g.b;
+}
+function noteSaved(){
+  const done = DATA.games.filter(isFinal).length;
+  $('saveNote').textContent = !storageOK
+    ? 'This browser is blocking local storage — scores will not survive a refresh.'
+    : done + ' of ' + DATA.games.length + ' pool games recorded · saved on this device';
+}
+
+/* Wins, then point differential, then points for, then name. */
+function tally(games){
+  const t = {};
+  games.forEach(g => {
+    [g.a, g.b].forEach(n => { if (!t[n]) t[n] = {name:n, w:0, l:0, pf:0, pa:0}; });
+    const [sa, sb] = scoreOf(g);
+    if (sa === null || sb === null) return;
+    t[g.a].pf += sa; t[g.a].pa += sb;
+    t[g.b].pf += sb; t[g.b].pa += sa;
+    if (sa > sb) { t[g.a].w++; t[g.b].l++; }
+    else if (sb > sa) { t[g.b].w++; t[g.a].l++; }
+  });
+  return Object.values(t).map(x => ({...x, diff: x.pf - x.pa}))
+    .sort((a,b) => b.w - a.w || b.diff - a.diff || b.pf - a.pf || a.name.localeCompare(b.name));
+}
+const seedsOf = div => tally(gamesOfDiv(div)).map(t => t.name);
+
+/* ═══ My team ═══════════════════════════════════════════ */
+const teamSel = $('teamSel');
+DATA.pools.forEach(p => {
+  const g = document.createElement('optgroup');
+  g.label = p.name;
+  p.teams.slice().sort((a,b) => a.name.localeCompare(b.name))
+    .forEach(t => { const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; g.appendChild(o); });
+  teamSel.appendChild(g);
+});
+
+function gamesFor(name){
+  return DATA.games.filter(g => g.a === name || g.b === name)
+    .map(g => ({...g, opp: g.a === name ? g.b : g.a}))
+    .sort((x,y) => x.r - y.r);
+}
+function renderMine(){
+  const name = teamSel.value, box = $('mine');
+  if (!name) { box.innerHTML = ''; return; }
+  const t = TEAM[name], pool = POOL_OF[name], gs = gamesFor(name);
+  const rec = tally(DATA.games.filter(g => g.pool === pool.key)).find(x => x.name === name);
+  box.innerHTML =
+    '<div class="mine-head"><span class="mine-name">'+esc(name)+'</span>'+
+      '<span class="chip" data-pool="'+pool.key+'">'+esc(pool.name)+' &middot; Courts '+pool.courts.join(' &amp; ')+'</span>'+
+      (rec && (rec.w + rec.l) ? '<span class="chip" data-pool="'+pool.key+'">'+rec.w+'&ndash;'+rec.l+'</span>' : '')+
+    '</div>'+
+    (t.players ? '<p class="roster">'+esc(t.players)+'</p>' : '') +
+    '<div class="games">' + gs.map(g => {
+      const [sa, sb] = scoreOf(g);
+      const mine = g.a === name ? sa : sb, theirs = g.a === name ? sb : sa;
+      const res = !isFinal(g) ? ''
+        : (mine === theirs ? '<div class="g-res">Tied '+mine+'&ndash;'+theirs+' &middot; check the sheet</div>'
+          : '<div class="g-res '+(mine > theirs ? 'w' : 'l')+'">'+(mine > theirs ? 'Won ' : 'Lost ')+mine+'&ndash;'+theirs+'</div>');
+      return '<div class="game'+(g.r-1 === LIVE ? ' now' : '')+'" data-pool="'+g.pool+'">'+
+        '<div class="g-rd">'+g.r+'<small>Round</small></div>'+
+        '<div class="g-main"><div class="g-time tnum">'+esc(DATA.rounds[g.r-1])+
+          (g.r-1 === LIVE ? '<span class="nowtag">On now</span>' : '')+'</div>'+
+          '<div class="g-opp"><span>vs</span> '+esc(g.opp)+'</div>'+ res +'</div>'+
+        '<div class="g-court">'+g.ct+'<small>Court</small></div>'+
+      '</div>';
+    }).join('') + '</div>';
+}
+teamSel.addEventListener('change', () => {
+  renderMine();
+  try { localStorage.setItem('es_team', teamSel.value); } catch (err) {}
+  postHeight();
+});
+try {
+  const saved = localStorage.getItem('es_team');
+  if (saved && TEAM[saved]) teamSel.value = saved;
+} catch (err) {}
+
+/* ═══ Schedule panels ═══════════════════════════════════ */
+function finalLine(g){
+  if (!isFinal(g)) return '';
+  const [a,b] = scoreOf(g), w = winnerOf(g);
+  return '<div class="fin tnum">'+a+'&ndash;'+b+(w ? ' &middot; ' + esc(w) : ' &middot; tied')+'</div>';
+}
+function renderSchedule(){
+  $('p-round').innerHTML = DATA.rounds.map((time, i) => {
+    const r = i + 1, ms = DATA.games.filter(g => g.r === r);
+    const slots = COURTS.map(ct => {
+      const g = ms.find(x => x.ct === ct);
+      if (!g) return '<div class="slot idle"><div class="ct">Court '+ct+'</div><div class="mu">Idle this round</div></div>';
+      return '<div class="slot" data-pool="'+g.pool+'"><div class="ct">Court '+ct+'</div>'+
+             '<div class="mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div>'+ finalLine(g) +'</div>';
+    }).join('');
+    return '<div class="round'+(i === LIVE ? ' now' : '')+'"><div class="round-hd"><b>Round '+r+'</b>'+
+           '<span class="tnum">'+esc(time)+'</span>'+
+           (i === LIVE ? '<span class="nowtag">On now</span>' : '')+'</div><div class="slots">'+slots+'</div></div>';
+  }).join('');
+
+  $('p-court').innerHTML = COURTS.map(ct => {
+    const pool = DATA.pools.find(p => p.courts.includes(ct));
+    const gs = DATA.games.filter(g => g.ct === ct).sort((a,b) => a.r - b.r);
+    return '<div class="round"><div class="round-hd"><b>Court '+ct+'</b><span>'+esc(pool.name)+' &middot; '+gs.length+' games</span>'+
+      '<button class="btn mini" data-print-court="'+ct+'">Print</button></div>'+
+      '<div class="slots" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">' + gs.map(g =>
+        '<div class="slot'+(g.r-1 === LIVE ? ' hl' : '')+'" data-pool="'+g.pool+'">'+
+        '<div class="ct tnum">Round '+g.r+' &middot; '+esc(DATA.rounds[g.r-1])+'</div>'+
+        '<div class="mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div>'+ finalLine(g) +'</div>').join('') +
+      '</div></div>';
+  }).join('');
+}
+
+$('p-teams').innerHTML = '<div class="teamgrid">' + DATA.pools.map(p =>
+  '<div class="pool"><div class="pool-hd" data-pool="'+p.key+'">'+esc(p.name)+
+    '<em>Courts '+p.courts.join('&ndash;')+'</em></div><ol>' +
+    p.teams.slice().sort((a,b) => a.name.localeCompare(b.name)).map(t =>
+      '<li><b>'+esc(t.name)+'</b>'+(t.players ? '<span>'+esc(t.players)+'</span>' : '')+'</li>').join('') +
+  '</ol></div>').join('') + '</div>';
+
+/* ═══ Live scoring ══════════════════════════════════════ */
+function stateOf(g){
+  if (!isFinal(g)) return ['pending', 'Pending'];
+  const [a,b] = scoreOf(g);
+  return a === b ? ['tied', 'Tied — check the sheet'] : ['done', 'Final · ' + esc(winnerOf(g))];
+}
+function renderScoring(div){
+  const games = gamesOfDiv(div);
+  $('p-sc-' + div).innerHTML = DATA.rounds.map((time, i) => {
+    const r = i + 1, ms = games.filter(g => g.r === r).sort((a,b) => a.ct - b.ct);
+    if (!ms.length) return '';
+    return '<div class="round'+(i === LIVE ? ' now' : '')+'">'+
+      '<div class="round-hd"><b>Round '+r+'</b><span class="tnum">'+esc(time)+'</span>'+
+      (i === LIVE ? '<span class="nowtag">On now</span>' : '')+'</div>'+
+      ms.map(g => {
+        const [sa, sb] = scoreOf(g), st = stateOf(g);
+        return '<div class="match" data-pool="'+g.pool+'" data-g="'+GID(g)+'">'+
+          '<div class="m-teams"><div class="m-ct">Court '+g.ct+' &middot; '+esc(POOL[g.pool].name)+'</div>'+
+            '<div class="m-mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div></div>'+
+          '<div class="m-in">'+
+            '<input type="number" inputmode="numeric" min="0" max="'+CAP+'" step="1" placeholder="&ndash;" '+
+              'aria-label="'+esc(g.a)+' score" data-side="0" value="'+(sa === null ? '' : sa)+'">'+
+            '<span class="dash">&ndash;</span>'+
+            '<input type="number" inputmode="numeric" min="0" max="'+CAP+'" step="1" placeholder="&ndash;" '+
+              'aria-label="'+esc(g.b)+' score" data-side="1" value="'+(sb === null ? '' : sb)+'">'+
+          '</div>'+
+          '<div class="m-state" data-s="'+st[0]+'">'+st[1]+'</div>'+
+        '</div>';
+      }).join('') + '</div>';
+  }).join('');
+}
+
+/* One delegated handler for all 108 boxes: re-rendering the panel on every
+   keystroke would steal focus, so only the edited row's status is touched
+   here and the derived views are refreshed around it. */
+document.addEventListener('input', e => {
+  const input = e.target.closest('input[data-side]');
+  if (!input) return;
+  const row = input.closest('.match');
+  if (!row) return;
+  const gid = row.dataset.g, side = Number(input.dataset.side);
+  let v = input.value === '' ? null : Math.trunc(Number(input.value));
+  if (v !== null && !isFinite(v)) v = null;
+  if (v !== null) {
+    v = Math.min(CAP, Math.max(0, v));
+    if (String(v) !== input.value) input.value = v;
+  }
+  const cur = SCORES[gid] || [null, null];
+  cur[side] = v;
+  if (cur[0] === null && cur[1] === null) delete SCORES[gid];
+  else SCORES[gid] = cur;
+  saveScores();
+
+  const g = DATA.games.find(x => GID(x) === gid);
+  const st = stateOf(g), cell = row.querySelector('.m-state');
+  cell.dataset.s = st[0]; cell.innerHTML = st[1];
+
+  renderDerived();
+});
+
+$('clearScores').addEventListener('click', e => armConfirm(e.currentTarget, 'Tap again to erase every score', () => {
+  SCORES = {};
+  saveScores();
+  renderScoring('comp'); renderScoring('social');
+  renderDerived();
+  postHeight();
+}));
+
+/* A destructive button asks twice: first tap arms it, second commits,
+   and it disarms itself after a few seconds if nothing follows. */
+function armConfirm(btn, armedLabel, onConfirm){
+  if (btn.dataset.armed === '1') {
+    clearTimeout(btn._t);
+    btn.dataset.armed = '0'; btn.classList.remove('armed');
+    btn.textContent = btn.dataset.label;
+    onConfirm();
+    return;
+  }
+  btn.dataset.label = btn.textContent;
+  btn.dataset.armed = '1'; btn.classList.add('armed');
+  btn.textContent = armedLabel;
+  btn._t = setTimeout(() => {
+    btn.dataset.armed = '0'; btn.classList.remove('armed');
+    btn.textContent = btn.dataset.label;
+  }, 4000);
+}
+
+/* ═══ Standings ═════════════════════════════════════════ */
+function stTable(rows, opts){
+  opts = opts || {};
+  const head = '<tr>' + (opts.seed ? '<th>Seed</th>' : '<th>#</th>') +
+    '<th class="tm">Team</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th></tr>';
+  const body = rows.map((t, i) => {
+    const d = (t.diff > 0 ? '+' : '') + t.diff;
+    const cls = t.diff > 0 ? 'pos' : (t.diff < 0 ? 'neg' : '');
+    return '<tr'+(opts.cut === i + 1 ? ' class="cut"' : '')+'>'+
+      '<td><span class="seedno">'+(i+1)+'</span></td>'+
+      '<td class="tm">'+esc(t.name)+
+        (TEAM[t.name] && TEAM[t.name].players ? '<small>'+esc(TEAM[t.name].players)+'</small>' : '')+'</td>'+
+      '<td>'+t.w+'</td><td>'+t.l+'</td><td>'+t.pf+'</td><td>'+t.pa+'</td>'+
+      '<td class="'+cls+'">'+d+'</td></tr>';
+  }).join('');
+  return '<div class="tablewrap"><table class="st"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+}
+function renderStandings(){
+  const comp = DATA.pools.filter(p => p.div === 'comp');
+  $('p-sd-comp').innerHTML =
+    comp.map(p => '<h3 class="display">'+esc(p.name)+'</h3>' +
+      '<p class="sub">Courts '+p.courts.join('&ndash;')+' &middot; '+p.teams.length+' teams</p>' +
+      stTable(tally(DATA.games.filter(g => g.pool === p.key)), {})).join('') +
+    '<h3 class="display">Seeding &mdash; all 18 advance</h3>' +
+    '<p class="sub">Both comp pools combined. Seeds 1&ndash;14 go straight to the Round of 16; the dashed line is where the play-in starts.</p>' +
+    stTable(tally(gamesOfDiv('comp')), {seed:true, cut:14});
+
+  const soc = DATA.pools.find(p => p.div === 'social');
+  $('p-sd-social').innerHTML =
+    '<h3 class="display">'+esc(soc.name)+' &mdash; all 9 advance</h3>' +
+    '<p class="sub">Courts '+soc.courts.join('&ndash;')+'. Seeds 1&ndash;7 go straight to the Quarterfinals; seeds 8 and 9 play in.</p>' +
+    stTable(tally(gamesOfDiv('social')), {seed:true, cut:7});
+}
+
+/* ═══ Bracket ═══════════════════════════════════════════
+   One engine drives both divisions. A division of F teams plays into the
+   largest power of two D <= F: the top seeds sit on their own line, and the
+   2*(F-D) teams below the cut pair off in play-in games whose winners take
+   the bottom lines. Nobody gets a bye and nobody is left out — Competitive
+   is 18 into 16 (two play-ins), Social is 9 into 8 (one).                  */
+
+/* Standard bracket order: fold the field so 1 and 2 can only meet in the
+   final. [0] -> [0,1] -> [0,3,1,2] -> ... each pass mirrors what it has. */
+function seedOrder(n){
+  let a = [0];
+  while (a.length < n){
+    const m = a.length * 2, b = [];
+    a.forEach(x => { b.push(x); b.push(m - 1 - x); });
+    a = b;
+  }
+  return a;
+}
+/* Highest of the leftover seeds meets the lowest, and the winner inherits
+   the higher seed's line: 18 teams -> 15v18 and 16v17. */
+function playinsFor(field, draw){
+  const out = [];
+  for (let k = 0; k < field - draw; k++) out.push({hi: draw - (field - draw) + k, lo: field - 1 - k});
+  return out;
+}
+function bracketCfg(div){
+  const field = teamsInDiv(div);
+  let draw = 1;
+  while (draw * 2 <= field) draw *= 2;
+  return {
+    div, field, draw,
+    order: seedOrder(draw),
+    pis: playinsFor(field, draw),
+    nRounds: Math.round(Math.log2(draw)) - 1,   // rounds before the final
+    key: 'es2026_bracket_' + div + '_v1'
+  };
+}
+const CFG = {comp: bracketCfg('comp'), social: bracketCfg('social')};
+const RN = {16:'Round of 16', 8:'Quarterfinals', 4:'Semifinals', 2:'Final'};
+const RA = {16:'R16', 8:'QF', 4:'SF'};
+const roundName = (draw, r) => RN[draw >> r] || ('Round of ' + (draw >> r));
+const roundAbbr = (draw, r) => RA[draw >> r] || ('R' + (draw >> r));
+
+const emptyBracket = cfg => ({
+  locked: false, seeds: [],
+  pi: cfg.pis.map(() => null),
+  rounds: Array.from({length: cfg.nRounds}, (_, r) => Array(cfg.draw >> (r + 1)).fill(null)),
+  final: [null, null, null]
+});
+const BR = {comp: emptyBracket(CFG.comp), social: emptyBracket(CFG.social)};
+
+function loadBrackets(){
+  ['comp','social'].forEach(div => {
+    try {
+      const raw = localStorage.getItem(CFG[div].key);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      // Guard against a stale shape from an older version of this page.
+      const fresh = emptyBracket(CFG[div]);
+      if (!s || !Array.isArray(s.rounds) || s.rounds.length !== fresh.rounds.length) return;
+      BR[div] = Object.assign(fresh, s);
+    } catch (e) {}
+  });
+}
+function saveBracket(div){
+  try { localStorage.setItem(CFG[div].key, JSON.stringify(BR[div])); } catch (e) {}
+}
+
+const attr = s => esc(s).replace(/"/g, '&quot;');
+function lineTeam(cfg, st, seedIdx){
+  const k = cfg.pis.findIndex(p => p.hi === seedIdx);
+  return k >= 0 ? st.pi[k] : (st.seeds[seedIdx] || null);
+}
+function roundTeams(cfg, st, r){
+  return r === 0 ? cfg.order.map(si => lineTeam(cfg, st, si)) : st.rounds[r-1].slice();
+}
+function clearFrom(cfg, st, r){                    // r = first round to wipe
+  for (let k = r; k < cfg.nRounds; k++) st.rounds[k].fill(null);
+  st.final = [null, null, null];
+}
+
+function btnTeam(div, kind, r, i, name, won, seedLabel){
+  const live = !!name && !won2(div);
+  return '<button class="bteam'+(won ? ' won' : '')+(name ? '' : ' tbd')+'" '+
+    'data-div="'+div+'" data-kind="'+kind+'" data-r="'+r+'" data-i="'+i+'" '+
+    (name ? 'data-name="'+attr(name)+'" ' : '') + (live ? '' : 'disabled ') + '>'+
+    (seedLabel ? '<span class="sd">'+seedLabel+'</span>' : '') +
+    '<span class="nm">'+(name ? esc(name) + (TEAM[name] && TEAM[name].players ? '<small>'+esc(TEAM[name].players)+'</small>' : '') : 'To be decided')+'</span>'+
+    '<span class="tick">Won</span></button>';
+}
+/* Once a champion is crowned the whole bracket goes read-only — use
+   "Clear picks" to reopen it rather than editing under the banner. */
+function won2(div){
+  const st = BR[div], f = st.rounds[CFG[div].nRounds - 1];
+  return !!(f[0] && st.final.filter(x => x === f[0]).length === 2) ||
+         !!(f[1] && st.final.filter(x => x === f[1]).length === 2);
+}
+function matchBox(div, kind, r, i, a, b, label, la, lb, extraClass){
+  const st = BR[div];
+  const won = kind === 'pi' ? st.pi[i] : st.rounds[r][i];
+  return '<div class="bmatch'+(extraClass ? ' ' + extraClass : '')+'">'+
+    '<div class="lbl">'+label+'</div>'+
+    btnTeam(div, kind, r, i, a, !!a && won === a, la) +
+    btnTeam(div, kind, r, i, b, !!b && won === b, lb) +
+  '</div>';
+}
+
+function renderBracket(div){
+  const cfg = CFG[div], st = BR[div], panel = $('p-br-' + div);
+  const games = gamesOfDiv(div);
+  const done = games.filter(isFinal).length;
+
+  if (!st.locked){
+    const live = seedsOf(div);
+    const left = games.length - done;
+    panel.innerHTML =
+      '<div class="bnote">'+
+        (left > 0
+          ? '<b>'+done+' of '+games.length+'</b> '+DIV_LABEL[div]+' pool games are in. The bracket fills itself the moment the last score lands &mdash; '+left+' game'+(left === 1 ? '' : 's')+' to go.'
+          : 'Every '+DIV_LABEL[div]+' pool game is final. Locking in the seeding now.')+
+      '</div>'+
+      (live.length ? '<h4 style="font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.16em;text-transform:uppercase;font-size:13px;color:var(--turf-deep);margin-bottom:8px">Seeding as it stands</h4>' + stTable(tally(games), {seed:true}) : '')+
+      '<div class="btnbar"><button class="btn" data-lock="'+div+'">Fill the bracket now</button></div>';
+    return;
+  }
+
+  const stale = JSON.stringify(seedsOf(div)) !== JSON.stringify(st.seeds);
+  let html =
+    (stale ? '<div class="warn">Pool scores have changed since this bracket was seeded, so the seeds below no longer match the standings. Unlock and re-seed to refresh it.</div>' : '') +
+    '<div class="bnote"><b>'+cfg.field+' teams, no byes.</b> '+
+      (cfg.pis.length
+        ? 'Seeds 1&ndash;'+(cfg.draw - cfg.pis.length)+' start in the '+roundName(cfg.draw, 0)+'; the bottom '+(cfg.pis.length * 2)+' play in for the last '+cfg.pis.length+' line'+(cfg.pis.length === 1 ? '' : 's')+'. '
+        : '') +
+      'Every match is one game to 25 &mdash; the Final is best 2 of 3. Tap a team to advance them.</div>'+
+    '<div class="btnbar"><button class="btn ghost" data-clear="'+div+'">Clear picks</button>'+
+      '<button class="btn danger" data-unlock="'+div+'">Unlock &amp; re-seed</button></div>';
+
+  if (cfg.pis.length){
+    html += '<div class="bround"><h4>Play-in &mdash; winner takes the seed line</h4><div class="bgrid">' +
+      cfg.pis.map((p, i) => matchBox(div, 'pi', 0, i, st.seeds[p.hi], st.seeds[p.lo],
+        'Seed '+(p.hi+1)+' v Seed '+(p.lo+1), String(p.hi+1), String(p.lo+1), 'pi')).join('') +
+      '</div></div>';
+  }
+
+  for (let r = 0; r < cfg.nRounds; r++){
+    const teams = roundTeams(cfg, st, r);
+    const boxes = [];
+    for (let i = 0; i < teams.length / 2; i++){
+      const a = teams[2*i], b = teams[2*i + 1];
+      const label = r === 0
+        ? (cfg.order[2*i] + 1) + ' v ' + (cfg.order[2*i + 1] + 1)
+        : roundAbbr(cfg.draw, r) + ' ' + (i + 1);
+      const la = r === 0 ? String(cfg.order[2*i] + 1) : '';
+      const lb = r === 0 ? String(cfg.order[2*i + 1] + 1) : '';
+      boxes.push(matchBox(div, 'r', r, i, a, b, label, la, lb, ''));
+    }
+    html += '<div class="bround"><h4>'+roundName(cfg.draw, r)+'</h4><div class="bgrid">'+boxes.join('')+'</div></div>';
+  }
+
+  /* Final — best 2 of 3. Show the games played plus the next one, and stop
+     as soon as somebody reaches two. */
+  const fin = st.rounds[cfg.nRounds - 1];
+  html += '<div class="bround"><h4>Final &mdash; best 2 of 3</h4>';
+  if (!fin[0] || !fin[1]){
+    html += '<div class="bnote">Waiting on the semifinals.</div>';
+  } else {
+    const wa = st.final.filter(x => x === fin[0]).length;
+    const wb = st.final.filter(x => x === fin[1]).length;
+    const champ = wa === 2 ? fin[0] : (wb === 2 ? fin[1] : null);
+    const played = st.final.filter(Boolean).length;
+    const show = champ ? played : Math.min(3, played + 1);
+    html += '<p class="series">'+esc(fin[0])+' '+wa+' &ndash; '+wb+' '+esc(fin[1])+'</p><div class="bgrid">';
+    for (let g = 0; g < show; g++){
+      html += '<div class="bmatch"><div class="lbl">Game '+(g+1)+' &mdash; to 25</div>'+
+        btnTeam(div, 'f', 0, g, fin[0], st.final[g] === fin[0], '') +
+        btnTeam(div, 'f', 0, g, fin[1], st.final[g] === fin[1], '') + '</div>';
+    }
+    html += '</div>';
+    if (champ){
+      html += '<div class="champ"><div class="lbl2">Endless Summer '+DIV_LABEL[div]+' champion</div>'+
+              '<div class="nm2">'+esc(champ)+'</div></div>';
+    }
+  }
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+document.addEventListener('click', e => {
+  const pick = e.target.closest('.bteam[data-name]');
+  if (pick){
+    const div = pick.dataset.div, cfg = CFG[div], st = BR[div];
+    const r = Number(pick.dataset.r), i = Number(pick.dataset.i), name = pick.dataset.name;
+    if (pick.dataset.kind === 'pi'){ st.pi[i] = name; clearFrom(cfg, st, 0); }
+    else if (pick.dataset.kind === 'r'){ st.rounds[r][i] = name; clearFrom(cfg, st, r + 1); }
+    else { st.final[i] = name; }
+    saveBracket(div); renderBracket(div); postHeight();
+    return;
+  }
+  const lock = e.target.closest('[data-lock]');
+  if (lock){
+    const div = lock.dataset.lock, seeds = seedsOf(div);
+    if (seeds.length < CFG[div].field){
+      lock.insertAdjacentHTML('afterend',
+        '<p class="warn" style="margin:10px 0 0">All '+CFG[div].field+' '+DIV_LABEL[div]+
+        ' teams need a recorded result first — '+seeds.length+' are ranked so far.</p>');
+      postHeight();
+      return;
+    }
+    BR[div] = Object.assign(emptyBracket(CFG[div]), {locked:true, seeds});
+    saveBracket(div); renderBracket(div); postHeight();
+    return;
+  }
+  const clr = e.target.closest('[data-clear]');
+  if (clr){
+    armConfirm(clr, 'Tap again to clear picks', () => {
+      const div = clr.dataset.clear, st = BR[div];
+      st.pi = CFG[div].pis.map(() => null);
+      clearFrom(CFG[div], st, 0);
+      saveBracket(div); renderBracket(div); postHeight();
+    });
+    return;
+  }
+  const unl = e.target.closest('[data-unlock]');
+  if (unl){
+    armConfirm(unl, 'Tap again to unlock', () => {
+      const div = unl.dataset.unlock;
+      BR[div] = emptyBracket(CFG[div]);
+      saveBracket(div); renderBracket(div); postHeight();
+    });
+    return;
+  }
+  const pc = e.target.closest('[data-print-court]');
+  if (pc) printSheets([Number(pc.dataset.printCourt)]);
+});
+
+/* Seed the bracket the instant the division's last pool score is entered. */
+function autoLock(div){
+  const st = BR[div];
+  if (st.locked) return;
+  if (!gamesOfDiv(div).every(isFinal)) return;
+  const seeds = seedsOf(div);
+  if (seeds.length < CFG[div].field) return;
+  BR[div] = Object.assign(emptyBracket(CFG[div]), {locked:true, seeds});
+  saveBracket(div);
+}
+
+/* Everything downstream of a score, in one call. */
+function renderDerived(){
+  renderMine();
+  renderSchedule();
+  renderStandings();
+  ['comp','social'].forEach(div => { autoLock(div); renderBracket(div); });
+  noteSaved();
+  postHeight();
+}
+
+/* ═══ Print: court sheets + master schedule ═════════════ */
+const RULES = 'Games to 25, win by 2, hard cap 30. Both teams record the final score on this sheet right after the game — it is the official record.';
+const sheetHead = () =>
+  '<div class="sh-hd"><span class="sh-brand">'+esc(E.org)+' &middot; '+esc(E.name)+'</span>'+
+  '<span class="sh-date">'+esc(E.date)+' &middot; '+esc(E.venue)+'</span></div>';
+
+function courtSheet(ct){
+  const pool = DATA.pools.find(p => p.courts.includes(ct));
+  const gs = DATA.games.filter(g => g.ct === ct).sort((a,b) => a.r - b.r);
+  return '<div class="sheet">' + sheetHead() +
+    '<div class="sh-ttl"><span class="sh-ct">Court '+ct+'</span><span class="sh-pool">'+esc(pool.name)+'</span></div>'+
+    '<div class="sh-sub">Pool play &mdash; '+gs.length+' games, '+E.roundMin+' minutes apart. This court never changes pools all day.</div>'+
+    '<table class="sh-t"><thead><tr><th style="width:8%">Rd</th>'+
+      '<th style="width:31%;text-align:right;padding-right:9pt">Team</th>'+
+      '<th colspan="2" style="width:26%;text-align:center">Score</th>'+
+      '<th style="width:31%;padding-left:9pt">Team</th></tr></thead><tbody>'+
+      gs.map(g => '<tr><td class="sh-rd">'+g.r+'</td><td class="sh-tm sh-a">'+esc(g.a)+'</td>'+
+        '<td class="sh-box"></td><td class="sh-box"></td><td class="sh-tm sh-b">'+esc(g.b)+'</td></tr>').join('')+
+    '</tbody></table>'+
+    '<div class="sh-ft"><b>'+esc(pool.name)+' ('+pool.teams.length+' teams):</b> '+
+      pool.teams.slice().sort((a,b) => a.name.localeCompare(b.name)).map(t => esc(t.name)).join(' &nbsp;&middot;&nbsp; ')+
+      '<br>'+esc(RULES)+'</div></div>';
+}
+function masterSheet(){
+  const head = '<tr><th style="width:7%">Round</th>' + COURTS.map(ct =>
+    '<th>Court '+ct+'<br><span style="font-weight:400;font-size:6.5pt">'+
+    esc(DATA.pools.find(p => p.courts.includes(ct)).name)+'</span></th>').join('') + '</tr>';
+  const body = DATA.rounds.map((time, i) => {
+    const r = i + 1, ms = DATA.games.filter(g => g.r === r);
+    return '<tr><td class="mrd">'+r+'<span>'+esc(time).replace(' – ', '<br>')+'</span></td>' +
+      COURTS.map(ct => {
+        const g = ms.find(x => x.ct === ct);
+        return g ? '<td><div class="mtm">'+esc(g.a)+'</div><div class="mvs">vs</div><div class="mtm">'+esc(g.b)+'</div></td>'
+                 : '<td style="text-align:center;color:#999">&mdash;</td>';
+      }).join('') + '</tr>';
+  }).join('');
+  return '<div class="sheet">' + sheetHead() +
+    '<div class="sh-ttl"><span class="sh-ct" style="font-size:22pt">Master schedule</span>'+
+      '<span class="sh-pool">Pool play &middot; '+DATA.games.length+' games</span></div>'+
+    '<div class="sh-sub">All six courts, '+DATA.rounds.length+' rounds. '+
+      DATA.pools.map(p => 'Courts '+p.courts.join('&ndash;')+' '+esc(p.name)+' ('+p.teams.length+')').join(' &middot; ')+
+      '. In every pool 4 teams play per round and the rest sit.</div>'+
+    '<table class="sh-m"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>'+
+    '<div class="sh-ft" style="margin-top:8pt">'+esc(RULES)+'</div></div>';
+}
+
+/* A landscape master needs its own @page rule, so the style element is
+   added for the print and torn down again afterwards. */
+let printStyle = null;
+function clearPrint(){
+  $('printRoot').innerHTML = '';
+  if (printStyle && printStyle.parentNode) printStyle.parentNode.removeChild(printStyle);
+  printStyle = null;
+}
+function doPrint(html, landscape){
+  clearPrint();
+  $('printRoot').innerHTML = html;
+  if (landscape){
+    printStyle = document.createElement('style');
+    printStyle.textContent = '@page{size:landscape;margin:9mm}';
+    document.head.appendChild(printStyle);
+  }
+  window.print();
+}
+window.addEventListener('afterprint', clearPrint);
+const printSheets = list => doPrint(list.map(courtSheet).join(''), false);
+$('printCourts').addEventListener('click', () => printSheets(COURTS));
+$('printMaster').addEventListener('click', () => doPrint(masterSheet(), true));
+
+/* ═══ Height reporting ══════════════════════════════════
+   Tell the host page how tall we are, so a Wix HTML embed can size itself
+   instead of giving this page its own scrollbar. Harmless if nothing listens.
+   Debounced, and only sent on a real change — otherwise a host that resizes
+   the frame feeds its own resize straight back in and the page jitters. */
+let lastH = 0, hTimer = null;
+function postHeight(){
+  clearTimeout(hTimer);
+  hTimer = setTimeout(() => {
+    const h = document.documentElement.scrollHeight;
+    if (Math.abs(h - lastH) < 24) return;
+    lastH = h;
+    try { window.parent.postMessage({esHeight: h}, '*'); } catch (e) {}
+  }, 120);
+}
+window.addEventListener('load', postHeight);
+window.addEventListener('resize', postHeight);
+
+/* ═══ Navigation ════════════════════════════════════════ */
+const animOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Views differ a lot in length, so after switching we park the bar back at
+   the top of the view — otherwise you can end up stranded past the end of a
+   shorter view, which reads as the page jumping around. */
+function parkAt(el){
+  const box = el.getBoundingClientRect();
+  if (box.top < 0 || box.top > window.innerHeight * 0.5){
+    el.scrollIntoView({block:'start', behavior: animOK ? 'smooth' : 'auto'});
+  }
+}
+const VIEWS = [
+  ['team','My team'], ['sched','Schedule'], ['teams','Teams'],
+  ['scores','Scores'], ['standings','Standings'], ['bracket','Bracket'], ['day','Day plan']
+];
+const secnav = $('secnav');
+secnav.innerHTML = VIEWS.map(([id, label], i) =>
+  '<button role="tab" data-view="'+id+'" aria-controls="v-'+id+'" aria-selected="'+(i === 0)+'">'+label+'</button>').join('');
+secnav.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-view]');
+  if (!btn) return;
+  [...secnav.children].forEach(b => {
+    const on = b === btn;
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    $('v-' + b.dataset.view).hidden = !on;
+  });
+  parkAt(secnav);
+  postHeight();
+});
+
+/* Inner tab pairs: schedule views, and the division switch on the three
+   panels that have one. */
+[['tab-round','tab-court'], ['tab-sc-comp','tab-sc-social'],
+ ['tab-sd-comp','tab-sd-social'], ['tab-br-comp','tab-br-social']].forEach(group => {
+  const tabs = group.map($);
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      $(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    postHeight();
+  }));
+});
+
+/* ═══ Boot ══════════════════════════════════════════════ */
+loadScores();
+loadBrackets();
+renderScoring('comp');
+renderScoring('social');
+renderDerived();
+</script>
+
+</body>
+</html>
