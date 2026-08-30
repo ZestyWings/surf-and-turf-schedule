@@ -80,7 +80,7 @@
                 letter-spacing:.14em;text-transform:uppercase;background:var(--sun);color:var(--night);
                 padding:2px 8px;border-radius:3px}
 
-  /* ── Desk lock ──────────────────────────────────────── */
+  /* ── Admin lock ─────────────────────────────────────── */
   .lockbar{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--sun-deep);
            border-radius:5px;padding:14px 16px;margin-bottom:16px}
   .lockbar.open{border-left-color:var(--turf)}
@@ -403,8 +403,8 @@
         <p class="kicker">Scorekeeping</p>
         <h2>Teams record their own scores</h2>
         <p>Every net has a <b>clipboard with that court&rsquo;s printed schedule</b>. After each game, write the
-           final score on that sheet &mdash; it is the official record. The desk types the same scores into
-           <b>Scores</b> here, and standings and the bracket fill themselves in.</p>
+           final score on that sheet &mdash; it is the official record. An admin types the same scores into
+           <b>Scores</b> here, and standings and the bracket update live on everyone&rsquo;s phone.</p>
       </div>
     </div>
   </aside>
@@ -434,7 +434,7 @@
           <button class="btn" id="printCourts">Print all 6 court sheets</button>
           <button class="btn ghost" id="printMaster">Print master schedule (1 page)</button>
         </div>
-        <p class="sub">Court sheets print one court per page with blank score boxes &mdash; tape one to each net. The master is all 54 games on a single landscape page for the desk.</p>
+        <p class="sub">Court sheets print one court per page with blank score boxes &mdash; tape one to each net. The master is every game on a single landscape page for the desk.</p>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-round" aria-controls="p-round" aria-selected="true">By round</button>
           <button class="tab" role="tab" id="tab-court" aria-controls="p-court" aria-selected="false">By court</button>
@@ -541,16 +541,14 @@ const DIV_LABEL  = {comp:'Competitive', social:'Social'};
    different id gets the "new" flag, so teams can tell at a glance that the
    page is not what they saw last time. */
 const UPDATE = {
-  id: '2026-08-29-2',
-  when: 'Sat Aug 29, 10:59 PM',
-  note: 'Added <b>The goats</b> to Comp Pool A, so Pool A now plays a 10th round at 12:15. ' +
-        '<b>\'-</b> is now <b>Triple Dragon</b>. Four Pool A games changed to make room; ' +
-        'Social and Comp Pool B are exactly as they were.'
+  id: '2026-08-30-1',
+  when: 'Sat Aug 29, 11:39 PM',
+  note: 'Double-check your schedule &mdash; when and where you play may have changed.'
 };
 const SEEN_KEY = 'es2026_seen_update';
 
-/* ═══ Desk lock ═════════════════════════════════════════
-   Recording scores and advancing the bracket need the desk PIN. Everyone can
+/* ═══ Admin lock ════════════════════════════════════════
+   Recording scores and advancing the bracket need the admin PIN. Everyone can
    still read everything.
 
    This is a guard against stray taps, not real security. The page is static,
@@ -559,8 +557,8 @@ const SEEN_KEY = 'es2026_seen_update';
    anybody else. Only the hash of the PIN is stored here, so the PIN itself is
    not sitting in a public repo. Regenerate with:
      node -e "crypto.subtle.digest('SHA-256',new TextEncoder().encode('NEWPIN')).then(b=>console.log(Buffer.from(b).toString('hex')))" */
-const PIN_HASH = '91bca017d06790f59b5d54a86a592298c5ad8e88e0b7fc98cae7bdee361473ba';
-const UNLOCK_KEY = 'es2026_desk_unlocked';
+const PIN_HASH = '88bc475ec9844d05a8a7c7f132cbcbf3ccffce77c465551f7a36ec0e5df24f6b';
+const UNLOCK_KEY = 'es2026_admin_unlocked';
 let unlocked = false;
 try { unlocked = localStorage.getItem(UNLOCK_KEY) === PIN_HASH; } catch (e) {}
 
@@ -579,13 +577,13 @@ function setUnlocked(state){
 }
 function renderLocks(){
   const bar = unlocked
-    ? '<div class="lockbar open"><span class="lk">Desk unlocked</span>' +
+    ? '<div class="lockbar open"><span class="lk">Admin unlocked</span>' +
       '<p>Scores and bracket picks can be edited on this device.</p>' +
       '<button class="btn ghost" data-lock="off">Lock again</button></div>'
     : '<div class="lockbar"><span class="lk">Locked</span>' +
-      '<p>Anyone can read the scores, standings and bracket. Entering results needs the desk PIN.</p>' +
+      '<p>Anyone can read the scores, standings and bracket. Entering results needs the admin PIN.</p>' +
       '<form data-lock="on"><input type="password" inputmode="numeric" autocomplete="off" ' +
-      'placeholder="Desk PIN" aria-label="Desk PIN"><button class="btn" type="submit">Unlock</button></form>' +
+      'placeholder="Admin PIN" aria-label="Admin PIN"><button class="btn" type="submit">Unlock</button></form>' +
       '<p class="lk-msg" hidden></p></div>';
   ['scores','bracket'].forEach(w => { const el = $('lock-' + w); if (el) el.innerHTML = bar; });
   const clear = $('clearScores');
@@ -606,14 +604,14 @@ document.addEventListener('submit', async (e) => {
     });
     good = res.ok;
   } catch (err) {
-    // No signal: fall back to the hash baked into this page so the desk can
+    // No signal: fall back to the hash baked into this page so an admin can
     // still record scores locally and sync them later.
     try { good = (await sha256Hex(pin)) === PIN_HASH; } catch (e2) { good = false; }
   }
   if (good){
     try { localStorage.setItem(PIN_KEY, pin); } catch (e) {}
     setUnlocked(true);
-    // First desk to unlock seeds the shared copy from what it already has;
+    // First admin to unlock seeds the shared copy from what it already has;
     // after that the shared copy is the record and is only ever patched.
     if (!remoteStored){
       const brackets = {};
@@ -1368,7 +1366,7 @@ secnav.addEventListener('click', e => {
 
 /* ═══ Live sync ═════════════════════════════════════════
    One shared copy of the tournament lives in the site's Wix backend, so the
-   desk types a score once and every phone sees it. Reads are open to anyone;
+   admin types a score once and every phone sees it. Reads are open to anyone;
    writes carry the PIN and are checked on the server, which is the check that
    actually holds.
 
@@ -1377,12 +1375,12 @@ secnav.addEventListener('click', e => {
    yet - every call fails quietly and the page runs exactly as it did before,
    off this device's own copy, pushing whatever it has once it can. */
 const API = 'https://www.surfandturfvolleyball.net/_functions';
-const PIN_KEY = 'es2026_desk_pin';
+const PIN_KEY = 'es2026_admin_pin';
 const POLL_MS = 10000;
 let syncRev = -1, syncedAt = null, syncState = 'connecting', remoteStored = false;
 let pushing = 0, queued = null, pushTimer = null, applying = false;
 
-function deskPin(){ try { return localStorage.getItem(PIN_KEY) || ''; } catch (e) { return ''; } }
+function adminPin(){ try { return localStorage.getItem(PIN_KEY) || ''; } catch (e) { return ''; } }
 function mergePatch(older, newer){
   return {
     scores: Object.assign({}, older.scores, newer.scores),
@@ -1392,7 +1390,7 @@ function mergePatch(older, newer){
 /* Changes are queued and sent together a moment later, so typing both halves
    of a score is one write rather than two. */
 function queuePatch(patch){
-  // Only the desk writes. A viewer's bracket still fills in locally from the
+  // Only an admin writes. A viewer's bracket still fills in locally from the
   // synced scores, but pushing it would be refused for want of a PIN and would
   // leave the page claiming to be offline when it is perfectly connected.
   if (applying || !unlocked) return;        // don't echo a change we just pulled
@@ -1444,7 +1442,7 @@ async function push(){
   try {
     const res = await fetch(API + '/state', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(Object.assign({pin: deskPin()}, patch))
+      body: JSON.stringify(Object.assign({pin: adminPin()}, patch))
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const remote = await res.json();
