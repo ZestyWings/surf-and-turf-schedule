@@ -264,6 +264,26 @@
   .m-state[data-s="done"]{color:var(--win)}
   .m-state[data-s="tied"]{color:var(--loss)}
 
+  /* ── Emergency: withdrawing a no-show ───────────────── */
+  .danger-zone{margin-top:26px;border:1px dashed var(--loss);border-radius:5px;background:var(--paper)}
+  .danger-zone > summary{cursor:pointer;list-style:none;padding:12px 15px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--loss)}
+  .danger-zone > summary::-webkit-details-marker{display:none}
+  .danger-zone > summary::after{content:'+';float:right;font-size:17px;line-height:1}
+  .danger-zone[open] > summary::after{content:'\2212'}
+  .danger-zone .dz-body{padding:0 15px 15px}
+  .danger-zone p{font-size:14.5px;line-height:1.45;margin-bottom:12px}
+  .danger-zone select{margin-bottom:10px}
+  .out-list{list-style:none;margin-top:14px;display:grid;gap:8px}
+  .out-list li{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    border-top:1px solid var(--line);padding-top:10px;font-weight:700}
+  .out-tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;background:var(--loss);
+    color:var(--cream);padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle}
+  .is-out{opacity:.62}
+  .is-out .m-mu,.is-out .team-col{text-decoration:line-through}
+
   /* ── Standings ──────────────────────────────────────── */
   .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;
              background:var(--paper);border:1px solid var(--line);border-radius:5px;margin-bottom:18px}
@@ -487,6 +507,7 @@
         <div class="btnbar" style="margin-top:18px">
           <button class="btn danger" id="clearScores">Clear all scores</button>
         </div>
+        <div id="emergency"></div>
       </section>
     </div>
 
@@ -754,6 +775,55 @@ function noteSaved(){
   el.textContent = (storageOK ? '' : 'This browser is blocking local storage. ') + count + tail;
 }
 
+/* ═══ Withdrawals ═══════════════════════════════════════
+   A no-show is recorded as forfeits, not as a deletion. Their four opponents
+   each still need a result, and dropping the games would leave those teams on
+   three while everyone else has four - which skews seeding, because it ranks on
+   wins. So the team stays in the draw and loses its unplayed games 25-0.
+
+   Games already played are left exactly as they are, and the ones this forfeits
+   are remembered so undoing a mistake puts the page back rather than wiping
+   real results. */
+const WITHDRAWN_KEY = 'es2026_withdrawn_v1';
+const FORFEIT = [25, 0];
+let WITHDRAWN = {};            // team name -> the game ids this forfeited
+
+function loadWithdrawn(){
+  try { WITHDRAWN = JSON.parse(localStorage.getItem(WITHDRAWN_KEY) || '{}') || {}; }
+  catch (e) { WITHDRAWN = {}; }
+}
+function saveWithdrawn(){
+  try { localStorage.setItem(WITHDRAWN_KEY, JSON.stringify(WITHDRAWN)); } catch (e) {}
+  queuePatch({withdrawn: Object.keys(WITHDRAWN).map(n => [n, WITHDRAWN[n]])});
+}
+const isOut = name => Object.prototype.hasOwnProperty.call(WITHDRAWN, name);
+const outTag = name => isOut(name) ? '<span class="out-tag">No show</span>' : '';
+
+function withdrawTeam(name){
+  if (!name || isOut(name)) return;
+  const forfeited = [];
+  gamesFor(name).forEach(g => {
+    if (isFinal(g)) return;                       // a game already played stands
+    SCORES[GID(g)] = g.a === name ? [FORFEIT[1], FORFEIT[0]] : [FORFEIT[0], FORFEIT[1]];
+    forfeited.push(GID(g));
+  });
+  WITHDRAWN[name] = forfeited;
+  saveScores();
+  queuePatch({scores: forfeited.reduce((o, id) => { o[id] = SCORES[id]; return o; }, {})});
+  saveWithdrawn();
+  renderScoring('comp'); renderScoring('social'); renderDerived();
+}
+function reinstateTeam(name){
+  const forfeited = WITHDRAWN[name] || [];
+  const patch = {};
+  forfeited.forEach(id => { delete SCORES[id]; patch[id] = null; });
+  delete WITHDRAWN[name];
+  saveScores();
+  queuePatch({scores: patch});
+  saveWithdrawn();
+  renderScoring('comp'); renderScoring('social'); renderDerived();
+}
+
 /* Wins, then point differential, then points for, then name. */
 function tally(games){
   const t = {};
@@ -792,7 +862,7 @@ function renderMine(){
   const t = TEAM[name], pool = POOL_OF[name], gs = gamesFor(name);
   const rec = tally(DATA.games.filter(g => g.pool === pool.key)).find(x => x.name === name);
   box.innerHTML =
-    '<div class="mine-head"><span class="mine-name">'+esc(name)+'</span>'+
+    '<div class="mine-head"><span class="mine-name">'+esc(name)+'</span>'+outTag(name)+
       '<span class="chip" data-pool="'+pool.key+'">'+esc(pool.name)+' &middot; Courts '+pool.courts.join(' &amp; ')+'</span>'+
       (rec && (rec.w + rec.l) ? '<span class="chip" data-pool="'+pool.key+'">'+rec.w+'&ndash;'+rec.l+'</span>' : '')+
     '</div>'+
@@ -863,7 +933,7 @@ $('p-teams').innerHTML = '<div class="teamgrid">' + DATA.pools.map((p, pi) =>
   '<summary class="pool-hd" data-pool="'+p.key+'">'+esc(p.name)+
     '<em>Courts '+p.courts.join('&ndash;')+'</em></summary><ol>' +
     p.teams.slice().sort((a,b) => a.name.localeCompare(b.name)).map(t =>
-      '<li><b>'+esc(t.name)+'</b>'+(t.players ? '<span>'+esc(t.players)+'</span>' : '')+'</li>').join('') +
+      '<li><b>'+esc(t.name)+outTag(t.name)+'</b>'+(t.players ? '<span>'+esc(t.players)+'</span>' : '')+'</li>').join('') +
   '</ol></details>').join('') + '</div>';
 
 /* ═══ Live scoring ══════════════════════════════════════ */
@@ -896,9 +966,10 @@ function renderScoring(div){
       '<span class="acc-tally'+(inRound === ms.length ? ' done' : '')+'">'+inRound+'/'+ms.length+'</span></summary>'+
       ms.map(g => {
         const [sa, sb] = scoreOf(g), st = stateOf(g);
-        return '<div class="match" data-pool="'+g.pool+'" data-g="'+GID(g)+'">'+
+        const outHere = isOut(g.a) || isOut(g.b);
+        return '<div class="match'+(outHere ? ' is-out' : '')+'" data-pool="'+g.pool+'" data-g="'+GID(g)+'">'+
           '<div class="m-teams"><div class="m-ct">Court '+g.ct+' &middot; '+esc(POOL[g.pool].name)+'</div>'+
-            '<div class="m-mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div></div>'+
+            '<div class="m-mu">'+esc(g.a)+outTag(g.a)+' <em>vs</em> '+esc(g.b)+outTag(g.b)+'</div></div>'+
           '<div class="m-in">'+
             '<input type="number" inputmode="numeric" min="0" max="'+CAP+'" step="1" placeholder="&ndash;" '+
               'aria-label="'+esc(g.a)+' score" data-side="0" value="'+(sa === null ? '' : sa)+'"'+(unlocked ? '' : ' disabled')+'>'+
@@ -945,7 +1016,9 @@ $('clearScores').addEventListener('click', e => armConfirm(e.currentTarget, 'Tap
   const cleared = {};
   DATA.games.forEach(g => { cleared[GID(g)] = null; });
   SCORES = {};
+  WITHDRAWN = {};
   saveScores();
+  saveWithdrawn();
   queuePatch({scores: cleared});
   renderScoring('comp'); renderScoring('social');
   renderDerived();
@@ -971,6 +1044,46 @@ function armConfirm(btn, armedLabel, onConfirm){
   }, 4000);
 }
 
+/* Tucked at the bottom of the scoring screen, closed, and only rendered once
+   the admin PIN is in - it is a fire extinguisher, not a control. */
+function renderEmergency(){
+  const box = $('emergency');
+  if (!box) return;
+  if (!unlocked){ box.innerHTML = ''; return; }
+  const all = DATA.pools.flatMap(p => p.teams.map(t => t.name)).sort((a,b) => a.localeCompare(b));
+  const out = Object.keys(WITHDRAWN).sort((a,b) => a.localeCompare(b));
+  box.innerHTML =
+    '<details class="danger-zone"><summary>Emergency &mdash; team did not show</summary>' +
+      '<div class="dz-body">' +
+      '<p>Marks a team as a no-show and gives every opponent it has not already ' +
+      'played a ' + FORFEIT[0] + '&ndash;' + FORFEIT[1] + ' win. Games already recorded are left alone. ' +
+      'The team stays in the draw on 0 wins, so it seeds last and whoever draws it ' +
+      'in the bracket goes through &mdash; nobody ends up with fewer games than anyone else.</p>' +
+      '<select id="outPick" aria-label="Team that did not show">' +
+        '<option value="">Choose a team&hellip;</option>' +
+        all.filter(n => !isOut(n)).map(n => '<option value="' + attr(n) + '">' + esc(n) + '</option>').join('') +
+      '</select>' +
+      '<button class="btn danger" id="outGo">Mark as no-show</button>' +
+      (out.length
+        ? '<ul class="out-list">' + out.map(n =>
+            '<li>' + esc(n) + '<span class="out-tag">No show</span>' +
+            '<button class="btn ghost" data-reinstate="' + attr(n) + '">Undo</button></li>').join('') + '</ul>'
+        : '') +
+      '</div></details>';
+}
+document.addEventListener('click', (e) => {
+  const go = e.target.closest('#outGo');
+  if (go){
+    const sel = $('outPick');
+    if (!sel || !sel.value) return;
+    const name = sel.value;
+    armConfirm(go, 'Tap again: ' + name + ' forfeits', () => withdrawTeam(name));
+    return;
+  }
+  const back = e.target.closest('[data-reinstate]');
+  if (back) armConfirm(back, 'Tap again to undo', () => reinstateTeam(back.dataset.reinstate));
+});
+
 /* ═══ Standings ═════════════════════════════════════════ */
 function stTable(rows, opts){
   opts = opts || {};
@@ -981,7 +1094,7 @@ function stTable(rows, opts){
     const cls = t.diff > 0 ? 'pos' : (t.diff < 0 ? 'neg' : '');
     return '<tr'+(opts.cut === i + 1 ? ' class="cut"' : '')+'>'+
       '<td><span class="seedno">'+(i+1)+'</span></td>'+
-      '<td class="tm">'+esc(t.name)+
+      '<td class="tm'+(isOut(t.name) ? ' is-out' : '')+'">'+esc(t.name)+outTag(t.name)+
         (TEAM[t.name] && TEAM[t.name].players ? '<small>'+esc(TEAM[t.name].players)+'</small>' : '')+'</td>'+
       '<td>'+t.w+'</td><td>'+t.l+'</td><td>'+t.pf+'</td><td>'+t.pa+'</td>'+
       '<td class="'+cls+'">'+d+'</td></tr>';
@@ -1096,12 +1209,13 @@ function clearFrom(cfg, st, r){                    // r = first round to wipe
 }
 
 function btnTeam(div, kind, r, i, name, won, seedLabel){
-  const live = !!name && !won2(div) && unlocked;
+  // A no-show cannot win a bracket match, so it cannot be tapped through.
+  const live = !!name && !won2(div) && unlocked && !isOut(name);
   return '<button class="bteam'+(won ? ' won' : '')+(name ? '' : ' tbd')+'" '+
     'data-div="'+div+'" data-kind="'+kind+'" data-r="'+r+'" data-i="'+i+'" '+
     (name ? 'data-name="'+attr(name)+'" ' : '') + (live ? '' : 'disabled ') + '>'+
     (seedLabel ? '<span class="sd">'+seedLabel+'</span>' : '') +
-    '<span class="nm">'+(name ? esc(name) + (TEAM[name] && TEAM[name].players ? '<small>'+esc(TEAM[name].players)+'</small>' : '') : 'To be decided')+'</span>'+
+    '<span class="nm">'+(name ? esc(name) + outTag(name) + (TEAM[name] && TEAM[name].players ? '<small>'+esc(TEAM[name].players)+'</small>' : '') : 'To be decided')+'</span>'+
     '<span class="tick">Won</span></button>';
 }
 /* Once a champion is crowned the whole bracket goes read-only — use
@@ -1268,6 +1382,7 @@ function autoLock(div){
 /* Everything downstream of a score, in one call. */
 function renderDerived(){
   renderLocks();
+  renderEmergency();
   renderMine();
   renderSchedule();
   renderStandings();
@@ -1437,10 +1552,13 @@ let pushing = 0, queued = null, pushTimer = null, applying = false;
 
 function adminPin(){ try { return localStorage.getItem(PIN_KEY) || ''; } catch (e) { return ''; } }
 function mergePatch(older, newer){
-  return {
+  const out = {
     scores: Object.assign({}, older.scores, newer.scores),
     brackets: Object.assign({}, older.brackets, newer.brackets)
   };
+  const w = newer.withdrawn || older.withdrawn;   // whole-list, newest wins
+  if (w) out.withdrawn = w;
+  return out;
 }
 /* Changes are queued and sent together a moment later, so typing both halves
    of a score is one write rather than two. */
@@ -1464,6 +1582,15 @@ function applyRemote(remote){
   applying = true;
   SCORES = (remote.scores && typeof remote.scores === 'object') ? remote.scores : {};
   try { localStorage.setItem(SCORE_KEY, JSON.stringify(SCORES)); } catch (e) {}
+  WITHDRAWN = {};
+  if (Array.isArray(remote.withdrawn)){
+    remote.withdrawn.forEach(pair => {
+      if (Array.isArray(pair) && typeof pair[0] === 'string'){
+        WITHDRAWN[pair[0]] = Array.isArray(pair[1]) ? pair[1] : [];
+      }
+    });
+  }
+  try { localStorage.setItem(WITHDRAWN_KEY, JSON.stringify(WITHDRAWN)); } catch (e) {}
   ['comp','social'].forEach(div => {
     const r = remote.brackets && remote.brackets[div];
     const fresh = emptyBracket(CFG[div]);
@@ -1520,6 +1647,7 @@ function startSync(){
 
 /* ═══ Boot ══════════════════════════════════════════════ */
 loadScores();
+loadWithdrawn();
 loadBrackets();
 renderFormatNotes();
 renderScoring('comp');
