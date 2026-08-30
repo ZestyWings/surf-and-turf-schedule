@@ -1169,8 +1169,95 @@ const RA = {16:'R16', 8:'QF', 4:'SF'};
 const roundName = (draw, r) => RN[draw >> r] || ('Round of ' + (draw >> r));
 const roundAbbr = (draw, r) => RA[draw >> r] || ('R' + (draw >> r));
 
+/* ── Keeping rematches out of the draw ──────────────────
+   Seeding by record alone can put two teams together who already played in
+   pool play. Nobody wants their tournament to be the same four opponents
+   twice, so once the seeds are known the teams are shuffled between bracket
+   lines to break those pairings up.
+
+   The ranking itself is never touched - a team's seed is still exactly what it
+   earned. Only which line it sits on moves, and as little as possible: the
+   search is lexicographic on (real rematches, same-pool pairings, total
+   distance moved from the textbook line), so it will not shove a team halfway
+   across the draw to avoid a merely-same-pool meeting.
+
+   Only the first round can be arranged this way. Who meets in a quarterfinal
+   depends on who wins, so later rounds are left to the draw. */
+const pairKey = (a, b) => [a, b].sort().join(' :: ');
+const PLAYED = new Set(DATA.games.map(g => pairKey(g.a, g.b)));
+const poolOf = name => (POOL_OF[name] ? POOL_OF[name].key : '?');
+
+/* Every match whose two teams are already fixed once seeding is done: the
+   play-ins, and the first round proper. */
+function firstRoundPairs(cfg){
+  const pairs = cfg.pis.map(p => [p.hi, p.lo]);
+  for (let i = 0; i < cfg.draw; i += 2) pairs.push([cfg.order[i], cfg.order[i + 1]]);
+  return pairs;
+}
+/* A line fed by a play-in has two possible occupants, and either could turn up,
+   so both are weighed. */
+function occupantsOf(cfg, lines, lineIdx){
+  const k = cfg.pis.findIndex(p => p.hi === lineIdx);
+  if (k < 0) return [lines[lineIdx]].filter(Boolean);
+  return [lines[cfg.pis[k].hi], lines[cfg.pis[k].lo]].filter(Boolean);
+}
+function arrangeLines(cfg, seeds){
+  const pairs = firstRoundPairs(cfg);
+  const cost = lines => {
+    let repeats = 0, samePool = 0, drift = 0;
+    pairs.forEach(([x, y]) => {
+      const as = occupantsOf(cfg, lines, x), bs = occupantsOf(cfg, lines, y);
+      as.forEach(a => bs.forEach(b => {
+        if (a === b) return;
+        if (PLAYED.has(pairKey(a, b))) repeats++;
+        else if (poolOf(a) === poolOf(b)) samePool++;
+      }));
+    });
+    lines.forEach((n, i) => { drift += Math.abs(i - seeds.indexOf(n)); });
+    return [repeats, samePool, drift];
+  };
+  const better = (a, b) => {
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i];
+    return false;
+  };
+  // Two guardrails on what may move. The bottom seeds are the ones who play
+  // in, and that must stay true whatever we do about rematches - so a swap
+  // never crosses the play-in boundary. And a team only ever shifts a few
+  // lines, so avoiding a rematch cannot quietly hand someone a much harder
+  // draw than they earned.
+  const playInFrom = cfg.draw - cfg.pis.length;
+  const zone = i => (i < playInFrom ? 0 : 1);
+  const MAX_SHIFT = 6;
+  const maySwap = (i, j) => zone(i) === zone(j) && Math.abs(i - j) <= MAX_SHIFT;
+
+  const lines = seeds.slice();
+  let cur = cost(lines), improved = true, guard = 0;
+  while (improved && guard++ < 40){
+    improved = false;
+    for (let i = 0; i < lines.length && !improved; i++){
+      for (let j = i + 1; j < lines.length; j++){
+        if (!maySwap(i, j)) continue;
+        [lines[i], lines[j]] = [lines[j], lines[i]];
+        const c = cost(lines);
+        if (better(c, cur)){ cur = c; improved = true; break; }
+        [lines[i], lines[j]] = [lines[j], lines[i]];
+      }
+    }
+  }
+  return {lines, repeats: cur[0], samePool: cur[1], drift: cur[2]};
+}
+function seedBracket(div, seeds){
+  const cfg = CFG[div];
+  const arranged = arrangeLines(cfg, seeds);
+  BR[div] = Object.assign(emptyBracket(cfg), {
+    locked: true, seeds: seeds, lines: arranged.lines,
+    avoid: {repeats: arranged.repeats, samePool: arranged.samePool}
+  });
+  saveBracket(div);
+}
+
 const emptyBracket = cfg => ({
-  locked: false, seeds: [],
+  locked: false, seeds: [], lines: [], avoid: null,
   pi: cfg.pis.map(() => null),
   rounds: Array.from({length: cfg.nRounds}, (_, r) => Array(cfg.draw >> (r + 1)).fill(null)),
   final: [null, null, null]
@@ -1198,8 +1285,14 @@ function saveBracket(div){
 const attr = s => esc(s).replace(/"/g, '&quot;');
 function lineTeam(cfg, st, seedIdx){
   const k = cfg.pis.findIndex(p => p.hi === seedIdx);
-  return k >= 0 ? st.pi[k] : (st.seeds[seedIdx] || null);
+  const onLine = (st.lines && st.lines.length ? st.lines : st.seeds) || [];
+  return k >= 0 ? st.pi[k] : (onLine[seedIdx] || null);
 }
+/* What a team actually earned, whatever line it ended up on. */
+const trueSeed = (st, name) => {
+  const i = (st.seeds || []).indexOf(name);
+  return i >= 0 ? String(i + 1) : '';
+};
 function roundTeams(cfg, st, r){
   return r === 0 ? cfg.order.map(si => lineTeam(cfg, st, si)) : st.rounds[r-1].slice();
 }
@@ -1261,7 +1354,13 @@ function renderBracket(div){
       (cfg.pis.length
         ? 'Seeds 1&ndash;'+(cfg.draw - cfg.pis.length)+' start in the '+roundName(cfg.draw, 0)+'; the bottom '+(cfg.pis.length * 2)+' play in for the last '+cfg.pis.length+' line'+(cfg.pis.length === 1 ? '' : 's')+'. '
         : '') +
-      'Every match is one game to 25 &mdash; the Final is best 2 of 3. Tap a team to advance them.</div>'+
+      'Every match is one game to 25 &mdash; the Final is best 2 of 3. Tap a team to advance them.' +
+      (st.avoid
+        ? (st.avoid.repeats === 0
+            ? ' <b>Round one avoids rematches</b>, so seeds may not sit in textbook order.'
+            : ' Round one still has ' + st.avoid.repeats + ' unavoidable rematch' +
+              (st.avoid.repeats === 1 ? '' : 'es') + '.')
+        : '') + '</div>'+
     (unlocked
       ? '<div class="btnbar"><button class="btn ghost" data-clear="'+div+'">Clear picks</button>'+
         '<button class="btn danger" data-reseed="'+div+'">Unlock &amp; re-seed</button></div>'
@@ -1269,8 +1368,12 @@ function renderBracket(div){
 
   if (cfg.pis.length){
     html += '<div class="bround"><h4>Play-in &mdash; winner takes the seed line</h4><div class="bgrid">' +
-      cfg.pis.map((p, i) => matchBox(div, 'pi', 0, i, st.seeds[p.hi], st.seeds[p.lo],
-        'Seed '+(p.hi+1)+' v Seed '+(p.lo+1), String(p.hi+1), String(p.lo+1), 'pi')).join('') +
+      cfg.pis.map((p, i) => {
+        const onLine = (st.lines && st.lines.length) ? st.lines : st.seeds;
+        const a = onLine[p.hi], b = onLine[p.lo];
+        return matchBox(div, 'pi', 0, i, a, b,
+          'Play-in ' + (i + 1), trueSeed(st, a), trueSeed(st, b), 'pi');
+      }).join('') +
       '</div></div>';
   }
 
@@ -1280,10 +1383,10 @@ function renderBracket(div){
     for (let i = 0; i < teams.length / 2; i++){
       const a = teams[2*i], b = teams[2*i + 1];
       const label = r === 0
-        ? (cfg.order[2*i] + 1) + ' v ' + (cfg.order[2*i + 1] + 1)
+        ? (trueSeed(st, a) || 'PI') + ' v ' + (trueSeed(st, b) || 'PI')
         : roundAbbr(cfg.draw, r) + ' ' + (i + 1);
-      const la = r === 0 ? String(cfg.order[2*i] + 1) : '';
-      const lb = r === 0 ? String(cfg.order[2*i + 1] + 1) : '';
+      const la = r === 0 ? trueSeed(st, a) : '';
+      const lb = r === 0 ? trueSeed(st, b) : '';
       boxes.push(matchBox(div, 'r', r, i, a, b, label, la, lb, ''));
     }
     html += '<div class="bround"><h4>'+roundName(cfg.draw, r)+'</h4><div class="bgrid">'+boxes.join('')+'</div></div>';
@@ -1338,8 +1441,8 @@ document.addEventListener('click', e => {
       postHeight();
       return;
     }
-    BR[div] = Object.assign(emptyBracket(CFG[div]), {locked:true, seeds});
-    saveBracket(div); renderBracket(div); postHeight();
+    seedBracket(div, seeds);
+    renderBracket(div); postHeight();
     return;
   }
   const clr = e.target.closest('[data-clear]');
@@ -1375,8 +1478,7 @@ function autoLock(div){
   if (!gamesOfDiv(div).every(isFinal)) return;
   const seeds = seedsOf(div);
   if (seeds.length < CFG[div].field) return;
-  BR[div] = Object.assign(emptyBracket(CFG[div]), {locked:true, seeds});
-  saveBracket(div);
+  seedBracket(div, seeds);
 }
 
 /* Everything downstream of a score, in one call. */
