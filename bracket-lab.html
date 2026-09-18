@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bracket layout - prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Pacifico&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+</head>
+<body>
+<style>
+  :root{
+    --ink:#0E1724; --deep:#16202E; --card:#1E2A3B; --edge:#33455C; --fog:#93A6BC; --snow:#F4EFE4;
+    --gold:#F2CE63; --pink:#FF4FA3; --lime:#86E04A; --orange:#F5883C; --aqua:#34C6C0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--ink);color:var(--snow);font-family:'Barlow',system-ui,sans-serif;
+       font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:940px;margin:0 auto}
+  .lab{background:var(--pink);color:var(--ink);padding:8px 16px;font-family:'Barlow Condensed',sans-serif;
+       font-weight:700;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase}
+  header{background:var(--deep);padding:20px 16px 18px}
+  header h1{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(26px,7vw,38px);
+            color:var(--gold);line-height:.95}
+  header .script{font-family:'Pacifico',cursive;color:var(--pink);font-size:clamp(16px,4.4vw,22px);
+                 text-transform:none;display:block;margin-top:2px}
+  .bar{padding:14px 16px;display:grid;gap:10px;border-bottom:1px solid var(--edge)}
+  .tabs{display:flex;gap:8px}
+  .tab{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.11em;
+       text-transform:uppercase;padding:11px 10px;border:2px solid var(--aqua);border-radius:4px;
+       background:transparent;color:var(--aqua);cursor:pointer;min-height:44px}
+  .tab[aria-selected="true"]{background:var(--aqua);color:var(--ink)}
+  select,.btn{font-family:'Barlow',sans-serif;font-size:16px;font-weight:600;padding:12px 13px;
+       border:2px solid var(--edge);border-radius:5px;background:var(--deep);color:var(--snow);width:100%}
+  .btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+       font-size:13.5px;border-color:var(--aqua);color:var(--aqua);background:transparent;cursor:pointer;min-height:44px}
+  .btnrow{display:flex;gap:8px}
+
+  /* ── the path panel ── */
+  .path{margin:0 16px 4px;background:var(--card);border:1px solid var(--edge);
+        border-left:5px solid var(--gold);border-radius:6px;padding:14px 15px}
+  .path h2{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:19px;color:var(--gold);line-height:1}
+  .path .seedline{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+                  letter-spacing:.12em;text-transform:uppercase;color:var(--fog);margin:5px 0 10px}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:9px 0;
+        border-top:1px solid var(--edge)}
+  .step:first-of-type{border-top:0}
+  .step .net{font-family:'Anton',sans-serif;font-size:14px;background:var(--aqua);color:var(--ink);
+             border-radius:4px;padding:6px 8px 5px;text-align:center;line-height:1;min-width:52px}
+  .step .net small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:8.5px;
+                   letter-spacing:.12em;opacity:.8;margin-top:2px}
+  .step .rd{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.11em;
+            text-transform:uppercase;color:var(--fog)}
+  .step .vs{font-weight:700;font-size:16px;line-height:1.25}
+  .step.cond .vs{color:var(--fog);font-style:italic;font-weight:600}
+
+  /* ── swipeable rounds ── */
+  .dots{display:flex;gap:6px;padding:14px 16px 8px;overflow-x:auto}
+  .dot{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.1em;
+       text-transform:uppercase;padding:7px 12px;border-radius:20px;border:1px solid var(--edge);
+       background:transparent;color:var(--fog);cursor:pointer;white-space:nowrap}
+  .dot[aria-current="true"]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .pager{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+         gap:0;scrollbar-width:none}
+  .pager::-webkit-scrollbar{display:none}
+  .col{flex:0 0 100%;scroll-snap-align:start;padding:4px 16px 28px}
+  .col h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:21px;color:var(--gold);
+          margin-bottom:2px}
+  .col .meta{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.12em;
+             text-transform:uppercase;color:var(--fog);margin-bottom:12px}
+  .m{background:var(--card);border:1px solid var(--edge);border-radius:6px;margin-bottom:10px;overflow:hidden}
+  .m.mine{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+  .m-top{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#182335;
+         border-bottom:1px solid var(--edge)}
+  .m-net{font-family:'Anton',sans-serif;font-size:13px;background:var(--aqua);color:var(--ink);
+         border-radius:3px;padding:3px 8px 2px}
+  .m-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;
+          color:var(--fog);font-variant-numeric:tabular-nums}
+  .m-id{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+        letter-spacing:.12em;text-transform:uppercase;color:var(--fog)}
+  .side{display:flex;align-items:center;gap:10px;padding:10px 12px}
+  .side + .side{border-top:1px solid var(--edge)}
+  .side .sd{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--fog);
+            min-width:26px;text-align:center}
+  .side .nm{flex:1;font-weight:700;font-size:15.5px;line-height:1.25;word-break:break-word}
+  .side .nm small{display:block;font-weight:500;font-size:12px;color:var(--fog)}
+  .side.tbd .nm{color:var(--fog);font-style:italic;font-weight:600}
+  .side.mine .nm{color:var(--gold)}
+  .legend{padding:0 16px 40px;color:var(--fog);font-size:13.5px;line-height:1.5}
+  .legend b{color:var(--snow)}
+</style>
+
+<div class="wrap">
+  <div class="lab">Prototype &mdash; not the live schedule</div>
+  <header>
+    <h1>Last Splash<span class="script">Bracket layout</span></h1>
+  </header>
+  <div class="bar">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-div="mens" aria-selected="true">Men&rsquo;s</button>
+      <button class="tab" role="tab" data-div="womens" aria-selected="false">Women&rsquo;s</button>
+    </div>
+    <select id="team"><option value="">Follow a team&hellip;</option></select>
+    <div class="btnrow">
+      <button class="btn" id="sim">Simulate pool results</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+  </div>
+  <div id="path"></div>
+  <div class="dots" id="dots"></div>
+  <div class="pager" id="pager"></div>
+  <p class="legend" id="legend"></p>
+</div>
+
+<script>
+const DATA = {"event":{"name":"Last Splash Beach Tournament","org":"Surf and Turf","date":"Sunday, September 20, 2026","venue":"Harbor Beach","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~2:15 PM","format":"2v2","iso":"2026-09-20","startMin":510,"roundMin":20},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"MA","name":"Men's Pool A","div":"mens","courts":[1,2],"teams":[{"name":"Birria Banh Mi","players":"Andres Ramirez / Dustin Tran","tier":"Upper Intermediate"},{"name":"Free Ballin'","players":"Nick Aldrete / Carlos Aldrete","tier":"Upper Intermediate"},{"name":"Heavily Defeated Super Social Pool Play Participation Medalists","players":"Juvenal Perez / Juvenal Perez","tier":"Upper Intermediate"},{"name":"Sideout Papi's","players":"Brandon Budde / Wilson Jones","tier":"Upper Intermediate"},{"name":"Spring Valley U","players":"Joshua Valencia / Kalani Saunar","tier":"Upper Intermediate"},{"name":"The empire spikes back","players":"Trevor Richardson / Hady hamer","tier":"Upper Intermediate"},{"name":"Vamos caralho","players":"Aidan Wahl / Andy Jaszczynski","tier":"Upper Intermediate"},{"name":"Feminist literature authors","players":"Aden tran / Elliot shand","tier":"Lower Intermediate"},{"name":"SDSU","players":"Katsuharu Patrick Glennon / Myles Joseph Plaskonos","tier":"Lower Intermediate"}]},{"key":"MB","name":"Men's Pool B","div":"mens","courts":[3,4],"teams":[{"name":"Block Party","players":"Ruben Sevilla / Adrian","tier":"Upper Intermediate"},{"name":"EXPLOSION DYNAMITE KINGS","players":"Jerry Santoro / Jerry Santoro","tier":"Upper Intermediate"},{"name":"Laguna Locos","players":"Scott Allan Furniss / Dallas Johnson","tier":"Upper Intermediate"},{"name":"Rocket and Groot","players":"Lance Jundy / Declan Noriega","tier":"Upper Intermediate"},{"name":"Stupid slunks","players":"Max sluss / Xavier sluss","tier":"Upper Intermediate"},{"name":"Jack & Christian","players":"Jack Vermaak / Christian Gallardi","tier":"Upper Intermediate"},{"name":"Abrahaximus","players":"Abraham Rycus / Max Parker","tier":"Lower Intermediate"},{"name":"Caramel & Cream","players":"Jose Perez / TBD","tier":"Lower Intermediate"}]},{"key":"WA","name":"Women's Pool A","div":"womens","courts":[5],"teams":[{"name":"2nd string theory","players":"Maria Adams / Kayla Redfield","tier":"Upper Intermediate"},{"name":"Lucy Goosey Fans","players":"Louisa Black / Paige Bensing","tier":"Upper Intermediate"},{"name":"Set Happens","players":"Allie Carmickle / Shayd Silva","tier":"Upper Intermediate"},{"name":"Monarchs","players":"Mallorie Schmidt / Kristin Gabriel","tier":"Lower Intermediate"},{"name":"NO HEIGHT ALL FIGHT","players":"Tessa Young / Claire Henderson","tier":"Lower Intermediate"}]},{"key":"WB","name":"Women's Pool B","div":"womens","courts":[6],"teams":[{"name":"4 Game Warm Up Required","players":"Haley Michel / Alex Beccari","tier":"Upper Intermediate"},{"name":"Izquierda Derecha","players":"Isa Lara / Shyann Bolos","tier":"Upper Intermediate"},{"name":"Twin Terrors","players":"Jessica Shuen / Megan Meyerholtz","tier":"Upper Intermediate"},{"name":"All Gas, No Breaks","players":"Emily Correa / Kim Guillen","tier":"Lower Intermediate"},{"name":"Kiana & Sarah","players":"Kiana Perez / Sarah Carr","tier":"Lower Intermediate"}]}],"games":[{"r":1,"ct":1,"pool":"MA","a":"Birria Banh Mi","b":"Free Ballin'"},{"r":1,"ct":2,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Spring Valley U"},{"r":2,"ct":1,"pool":"MA","a":"Sideout Papi's","b":"Spring Valley U"},{"r":2,"ct":2,"pool":"MA","a":"The empire spikes back","b":"Feminist literature authors"},{"r":3,"ct":1,"pool":"MA","a":"Vamos caralho","b":"Feminist literature authors"},{"r":3,"ct":2,"pool":"MA","a":"SDSU","b":"Free Ballin'"},{"r":4,"ct":1,"pool":"MA","a":"Free Ballin'","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":4,"ct":2,"pool":"MA","a":"Sideout Papi's","b":"The empire spikes back"},{"r":5,"ct":1,"pool":"MA","a":"Spring Valley U","b":"The empire spikes back"},{"r":5,"ct":2,"pool":"MA","a":"Vamos caralho","b":"SDSU"},{"r":6,"ct":1,"pool":"MA","a":"Feminist literature authors","b":"SDSU"},{"r":6,"ct":2,"pool":"MA","a":"Birria Banh Mi","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":7,"ct":1,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Sideout Papi's"},{"r":7,"ct":2,"pool":"MA","a":"Spring Valley U","b":"Vamos caralho"},{"r":8,"ct":1,"pool":"MA","a":"The empire spikes back","b":"Vamos caralho"},{"r":8,"ct":2,"pool":"MA","a":"Feminist literature authors","b":"Birria Banh Mi"},{"r":9,"ct":1,"pool":"MA","a":"SDSU","b":"Birria Banh Mi"},{"r":9,"ct":2,"pool":"MA","a":"Free Ballin'","b":"Sideout Papi's"},{"r":1,"ct":3,"pool":"MB","a":"Block Party","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":4,"pool":"MB","a":"Laguna Locos","b":"Stupid slunks"},{"r":2,"ct":3,"pool":"MB","a":"Rocket and Groot","b":"Stupid slunks"},{"r":2,"ct":4,"pool":"MB","a":"Jack & Christian","b":"Caramel & Cream"},{"r":3,"ct":3,"pool":"MB","a":"Abrahaximus","b":"Caramel & Cream"},{"r":3,"ct":4,"pool":"MB","a":"Block Party","b":"Laguna Locos"},{"r":4,"ct":3,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Laguna Locos"},{"r":4,"ct":4,"pool":"MB","a":"Rocket and Groot","b":"Jack & Christian"},{"r":5,"ct":3,"pool":"MB","a":"Stupid slunks","b":"Jack & Christian"},{"r":5,"ct":4,"pool":"MB","a":"Abrahaximus","b":"Block Party"},{"r":6,"ct":3,"pool":"MB","a":"Caramel & Cream","b":"Block Party"},{"r":6,"ct":4,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Rocket and Groot"},{"r":7,"ct":3,"pool":"MB","a":"Laguna Locos","b":"Rocket and Groot"},{"r":7,"ct":4,"pool":"MB","a":"Stupid slunks","b":"Abrahaximus"},{"r":8,"ct":3,"pool":"MB","a":"Jack & Christian","b":"Abrahaximus"},{"r":8,"ct":4,"pool":"MB","a":"Caramel & Cream","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":5,"pool":"WA","a":"Monarchs","b":"NO HEIGHT ALL FIGHT"},{"r":2,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Set Happens"},{"r":3,"ct":5,"pool":"WA","a":"2nd string theory","b":"NO HEIGHT ALL FIGHT"},{"r":4,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Monarchs"},{"r":5,"ct":5,"pool":"WA","a":"2nd string theory","b":"Set Happens"},{"r":6,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"NO HEIGHT ALL FIGHT"},{"r":7,"ct":5,"pool":"WA","a":"Set Happens","b":"Monarchs"},{"r":8,"ct":5,"pool":"WA","a":"2nd string theory","b":"Lucy Goosey Fans"},{"r":9,"ct":5,"pool":"WA","a":"Set Happens","b":"NO HEIGHT ALL FIGHT"},{"r":10,"ct":5,"pool":"WA","a":"2nd string theory","b":"Monarchs"},{"r":1,"ct":6,"pool":"WB","a":"All Gas, No Breaks","b":"Kiana & Sarah"},{"r":2,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Twin Terrors"},{"r":3,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Kiana & Sarah"},{"r":4,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"All Gas, No Breaks"},{"r":5,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Twin Terrors"},{"r":6,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Kiana & Sarah"},{"r":7,"ct":6,"pool":"WB","a":"Twin Terrors","b":"All Gas, No Breaks"},{"r":8,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Izquierda Derecha"},{"r":9,"ct":6,"pool":"WB","a":"Twin Terrors","b":"Kiana & Sarah"},{"r":10,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"All Gas, No Breaks"}]};
+
+/* ── who has played whom, for rematch avoidance ── */
+const pairKey = (a,b) => [a,b].sort().join(' :: ');
+const PLAYED = new Set(DATA.games.map(g => pairKey(g.a,g.b)));
+const POOL_OF = {}; DATA.pools.forEach(p => p.teams.forEach(t => POOL_OF[t.name] = p));
+const TEAM = {}; DATA.pools.forEach(p => p.teams.forEach(t => TEAM[t.name] = t));
+const poolOf = n => POOL_OF[n] ? POOL_OF[n].key : '?';
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const teamsIn = d => DATA.pools.filter(p=>p.div===d).reduce((n,p)=>n+p.teams.length,0);
+
+/* ── bracket shape: field F into the largest power of two D <= F, the
+      2*(F-D) teams below the cut playing in for the bottom lines ── */
+function seedOrder(n){ let a=[0]; while(a.length<n){ const m=a.length*2, b=[];
+  a.forEach(x=>{ b.push(x); b.push(m-1-x); }); a=b; } return a; }
+function cfgFor(div){
+  const field = teamsIn(div);
+  let draw = 1; while (draw*2 <= field) draw *= 2;
+  const extra = field - draw;
+  const pis = Array.from({length:extra},(_,k)=>({hi: draw-extra+k, lo: field-1-k, line: draw-extra+k}));
+  return {div, field, draw, pis, order: seedOrder(draw), rounds: Math.log2(draw)};
+}
+const CFG = {mens: cfgFor('mens'), womens: cfgFor('womens')};
+
+/* ── net + time plan. Each division keeps the nets it used in pool play. ── */
+const SLOT = 20;
+const clock = m => { const h=Math.floor(m/60), mm=m%60, hh=h%12===0?12:h%12;
+  return hh+':'+String(mm).padStart(2,'0')+(h<12?' AM':' PM'); };
+const span = m => clock(m)+' – '+clock(m+SLOT);
+const PLAN = {
+  mens:   {nets:[1,2,3,4], pi:11*60+30, r0:11*60+50, sfNets:[1,2], finalNet:1},
+  womens: {nets:[5,6],     pi:11*60+50, r0:12*60+10, sfNets:[5,6], finalNet:5}
+};
+
+/* Matches fed by a play-in go in the later wave: that winner has just come off
+   a game, and the whole point of laying this out in advance is that nobody is
+   sent straight back on. */
+function assign(count, nets, startMin, lateFirst){
+  const idx = Array.from({length:count},(_,i)=>i);
+  const late = new Set(lateFirst || []);
+  const ordered = idx.filter(i=>!late.has(i)).concat(idx.filter(i=>late.has(i)));
+  const out = [];
+  ordered.forEach((matchIdx, pos) => {
+    const wave = Math.floor(pos / nets.length);
+    out[matchIdx] = {net: nets[pos % nets.length], wave, time: span(startMin + wave*SLOT)};
+  });
+  return out;
+}
+
+function buildRounds(div, seeds){
+  const cfg = CFG[div], P = PLAN[div];
+  const lines = arrangeLines(cfg, seeds);
+  const nameAt = i => lines[i] || null;
+  const R = [];
+
+  if (cfg.pis.length){
+    const a = assign(cfg.pis.length, P.nets, P.pi, []);
+    R.push({key:'pi', name: cfg.pis.length>1?'Play-ins':'Play-in',
+      matches: cfg.pis.map((p,i)=>({
+        id:'PI '+(i+1), ...a[i],
+        sides:[{seed:p.hi+1, name:nameAt(p.hi)}, {seed:p.lo+1, name:nameAt(p.lo)}]
+      }))});
+  }
+  // round 0: the draw proper
+  const piLines = new Set(cfg.pis.map(p=>p.line));
+  const r0 = [];
+  for (let i=0;i<cfg.draw;i+=2){
+    const x=cfg.order[i], y=cfg.order[i+1];
+    r0.push({x,y,fed: piLines.has(x)||piLines.has(y)});
+  }
+  const lateIdx = r0.map((m,i)=>m.fed?i:-1).filter(i=>i>=0);
+  const a0 = assign(r0.length, P.nets, P.r0, lateIdx);
+  const r0Name = {16:'Round of 16', 8:'Quarterfinals', 4:'Semifinals'}[cfg.draw] || 'Round 1';
+  R.push({key:'r0', name:r0Name, matches: r0.map((m,i)=>({
+    id: r0Name.replace(/[^A-Z0-9]/g,'').slice(0,3).toUpperCase()+' '+(i+1), ...a0[i],
+    sides:[
+      {seed:m.x+1, name: piLines.has(m.x)?null:nameAt(m.x), from: piLines.has(m.x)?'Play-in winner':null},
+      {seed:m.y+1, name: piLines.has(m.y)?null:nameAt(m.y), from: piLines.has(m.y)?'Play-in winner':null}
+    ]}))});
+  // later rounds fold the winners
+  let prev = R[R.length-1], size = cfg.draw/2, start = P.r0 + a0.reduce((m,g)=>Math.max(m,g.wave),0)*SLOT + SLOT;
+  while (size >= 2){
+    const nm = {8:'Quarterfinals',4:'Semifinals',2:'Final'}[size] || ('Round of '+size);
+    if (size === 2){
+      const games = [0,1,2].map(g=>({id:'Game '+(g+1), net:P.finalNet, wave:g, time:span(start+g*SLOT),
+        sides:[{from:'Semifinal 1 winner'},{from:'Semifinal 2 winner'}]}));
+      R.push({key:'f', name:'Final', note:'best 2 of 3', matches:games});
+      break;
+    }
+    const nets = size===4 ? P.sfNets : PLAN[div].nets;
+    const a = assign(size/2, nets, start, []);
+    const abbr = size===8?'QF':size===4?'SF':'R'+size;
+    R.push({key:'r'+size, name:nm, matches: Array.from({length:size/2},(_,i)=>({
+      id: abbr+' '+(i+1), ...a[i],
+      sides:[{from: prev.matches[2*i].id+' winner'},{from: prev.matches[2*i+1].id+' winner'}]
+    }))});
+    prev = R[R.length-1];
+    start += (Math.max(...a.map(g=>g.wave))+1)*SLOT;
+    size /= 2;
+  }
+  return {rounds:R, lines, cfg};
+}
+
+/* ── seeding + rematch-avoiding line assignment (same rules as the live page) ── */
+function tally(games, scores){
+  const t={};
+  games.forEach(g=>{
+    [g.a,g.b].forEach(n=>{ if(!t[n]) t[n]={name:n,w:0,l:0,pf:0,pa:0}; });
+    const s=scores[g.r+'-'+g.ct]; if(!s) return;
+    t[g.a].pf+=s[0]; t[g.a].pa+=s[1]; t[g.b].pf+=s[1]; t[g.b].pa+=s[0];
+    if(s[0]>s[1]){t[g.a].w++;t[g.b].l++;} else if(s[1]>s[0]){t[g.b].w++;t[g.a].l++;}
+  });
+  return Object.values(t).map(x=>({...x,diff:x.pf-x.pa}))
+    .sort((a,b)=>b.w-a.w||b.diff-a.diff||b.pf-a.pf||a.name.localeCompare(b.name)).map(x=>x.name);
+}
+function occupantsOf(cfg, lines, i){
+  const k = cfg.pis.findIndex(p=>p.line===i);
+  if (k<0) return [lines[i]].filter(Boolean);
+  return [lines[cfg.pis[k].hi], lines[cfg.pis[k].lo]].filter(Boolean);
+}
+function arrangeLines(cfg, seeds){
+  if (!seeds.length) return [];
+  const pairs = cfg.pis.map(p=>[p.hi,p.lo]);
+  for (let i=0;i<cfg.draw;i+=2) pairs.push([cfg.order[i],cfg.order[i+1]]);
+  const cost = L => {
+    let certain=0,maybe=0,sp=0,drift=0;
+    pairs.forEach(([x,y])=>{
+      const as=occupantsOf(cfg,L,x), bs=occupantsOf(cfg,L,y), settled=as.length===1&&bs.length===1;
+      as.forEach(a=>bs.forEach(b=>{ if(a===b)return;
+        if(PLAYED.has(pairKey(a,b))){ settled?certain++:maybe++; }
+        else if(poolOf(a)===poolOf(b)) sp++; }));
+    });
+    L.forEach((n,i)=>{ drift+=Math.abs(i-seeds.indexOf(n)); });
+    return [certain,maybe,sp,drift];
+  };
+  const lt=(a,b)=>{for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]<b[i]; return false;};
+  const playInFrom = cfg.draw - cfg.pis.length;
+  const zone = i => i < playInFrom ? 0 : 1;
+  const may = (i,j) => zone(i)===zone(j) && Math.abs(i-j)<=6;
+  const L = seeds.slice();
+  let cur=cost(L), improved=true, guard=0;
+  while(improved && guard++<40){
+    improved=false;
+    for(let i=0;i<L.length&&!improved;i++) for(let j=i+1;j<L.length;j++){
+      if(!may(i,j)) continue;
+      [L[i],L[j]]=[L[j],L[i]];
+      const c=cost(L);
+      if(lt(c,cur)){cur=c;improved=true;break;}
+      [L[i],L[j]]=[L[j],L[i]];
+    }
+  }
+  return L;
+}
+
+/* ── state ── */
+let SCORES = {}, DIV = 'mens', FOLLOW = '';
+const $ = id => document.getElementById(id);
+const gamesOf = d => DATA.games.filter(g => POOL_OF[g.a].div === d);
+const seedsOf = d => Object.keys(SCORES).length ? tally(gamesOf(d), SCORES) : [];
+
+/* ── render ── */
+function sideHTML(s, seeds){
+  const mine = FOLLOW && s.name === FOLLOW;
+  const known = !!s.name;
+  const label = known ? esc(s.name) + (TEAM[s.name] ? '<small>'+esc(TEAM[s.name].players)+'</small>' : '')
+                      : esc(s.from || ('Seed ' + s.seed));
+  return '<div class="side'+(known?'':' tbd')+(mine?' mine':'')+'">'+
+    '<span class="sd">'+(s.seed?s.seed:'–')+'</span>'+
+    '<span class="nm">'+label+'</span></div>';
+}
+function render(){
+  const seeds = seedsOf(DIV);
+  const built = buildRounds(DIV, seeds);
+  const rounds = built.rounds;
+  $('pager').innerHTML = rounds.map(r =>
+    '<div class="col"><h3>'+esc(r.name)+'</h3>'+
+    '<div class="meta">'+r.matches.length+(r.note?' games · '+r.note:' match'+(r.matches.length>1?'es':''))+
+      ' · nets '+[...new Set(r.matches.map(m=>m.net))].join(', ')+'</div>'+
+    r.matches.map(m=>{
+      const mine = FOLLOW && m.sides.some(s=>s.name===FOLLOW);
+      return '<div class="m'+(mine?' mine':'')+'">'+
+        '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
+        '<span class="m-time">'+m.time+'</span><span class="m-id">'+esc(m.id)+'</span></div>'+
+        m.sides.map(s=>sideHTML(s,seeds)).join('')+'</div>';
+    }).join('')+'</div>').join('');
+  $('dots').innerHTML = rounds.map((r,i)=>
+    '<button class="dot" data-i="'+i+'"'+(i===0?' aria-current="true"':'')+'>'+esc(r.name)+'</button>').join('');
+  renderPath(built, seeds);
+  $('legend').innerHTML = seeds.length
+    ? '<b>Seeded from pool results.</b> Every match already has its net and time. Swipe across the rounds, or tap a round above.'
+    : '<b>Pool play has not finished, so no names yet.</b> The nets and times are already fixed, which is the point &mdash; teams know where to be before they know who they play. Tap <b>Simulate pool results</b> to see it filled in.';
+}
+function renderPath(built, seeds){
+  const box = $('path');
+  if (!FOLLOW || POOL_OF[FOLLOW].div !== DIV){ box.innerHTML = ''; return; }
+  const {rounds, lines, cfg} = built;
+  const seedNo = seeds.indexOf(FOLLOW) + 1;
+  const steps = [];
+
+  if (seeds.length){
+    const li = lines.indexOf(FOLLOW);
+    if (li >= 0){
+      const pi = cfg.pis.find(p => p.hi === li || p.lo === li);
+      const line = pi ? pi.line : li;
+      const pos = cfg.order.indexOf(line);
+      let played = false;
+      rounds.forEach(r => {
+        if (r.key === 'pi'){
+          if (!pi) return;
+          const idx = cfg.pis.indexOf(pi), m = r.matches[idx];
+          const opp = m.sides.find(s => s.name !== FOLLOW);
+          steps.push({net:m.net, time:m.time, rd:r.name,
+            vs: opp && opp.name ? 'vs ' + opp.name : 'vs TBD', cond:false});
+          played = true;
+          return;
+        }
+        if (r.key === 'f'){
+          const m = r.matches[0];
+          steps.push({net:m.net, time:m.time, rd:'Final \u00b7 best 2 of 3',
+            vs:'if you get there', cond:true});
+          return;
+        }
+        const rIdx = rounds.filter(x => x.key !== 'pi' && x.key !== 'f').indexOf(r);
+        const m = r.matches[Math.floor(pos / Math.pow(2, rIdx + 1))];
+        if (!m) return;
+        const mine = m.sides.some(s => s.name === FOLLOW);
+        const opp = m.sides.find(s => s.name !== FOLLOW);
+        steps.push({net:m.net, time:m.time, rd:r.name,
+          vs: mine && opp && opp.name ? 'vs ' + opp.name
+            : mine ? 'vs ' + (opp && opp.from ? opp.from : 'TBD')
+            : 'if you win the ' + (played ? 'previous round' : 'round before'),
+          cond: !mine});
+        if (mine) played = true;
+      });
+    }
+  }
+  box.innerHTML = '<div class="path"><h2>'+esc(FOLLOW)+'</h2>'+
+    '<div class="seedline">'+(seedNo>0 ? 'Seed '+seedNo+' of '+seeds.length : 'Seeded once pool play ends')+
+      ' \u00b7 '+esc(POOL_OF[FOLLOW].name)+'</div>'+
+    (steps.length ? steps.map(s=>
+      '<div class="step'+(s.cond?' cond':'')+'">'+
+      '<span class="net">'+s.net+'<small>Net</small></span>'+
+      '<span><span class="rd">'+esc(s.rd)+' \u00b7 '+s.time+'</span>'+
+      '<span class="vs">'+esc(s.vs)+'</span></span></div>').join('')
+      : '<div class="step"><span class="net">?<small>Net</small></span><span><span class="vs">'+
+        'Your bracket path appears once pool play is scored.</span></span></div>')+
+    '</div>';
+}
+
+/* ── wiring ── */
+DATA.pools.forEach(p => {
+  const g = document.createElement('optgroup'); g.label = p.name;
+  p.teams.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.name; o.textContent=t.name; g.appendChild(o);
+  });
+  $('team').appendChild(g);
+});
+$('team').addEventListener('change', e => {
+  FOLLOW = e.target.value;
+  if (FOLLOW && POOL_OF[FOLLOW].div !== DIV){
+    DIV = POOL_OF[FOLLOW].div;
+    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', String(t.dataset.div===DIV)));
+  }
+  render();
+});
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  DIV = t.dataset.div;
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', String(x===t)));
+  render(); $('pager').scrollLeft = 0;
+}));
+$('sim').addEventListener('click', () => {
+  let s = Date.now() % 100000;
+  const rnd = n => { s=(s*1103515245+12345)&0x7fffffff; return s%n; };
+  SCORES = {};
+  DATA.games.forEach(g => { const w=21,l=12+rnd(8); SCORES[g.r+'-'+g.ct] = rnd(2)?[w,l]:[l,w]; });
+  render();
+});
+$('clear').addEventListener('click', () => { SCORES = {}; render(); });
+$('dots').addEventListener('click', e => {
+  const d = e.target.closest('.dot'); if(!d) return;
+  $('pager').scrollTo({left: $('pager').clientWidth * Number(d.dataset.i), behavior:'smooth'});
+});
+$('pager').addEventListener('scroll', () => {
+  const i = Math.round($('pager').scrollLeft / $('pager').clientWidth);
+  [...$('dots').children].forEach((d,j)=>d.setAttribute('aria-current', String(j===i)));
+}, {passive:true});
+render();
+</script>
+</body>
+</html>
