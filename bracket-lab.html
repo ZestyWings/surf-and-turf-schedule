@@ -34,7 +34,17 @@
   .btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
        font-size:13.5px;border-color:var(--aqua);color:var(--aqua);background:transparent;cursor:pointer;min-height:44px}
   .btnrow{display:flex;gap:8px}
-  .lockbar{background:var(--card);border:1px solid var(--edge);border-left:5px solid var(--gold);
+  /* A quiet padlock at the foot of the page. Players never need it; the desk
+     taps it once and the device stays unlocked. */
+  .adminbar{display:flex;justify-content:center;padding:0 16px 46px}
+  .lockbtn{background:none;border:1px solid var(--edge);border-radius:20px;cursor:pointer;
+           color:var(--fog);font-size:15px;line-height:1;padding:8px 14px;min-height:38px;
+           display:flex;align-items:center;gap:7px}
+  .lockbtn .t{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+              letter-spacing:.14em;text-transform:uppercase}
+  .lockbtn.on{border-color:var(--lime);color:var(--lime)}
+  .lockbtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .lockbar{margin-top:10px;background:var(--card);border:1px solid var(--edge);border-left:5px solid var(--gold);
            border-radius:6px;padding:12px 14px}
   .lockbar.open{border-left-color:var(--lime)}
   .lockbar .lk{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
@@ -48,6 +58,7 @@
   .lockbar input.pin:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
   .lockbar .msg{color:#FF5F6D;font-weight:700;font-size:13.5px;margin:8px 0 0}
   .lockbar .btn{width:auto;padding:11px 16px}
+  .adminbar > div{width:100%;max-width:420px}
   .src{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
        letter-spacing:.12em;text-transform:uppercase;color:var(--fog);padding:0 16px 6px}
 
@@ -129,6 +140,8 @@
             border:2px solid var(--edge);border-radius:5px;font-family:'Barlow',sans-serif}
   .side .sc:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
   .side .sc:disabled{opacity:.35}
+  .side .scr{min-width:52px;text-align:center;font-size:18px;font-weight:700;
+             font-variant-numeric:tabular-nums;color:var(--snow)}
   .side.won{background:#22382B}
   .side.won .nm{color:var(--lime)}
   .side.lost{opacity:.55}
@@ -156,13 +169,14 @@
       <button class="tab" role="tab" data-div="womens" aria-selected="false">Women&rsquo;s</button>
     </div>
     <select id="team"><option value="">Follow a team&hellip;</option></select>
-    <div id="lock"></div>
+
   </div>
   <p class="src" id="src"></p>
   <div id="path"></div>
   <div class="dots" id="dots"></div>
   <div class="pager" id="pager"></div>
   <p class="legend" id="legend"></p>
+  <div class="adminbar" id="lock"></div>
 </div>
 
 <script>
@@ -385,18 +399,28 @@ async function sha256Hex(text){
   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
 }
+let lockPanel = false;
 function renderLock(){
-  $('lock').innerHTML = unlocked
-    ? '<div class="lockbar open"><span class="lk">Admin unlocked</span>' +
-      '<p>You can record bracket results on this device.</p>' +
-      '<button class="btn" data-lock="off">Lock again</button>' +
-      '<button class="btn" data-lock="wipe">Clear bracket</button></div>'
-    : '<div class="lockbar"><span class="lk">Locked</span>' +
-      '<p>Anyone can read the draw, the nets and the times. Recording results needs the admin PIN.</p>' +
-      '<form data-lock="on"><input class="pin" type="password" ' +
-      'inputmode="numeric" autocomplete="off" placeholder="Admin PIN" aria-label="Admin PIN">' +
-      '<button class="btn" type="submit">Unlock</button></form><p class="msg" hidden></p></div>';
+  const btn = '<button class="lockbtn'+(unlocked?' on':'')+'" data-lock="toggle" '+
+    'aria-label="'+(unlocked?'Admin unlocked':'Admin')+'">'+
+    (unlocked ? '\uD83D\uDD13' : '\uD83D\uDD12')+
+    '<span class="t">'+(unlocked ? 'Unlocked' : 'Admin')+'</span></button>';
+  let panel = '';
+  if (lockPanel){
+    panel = unlocked
+      ? '<div class="lockbar open"><span class="lk">Admin unlocked</span>' +
+        '<p>Scores can be recorded on this device. It stays unlocked until you lock it again.</p>' +
+        '<button class="btn" data-lock="off">Lock again</button>' +
+        '<button class="btn" data-lock="wipe">Clear bracket</button></div>'
+      : '<div class="lockbar"><span class="lk">Admin PIN</span>' +
+        '<p>Recording results needs the PIN. Everything else is readable by anyone.</p>' +
+        '<form data-lock="on"><input class="pin" type="password" inputmode="numeric" ' +
+        'autocomplete="off" placeholder="PIN" aria-label="Admin PIN">' +
+        '<button class="btn" type="submit">Unlock</button></form><p class="msg" hidden></p></div>';
+  }
+  $('lock').innerHTML = '<div>'+btn+panel+'</div>';
 }
+
 document.addEventListener('submit', async e => {
   const form = e.target.closest('form[data-lock="on"]'); if (!form) return;
   e.preventDefault();
@@ -412,14 +436,16 @@ document.addEventListener('submit', async e => {
   }
   if (good){
     unlocked = true;
+    lockPanel = false;                       // unlocked, so get out of the way
     try { localStorage.setItem(UNLOCK_KEY, PIN_HASH); } catch (e2) {}
     renderLock(); render();
   } else if (msg){ msg.hidden = false; msg.textContent = 'That PIN is not right.'; input.value=''; input.focus(); }
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-lock]'); if (!b) return;
+  if (b.dataset.lock === 'toggle'){ lockPanel = !lockPanel; renderLock(); return; }
   if (b.dataset.lock === 'off'){
-    unlocked = false;
+    unlocked = false; lockPanel = false;
     try { localStorage.removeItem(UNLOCK_KEY); } catch (e2) {}
     renderLock(); render();
   }
@@ -460,13 +486,16 @@ function sideHTML(side, m){
   const lost = both && sc[0] !== sc[1] && !won;
   const label = known ? esc(side.name) + (TEAM[side.name] ? '<small>'+esc(TEAM[side.name].players)+'</small>' : '')
                       : esc(side.from || ('Seed ' + side.seed));
+  // Locked, a score is a number to read; unlocked, it is a box to type in.
+  // Showing players a grid of empty inputs they cannot use is just noise.
+  const scoreCell = unlocked
+    ? '<input class="sc" type="number" inputmode="numeric" min="0" max="'+CAP+'" '+
+      'aria-label="score" data-k="'+m.k+'" data-n="'+n+'" '+
+      'value="'+(sc[n] == null ? '' : sc[n])+'"'+(known?'':' disabled')+'>'
+    : '<span class="scr">'+(sc[n] == null ? '' : sc[n])+'</span>';
   return '<div class="side'+(known?'':' tbd')+(mine?' mine':'')+(won?' won':'')+(lost?' lost':'')+'">'+
     '<span class="sd">'+(side.seed?side.seed:'\u2013')+'</span>'+
-    '<span class="nm">'+label+'</span>'+
-    '<input class="sc" type="number" inputmode="numeric" min="0" max="'+CAP+'" '+
-      'aria-label="score" data-k="'+m.k+'" data-n="'+n+'" '+
-      'value="'+(sc[n] == null ? '' : sc[n])+'"'+((known && unlocked)?'':' disabled')+'>'+
-    '</div>';
+    '<span class="nm">'+label+'</span>'+ scoreCell +'</div>';
 }
 
 /* One card. */
