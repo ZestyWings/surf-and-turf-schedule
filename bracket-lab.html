@@ -85,6 +85,34 @@
   .side .nm small{display:block;font-weight:500;font-size:12px;color:var(--fog)}
   .side.tbd .nm{color:var(--fog);font-style:italic;font-weight:600}
   .side.mine .nm{color:var(--gold)}
+  /* Two matches feed one, so they are braced together and labelled with where
+     the winner goes. That is the bit a flat list of cards cannot say. */
+  .pair{position:relative;padding-right:78px;margin-bottom:14px}
+  .pair .m{margin-bottom:8px}
+  .pair .m:last-of-type{margin-bottom:0}
+  .brace{position:absolute;right:54px;top:26px;bottom:26px;width:20px;
+         border:2px solid var(--edge);border-left:0;border-radius:0 10px 10px 0}
+  .brace::after{content:'';position:absolute;right:-13px;top:50%;width:13px;
+                border-top:2px solid var(--edge)}
+  .feeds{position:absolute;right:0;top:50%;transform:translateY(-50%);width:50px;
+         font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;
+         letter-spacing:.06em;text-transform:uppercase;color:var(--fog);line-height:1.15}
+  .pair.mine .brace{border-color:var(--gold)}
+  .pair.mine .brace::after{border-top-color:var(--gold)}
+  .pair.mine .feeds{color:var(--gold)}
+  .half{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+        letter-spacing:.16em;text-transform:uppercase;color:var(--fog);
+        margin:2px 0 8px;padding-top:8px;border-top:1px dashed var(--edge)}
+  .half:first-of-type{border-top:0;padding-top:0}
+
+  /* Whole-draw overview: where your line sits and who is on the other side. */
+  .map{margin:0 16px 10px;background:var(--card);border:1px solid var(--edge);
+       border-radius:6px;padding:10px 12px 8px}
+  .map .cap{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+            letter-spacing:.14em;text-transform:uppercase;color:var(--fog);margin-bottom:6px;
+            display:flex;gap:8px;align-items:baseline}
+  .map .cap b{color:var(--gold)}
+  .map svg{display:block;width:100%;height:auto}
   .legend{padding:0 16px 40px;color:var(--fog);font-size:13.5px;line-height:1.5}
   .legend b{color:var(--snow)}
 </style>
@@ -101,18 +129,19 @@
     </div>
     <select id="team"><option value="">Follow a team&hellip;</option></select>
     <div class="btnrow">
-      <button class="btn" id="sim">Simulate pool results</button>
-      <button class="btn" id="clear">Clear</button>
+      <button class="btn" id="sim">Reshuffle results</button>
+      <button class="btn" id="clear">Show pre-seeding</button>
     </div>
   </div>
   <div id="path"></div>
+  <div id="map"></div>
   <div class="dots" id="dots"></div>
   <div class="pager" id="pager"></div>
   <p class="legend" id="legend"></p>
 </div>
 
 <script>
-const DATA = {"event":{"name":"Last Splash Beach Tournament","org":"Surf and Turf","date":"Sunday, September 20, 2026","venue":"Harbor Beach","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~2:15 PM","format":"2v2","iso":"2026-09-20","startMin":510,"roundMin":20},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"MA","name":"Men's Pool A","div":"mens","courts":[1,2],"teams":[{"name":"Birria Banh Mi","players":"Andres Ramirez / Dustin Tran","tier":"Upper Intermediate"},{"name":"Free Ballin'","players":"Nick Aldrete / Carlos Aldrete","tier":"Upper Intermediate"},{"name":"Heavily Defeated Super Social Pool Play Participation Medalists","players":"Juvenal Perez / Juvenal Perez","tier":"Upper Intermediate"},{"name":"Sideout Papi's","players":"Brandon Budde / Wilson Jones","tier":"Upper Intermediate"},{"name":"Spring Valley U","players":"Joshua Valencia / Kalani Saunar","tier":"Upper Intermediate"},{"name":"The empire spikes back","players":"Trevor Richardson / Hady hamer","tier":"Upper Intermediate"},{"name":"Vamos caralho","players":"Aidan Wahl / Andy Jaszczynski","tier":"Upper Intermediate"},{"name":"Feminist literature authors","players":"Aden tran / Elliot shand","tier":"Lower Intermediate"},{"name":"SDSU","players":"Katsuharu Patrick Glennon / Myles Joseph Plaskonos","tier":"Lower Intermediate"}]},{"key":"MB","name":"Men's Pool B","div":"mens","courts":[3,4],"teams":[{"name":"Block Party","players":"Ruben Sevilla / Adrian","tier":"Upper Intermediate"},{"name":"EXPLOSION DYNAMITE KINGS","players":"Jerry Santoro / Jerry Santoro","tier":"Upper Intermediate"},{"name":"Laguna Locos","players":"Scott Allan Furniss / Dallas Johnson","tier":"Upper Intermediate"},{"name":"Rocket and Groot","players":"Lance Jundy / Declan Noriega","tier":"Upper Intermediate"},{"name":"Stupid slunks","players":"Max sluss / Xavier sluss","tier":"Upper Intermediate"},{"name":"Jack & Christian","players":"Jack Vermaak / Christian Gallardi","tier":"Upper Intermediate"},{"name":"Abrahaximus","players":"Abraham Rycus / Max Parker","tier":"Lower Intermediate"},{"name":"Caramel & Cream","players":"Jose Perez / TBD","tier":"Lower Intermediate"}]},{"key":"WA","name":"Women's Pool A","div":"womens","courts":[5],"teams":[{"name":"2nd string theory","players":"Maria Adams / Kayla Redfield","tier":"Upper Intermediate"},{"name":"Lucy Goosey Fans","players":"Louisa Black / Paige Bensing","tier":"Upper Intermediate"},{"name":"Set Happens","players":"Allie Carmickle / Shayd Silva","tier":"Upper Intermediate"},{"name":"Monarchs","players":"Mallorie Schmidt / Kristin Gabriel","tier":"Lower Intermediate"},{"name":"NO HEIGHT ALL FIGHT","players":"Tessa Young / Claire Henderson","tier":"Lower Intermediate"}]},{"key":"WB","name":"Women's Pool B","div":"womens","courts":[6],"teams":[{"name":"4 Game Warm Up Required","players":"Haley Michel / Alex Beccari","tier":"Upper Intermediate"},{"name":"Izquierda Derecha","players":"Isa Lara / Shyann Bolos","tier":"Upper Intermediate"},{"name":"Twin Terrors","players":"Jessica Shuen / Megan Meyerholtz","tier":"Upper Intermediate"},{"name":"All Gas, No Breaks","players":"Emily Correa / Kim Guillen","tier":"Lower Intermediate"},{"name":"Kiana & Sarah","players":"Kiana Perez / Sarah Carr","tier":"Lower Intermediate"}]}],"games":[{"r":1,"ct":1,"pool":"MA","a":"Birria Banh Mi","b":"Free Ballin'"},{"r":1,"ct":2,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Spring Valley U"},{"r":2,"ct":1,"pool":"MA","a":"Sideout Papi's","b":"Spring Valley U"},{"r":2,"ct":2,"pool":"MA","a":"The empire spikes back","b":"Feminist literature authors"},{"r":3,"ct":1,"pool":"MA","a":"Vamos caralho","b":"Feminist literature authors"},{"r":3,"ct":2,"pool":"MA","a":"SDSU","b":"Free Ballin'"},{"r":4,"ct":1,"pool":"MA","a":"Free Ballin'","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":4,"ct":2,"pool":"MA","a":"Sideout Papi's","b":"The empire spikes back"},{"r":5,"ct":1,"pool":"MA","a":"Spring Valley U","b":"The empire spikes back"},{"r":5,"ct":2,"pool":"MA","a":"Vamos caralho","b":"SDSU"},{"r":6,"ct":1,"pool":"MA","a":"Feminist literature authors","b":"SDSU"},{"r":6,"ct":2,"pool":"MA","a":"Birria Banh Mi","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":7,"ct":1,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Sideout Papi's"},{"r":7,"ct":2,"pool":"MA","a":"Spring Valley U","b":"Vamos caralho"},{"r":8,"ct":1,"pool":"MA","a":"The empire spikes back","b":"Vamos caralho"},{"r":8,"ct":2,"pool":"MA","a":"Feminist literature authors","b":"Birria Banh Mi"},{"r":9,"ct":1,"pool":"MA","a":"SDSU","b":"Birria Banh Mi"},{"r":9,"ct":2,"pool":"MA","a":"Free Ballin'","b":"Sideout Papi's"},{"r":1,"ct":3,"pool":"MB","a":"Block Party","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":4,"pool":"MB","a":"Laguna Locos","b":"Stupid slunks"},{"r":2,"ct":3,"pool":"MB","a":"Rocket and Groot","b":"Stupid slunks"},{"r":2,"ct":4,"pool":"MB","a":"Jack & Christian","b":"Caramel & Cream"},{"r":3,"ct":3,"pool":"MB","a":"Abrahaximus","b":"Caramel & Cream"},{"r":3,"ct":4,"pool":"MB","a":"Block Party","b":"Laguna Locos"},{"r":4,"ct":3,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Laguna Locos"},{"r":4,"ct":4,"pool":"MB","a":"Rocket and Groot","b":"Jack & Christian"},{"r":5,"ct":3,"pool":"MB","a":"Stupid slunks","b":"Jack & Christian"},{"r":5,"ct":4,"pool":"MB","a":"Abrahaximus","b":"Block Party"},{"r":6,"ct":3,"pool":"MB","a":"Caramel & Cream","b":"Block Party"},{"r":6,"ct":4,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Rocket and Groot"},{"r":7,"ct":3,"pool":"MB","a":"Laguna Locos","b":"Rocket and Groot"},{"r":7,"ct":4,"pool":"MB","a":"Stupid slunks","b":"Abrahaximus"},{"r":8,"ct":3,"pool":"MB","a":"Jack & Christian","b":"Abrahaximus"},{"r":8,"ct":4,"pool":"MB","a":"Caramel & Cream","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":5,"pool":"WA","a":"Monarchs","b":"NO HEIGHT ALL FIGHT"},{"r":2,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Set Happens"},{"r":3,"ct":5,"pool":"WA","a":"2nd string theory","b":"NO HEIGHT ALL FIGHT"},{"r":4,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Monarchs"},{"r":5,"ct":5,"pool":"WA","a":"2nd string theory","b":"Set Happens"},{"r":6,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"NO HEIGHT ALL FIGHT"},{"r":7,"ct":5,"pool":"WA","a":"Set Happens","b":"Monarchs"},{"r":8,"ct":5,"pool":"WA","a":"2nd string theory","b":"Lucy Goosey Fans"},{"r":9,"ct":5,"pool":"WA","a":"Set Happens","b":"NO HEIGHT ALL FIGHT"},{"r":10,"ct":5,"pool":"WA","a":"2nd string theory","b":"Monarchs"},{"r":1,"ct":6,"pool":"WB","a":"All Gas, No Breaks","b":"Kiana & Sarah"},{"r":2,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Twin Terrors"},{"r":3,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Kiana & Sarah"},{"r":4,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"All Gas, No Breaks"},{"r":5,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Twin Terrors"},{"r":6,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Kiana & Sarah"},{"r":7,"ct":6,"pool":"WB","a":"Twin Terrors","b":"All Gas, No Breaks"},{"r":8,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Izquierda Derecha"},{"r":9,"ct":6,"pool":"WB","a":"Twin Terrors","b":"Kiana & Sarah"},{"r":10,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"All Gas, No Breaks"}]};
+const DATA = {"event":{"name":"Last Splash Beach Tournament","org":"Surf and Turf","date":"Sunday, September 20, 2026","venue":"Oceanside Harbor Beach","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~2:15 PM","format":"2v2","iso":"2026-09-20","startMin":510,"roundMin":20},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"MA","name":"Men's Pool A","div":"mens","courts":[1,2],"teams":[{"name":"Birria Banh Mi","players":"Andres Ramirez / Dustin Tran","tier":"Upper Intermediate"},{"name":"Free Ballin'","players":"Nick Aldrete / Carlos Aldrete","tier":"Upper Intermediate"},{"name":"Heavily Defeated Super Social Pool Play Participation Medalists","players":"Juvenal Perez / Juvenal Perez","tier":"Upper Intermediate"},{"name":"Sideout Papi's","players":"Brandon Budde / Wilson Jones","tier":"Upper Intermediate"},{"name":"Spring Valley U","players":"Joshua Valencia / Kalani Saunar","tier":"Upper Intermediate"},{"name":"The empire spikes back","players":"Trevor Richardson / Hady hamer","tier":"Upper Intermediate"},{"name":"Vamos caralho","players":"Aidan Wahl / Andy Jaszczynski","tier":"Upper Intermediate"},{"name":"Feminist literature authors","players":"Aden tran / Elliot shand","tier":"Lower Intermediate"},{"name":"SDSU","players":"Katsuharu Patrick Glennon / Myles Joseph Plaskonos","tier":"Lower Intermediate"}]},{"key":"MB","name":"Men's Pool B","div":"mens","courts":[3,4],"teams":[{"name":"Block Party","players":"Ruben Sevilla / Adrian","tier":"Upper Intermediate"},{"name":"EXPLOSION DYNAMITE KINGS","players":"Jerry Santoro / Jerry Santoro","tier":"Upper Intermediate"},{"name":"Laguna Locos","players":"Scott Allan Furniss / Dallas Johnson","tier":"Upper Intermediate"},{"name":"Rocket and Groot","players":"Lance Jundy / Declan Noriega","tier":"Upper Intermediate"},{"name":"Stupid slunks","players":"Max sluss / Xavier sluss","tier":"Upper Intermediate"},{"name":"Jack & Christian","players":"Jack Vermaak / Christian Gallardi","tier":"Upper Intermediate"},{"name":"Abrahaximus","players":"Abraham Rycus / Max Parker","tier":"Lower Intermediate"},{"name":"Caramel & Cream","players":"Jose Perez / TBD","tier":"Lower Intermediate"}]},{"key":"WA","name":"Women's Pool A","div":"womens","courts":[5],"teams":[{"name":"2nd string theory","players":"Maria Adams / Kayla Redfield","tier":"Upper Intermediate"},{"name":"Lucy Goosey Fans","players":"Louisa Black / Paige Bensing","tier":"Upper Intermediate"},{"name":"Set Happens","players":"Allie Carmickle / Shayd Silva","tier":"Upper Intermediate"},{"name":"Monarchs","players":"Mallorie Schmidt / Kristin Gabriel","tier":"Lower Intermediate"},{"name":"NO HEIGHT ALL FIGHT","players":"Tessa Young / Claire Henderson","tier":"Lower Intermediate"}]},{"key":"WB","name":"Women's Pool B","div":"womens","courts":[6],"teams":[{"name":"4 Game Warm Up Required","players":"Haley Michel / Alex Beccari","tier":"Upper Intermediate"},{"name":"Izquierda Derecha","players":"Isa Lara / Shyann Bolos","tier":"Upper Intermediate"},{"name":"Twin Terrors","players":"Jessica Shuen / Megan Meyerholtz","tier":"Upper Intermediate"},{"name":"All Gas, No Breaks","players":"Emily Correa / Kim Guillen","tier":"Lower Intermediate"},{"name":"Kiana & Sarah","players":"Kiana Perez / Sarah Carr","tier":"Lower Intermediate"}]}],"games":[{"r":1,"ct":1,"pool":"MA","a":"Birria Banh Mi","b":"Free Ballin'"},{"r":1,"ct":2,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Spring Valley U"},{"r":2,"ct":1,"pool":"MA","a":"Sideout Papi's","b":"Spring Valley U"},{"r":2,"ct":2,"pool":"MA","a":"The empire spikes back","b":"Feminist literature authors"},{"r":3,"ct":1,"pool":"MA","a":"Vamos caralho","b":"Feminist literature authors"},{"r":3,"ct":2,"pool":"MA","a":"SDSU","b":"Free Ballin'"},{"r":4,"ct":1,"pool":"MA","a":"Free Ballin'","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":4,"ct":2,"pool":"MA","a":"Sideout Papi's","b":"The empire spikes back"},{"r":5,"ct":1,"pool":"MA","a":"Spring Valley U","b":"The empire spikes back"},{"r":5,"ct":2,"pool":"MA","a":"Vamos caralho","b":"SDSU"},{"r":6,"ct":1,"pool":"MA","a":"Feminist literature authors","b":"SDSU"},{"r":6,"ct":2,"pool":"MA","a":"Birria Banh Mi","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":7,"ct":1,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Sideout Papi's"},{"r":7,"ct":2,"pool":"MA","a":"Spring Valley U","b":"Vamos caralho"},{"r":8,"ct":1,"pool":"MA","a":"The empire spikes back","b":"Vamos caralho"},{"r":8,"ct":2,"pool":"MA","a":"Feminist literature authors","b":"Birria Banh Mi"},{"r":9,"ct":1,"pool":"MA","a":"SDSU","b":"Birria Banh Mi"},{"r":9,"ct":2,"pool":"MA","a":"Free Ballin'","b":"Sideout Papi's"},{"r":1,"ct":3,"pool":"MB","a":"Block Party","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":4,"pool":"MB","a":"Laguna Locos","b":"Stupid slunks"},{"r":2,"ct":3,"pool":"MB","a":"Rocket and Groot","b":"Stupid slunks"},{"r":2,"ct":4,"pool":"MB","a":"Jack & Christian","b":"Caramel & Cream"},{"r":3,"ct":3,"pool":"MB","a":"Abrahaximus","b":"Caramel & Cream"},{"r":3,"ct":4,"pool":"MB","a":"Block Party","b":"Laguna Locos"},{"r":4,"ct":3,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Laguna Locos"},{"r":4,"ct":4,"pool":"MB","a":"Rocket and Groot","b":"Jack & Christian"},{"r":5,"ct":3,"pool":"MB","a":"Stupid slunks","b":"Jack & Christian"},{"r":5,"ct":4,"pool":"MB","a":"Abrahaximus","b":"Block Party"},{"r":6,"ct":3,"pool":"MB","a":"Caramel & Cream","b":"Block Party"},{"r":6,"ct":4,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Rocket and Groot"},{"r":7,"ct":3,"pool":"MB","a":"Laguna Locos","b":"Rocket and Groot"},{"r":7,"ct":4,"pool":"MB","a":"Stupid slunks","b":"Abrahaximus"},{"r":8,"ct":3,"pool":"MB","a":"Jack & Christian","b":"Abrahaximus"},{"r":8,"ct":4,"pool":"MB","a":"Caramel & Cream","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":5,"pool":"WA","a":"Monarchs","b":"NO HEIGHT ALL FIGHT"},{"r":2,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Set Happens"},{"r":3,"ct":5,"pool":"WA","a":"2nd string theory","b":"NO HEIGHT ALL FIGHT"},{"r":4,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Monarchs"},{"r":5,"ct":5,"pool":"WA","a":"2nd string theory","b":"Set Happens"},{"r":6,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"NO HEIGHT ALL FIGHT"},{"r":7,"ct":5,"pool":"WA","a":"Set Happens","b":"Monarchs"},{"r":8,"ct":5,"pool":"WA","a":"2nd string theory","b":"Lucy Goosey Fans"},{"r":9,"ct":5,"pool":"WA","a":"Set Happens","b":"NO HEIGHT ALL FIGHT"},{"r":10,"ct":5,"pool":"WA","a":"2nd string theory","b":"Monarchs"},{"r":1,"ct":6,"pool":"WB","a":"All Gas, No Breaks","b":"Kiana & Sarah"},{"r":2,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Twin Terrors"},{"r":3,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Kiana & Sarah"},{"r":4,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"All Gas, No Breaks"},{"r":5,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Twin Terrors"},{"r":6,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Kiana & Sarah"},{"r":7,"ct":6,"pool":"WB","a":"Twin Terrors","b":"All Gas, No Breaks"},{"r":8,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Izquierda Derecha"},{"r":9,"ct":6,"pool":"WB","a":"Twin Terrors","b":"Kiana & Sarah"},{"r":10,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"All Gas, No Breaks"}]};
 
 /* ── who has played whom, for rematch avoidance ── */
 const pairKey = (a,b) => [a,b].sort().join(' :: ');
@@ -267,7 +296,17 @@ function arrangeLines(cfg, seeds){
 }
 
 /* ── state ── */
-let SCORES = {}, DIV = 'mens', FOLLOW = '';
+/* Sample results so the prototype opens fully populated. Fixed seed, so it
+   looks the same every reload and a screenshot means something. Clear shows
+   the pre-seeding state, which is what teams actually see on the morning. */
+function sampleScores(seed){
+  let s = seed;
+  const rnd = n => { s = (s*1103515245 + 12345) & 0x7fffffff; return s % n; };
+  const out = {};
+  DATA.games.forEach(g => { const w = 21, l = 12 + rnd(8); out[g.r+'-'+g.ct] = rnd(2) ? [w,l] : [l,w]; });
+  return out;
+}
+let SCORES = sampleScores(20260920), DIV = 'mens', FOLLOW = '';
 const $ = id => document.getElementById(id);
 const gamesOf = d => DATA.games.filter(g => POOL_OF[g.a].div === d);
 const seedsOf = d => Object.keys(SCORES).length ? tally(gamesOf(d), SCORES) : [];
@@ -282,6 +321,89 @@ function sideHTML(s, seeds){
     '<span class="sd">'+(s.seed?s.seed:'–')+'</span>'+
     '<span class="nm">'+label+'</span></div>';
 }
+/* One card. */
+function matchHTML(m, seeds){
+  const mine = FOLLOW && m.sides.some(s=>s.name===FOLLOW);
+  return '<div class="m'+(mine?' mine':'')+'">'+
+    '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
+    '<span class="m-time">'+m.time+'</span><span class="m-id">'+esc(m.id)+'</span></div>'+
+    m.sides.map(s=>sideHTML(s,seeds)).join('')+'</div>';
+}
+/* Matches braced in pairs, each brace labelled with the match it feeds. The
+   final is three games of one match, so it is not paired. */
+function matchesHTML(r, rounds){
+  const seeds = seedsOf(DIV);
+  if (r.key === 'f') return r.matches.map(m=>matchHTML(m,seeds)).join('');
+  const next = rounds[rounds.indexOf(r) + 1];
+  const half = r.matches.length >= 8;
+  let out = '';
+  for (let i = 0; i < r.matches.length; i += 2){
+    if (half && i % (r.matches.length/2) === 0){
+      out += '<div class="half">'+(i === 0 ? 'Top half' : 'Bottom half')+' of the draw</div>';
+    }
+    const pairMatches = r.matches.slice(i, i+2);
+    const mine = FOLLOW && pairMatches.some(m => m.sides.some(s=>s.name===FOLLOW));
+    // A lone trailing match (an odd play-in count) gets no brace.
+    if (pairMatches.length < 2){ out += matchHTML(pairMatches[0], seeds); continue; }
+    // The final is a series, so its matches are "Game 1..3"; pointing a
+    // semifinal brace at "Game 1" reads as nonsense. Name the round instead.
+    const feedsId = r.key === 'pi' ? 'the draw'
+      : next && next.key === 'f' ? 'Final'
+      : (next && next.matches[i/2] ? next.matches[i/2].id : '');
+    out += '<div class="pair'+(mine?' mine':'')+'">'+
+      pairMatches.map(m=>matchHTML(m,seeds)).join('')+
+      '<span class="brace"></span><span class="feeds">&rarr; '+esc(feedsId)+'</span></div>';
+  }
+  return out;
+}
+
+/* A small picture of the whole draw: every match a node, winners flowing right.
+   Your line is drawn in gold, so you can see which side you came out on and who
+   is waiting on the other. */
+function renderMap(built){
+  const box = $('map');
+  const {rounds, lines, cfg} = built;
+  const draw = rounds.filter(r => r.key !== 'pi' && r.key !== 'f');
+  if (!draw.length){ box.innerHTML = ''; return; }
+  const cols = [];
+  let n = cfg.draw / 2;
+  while (n >= 1){ cols.push(n); n /= 2; }          // 8,4,2,1 for a 16 draw
+  const leaves = cols[0];
+  const ROW = 16, PADY = 8, W = 320, PADX = 6;
+  const H = leaves * ROW + PADY*2;
+  const colX = i => PADX + (i * (W - PADX*2 - 26)) / (cols.length - 1 || 1);
+  const yOf = (c, i) => PADY + (i + 0.5) * (leaves / cols[c]) * ROW;
+
+  // which node is on my path
+  let myPos = -1;
+  if (FOLLOW && lines.length){
+    const li = lines.indexOf(FOLLOW);
+    if (li >= 0){
+      const pi = cfg.pis.find(p => p.hi === li || p.lo === li);
+      myPos = cfg.order.indexOf(pi ? pi.line : li);
+    }
+  }
+  const mineAt = (c, i) => myPos >= 0 && Math.floor(myPos / Math.pow(2, c+1)) === i;
+
+  let svg = '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">';
+  for (let c = 0; c < cols.length; c++){
+    for (let i = 0; i < cols[c]; i++){
+      const x = colX(c), y = yOf(c, i), mine = mineAt(c, i);
+      svg += '<line x1="'+x+'" y1="'+y+'" x2="'+(x+16)+'" y2="'+y+'" stroke="'+
+        (mine?'#F2CE63':'#33455C')+'" stroke-width="'+(mine?3:2)+'" stroke-linecap="round"/>';
+      if (c + 1 < cols.length){
+        const px = colX(c+1), py = yOf(c+1, Math.floor(i/2));
+        svg += '<path d="M'+(x+16)+' '+y+' H'+((x+16+px)/2)+' V'+py+' H'+px+'" fill="none" stroke="'+
+          (mine?'#F2CE63':'#33455C')+'" stroke-width="'+(mine?2.5:1.5)+'"/>';
+      }
+    }
+  }
+  svg += '</svg>';
+  box.innerHTML = '<div class="map"><div class="cap"><span>The draw</span>'+
+    (myPos >= 0 ? '<b>'+esc(FOLLOW)+'&rsquo;s route in gold</b>' : '<span>pick a team to trace a route</span>')+
+    '</div>'+svg+'</div>';
+}
+
 function render(){
   const seeds = seedsOf(DIV);
   const built = buildRounds(DIV, seeds);
@@ -290,19 +412,14 @@ function render(){
     '<div class="col"><h3>'+esc(r.name)+'</h3>'+
     '<div class="meta">'+r.matches.length+(r.note?' games · '+r.note:' match'+(r.matches.length>1?'es':''))+
       ' · nets '+[...new Set(r.matches.map(m=>m.net))].join(', ')+'</div>'+
-    r.matches.map(m=>{
-      const mine = FOLLOW && m.sides.some(s=>s.name===FOLLOW);
-      return '<div class="m'+(mine?' mine':'')+'">'+
-        '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
-        '<span class="m-time">'+m.time+'</span><span class="m-id">'+esc(m.id)+'</span></div>'+
-        m.sides.map(s=>sideHTML(s,seeds)).join('')+'</div>';
-    }).join('')+'</div>').join('');
+    matchesHTML(r, rounds)+'</div>').join('');
   $('dots').innerHTML = rounds.map((r,i)=>
     '<button class="dot" data-i="'+i+'"'+(i===0?' aria-current="true"':'')+'>'+esc(r.name)+'</button>').join('');
   renderPath(built, seeds);
+  renderMap(built);
   $('legend').innerHTML = seeds.length
-    ? '<b>Seeded from pool results.</b> Every match already has its net and time. Swipe across the rounds, or tap a round above.'
-    : '<b>Pool play has not finished, so no names yet.</b> The nets and times are already fixed, which is the point &mdash; teams know where to be before they know who they play. Tap <b>Simulate pool results</b> to see it filled in.';
+    ? '<b>Showing sample results</b> so you can see it full. Braces join the two matches that feed the next one, and the map traces where a team lands. Tap <b>Show pre-seeding</b> for what teams see on the morning.'
+    : '<b>This is the morning view:</b> nets and times are already fixed, names are not. Teams know where to be before they know who they play.';
 }
 function renderPath(built, seeds){
   const box = $('path');
@@ -382,13 +499,7 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', String(x===t)));
   render(); $('pager').scrollLeft = 0;
 }));
-$('sim').addEventListener('click', () => {
-  let s = Date.now() % 100000;
-  const rnd = n => { s=(s*1103515245+12345)&0x7fffffff; return s%n; };
-  SCORES = {};
-  DATA.games.forEach(g => { const w=21,l=12+rnd(8); SCORES[g.r+'-'+g.ct] = rnd(2)?[w,l]:[l,w]; });
-  render();
-});
+$('sim').addEventListener('click', () => { SCORES = sampleScores(Date.now() % 1000000); render(); });
 $('clear').addEventListener('click', () => { SCORES = {}; render(); });
 $('dots').addEventListener('click', e => {
   const d = e.target.closest('.dot'); if(!d) return;
