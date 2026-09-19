@@ -34,6 +34,22 @@
   .btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
        font-size:13.5px;border-color:var(--aqua);color:var(--aqua);background:transparent;cursor:pointer;min-height:44px}
   .btnrow{display:flex;gap:8px}
+  .lockbar{background:var(--card);border:1px solid var(--edge);border-left:5px solid var(--gold);
+           border-radius:6px;padding:12px 14px}
+  .lockbar.open{border-left-color:var(--lime)}
+  .lockbar .lk{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+               letter-spacing:.16em;text-transform:uppercase;color:var(--gold);display:block}
+  .lockbar.open .lk{color:var(--lime)}
+  .lockbar p{font-size:14px;line-height:1.4;margin:5px 0 9px;color:var(--fog)}
+  .lockbar form{display:flex;gap:8px;flex-wrap:wrap}
+  .lockbar input.pin{width:140px;height:44px;letter-spacing:.2em;text-align:center;
+        font-family:'Barlow',sans-serif;font-size:17px;font-weight:700;color:var(--snow);
+        background:var(--deep);border:2px solid var(--edge);border-radius:5px}
+  .lockbar input.pin:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
+  .lockbar .msg{color:#FF5F6D;font-weight:700;font-size:13.5px;margin:8px 0 0}
+  .lockbar .btn{width:auto;padding:11px 16px}
+  .src{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+       letter-spacing:.12em;text-transform:uppercase;color:var(--fog);padding:0 16px 6px}
 
   /* ── the path panel ── */
   .path{margin:0 16px 4px;background:var(--card);border:1px solid var(--edge);
@@ -140,12 +156,9 @@
       <button class="tab" role="tab" data-div="womens" aria-selected="false">Women&rsquo;s</button>
     </div>
     <select id="team"><option value="">Follow a team&hellip;</option></select>
-    <div class="btnrow">
-      <button class="btn" id="sim">Reshuffle pools</button>
-      <button class="btn" id="clear">Show pre-seeding</button>
-      <button class="btn" id="reset">Clear bracket</button>
-    </div>
+    <div id="lock"></div>
   </div>
+  <p class="src" id="src"></p>
   <div id="path"></div>
   <div class="dots" id="dots"></div>
   <div class="pager" id="pager"></div>
@@ -359,6 +372,60 @@ function arrangeLines(cfg, seeds){
   return L;
 }
 
+/* ── admin lock ──────────────────────────────────────────
+   Bracket results can only be typed by an admin, the same PIN the live page
+   uses and checked the same way: the server decides, and the hash below is only
+   a fallback for when there is no signal. */
+const API = 'https://www.surfandturfvolleyball.net/_functions';
+const PIN_HASH = '88bc475ec9844d05a8a7c7f132cbcbf3ccffce77c465551f7a36ec0e5df24f6b';
+const UNLOCK_KEY = 'ls-lab-unlocked';
+let unlocked = false;
+try { unlocked = localStorage.getItem(UNLOCK_KEY) === PIN_HASH; } catch (e) {}
+async function sha256Hex(text){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+function renderLock(){
+  $('lock').innerHTML = unlocked
+    ? '<div class="lockbar open"><span class="lk">Admin unlocked</span>' +
+      '<p>You can record bracket results on this device.</p>' +
+      '<button class="btn" data-lock="off">Lock again</button>' +
+      '<button class="btn" data-lock="wipe">Clear bracket</button></div>'
+    : '<div class="lockbar"><span class="lk">Locked</span>' +
+      '<p>Anyone can read the draw, the nets and the times. Recording results needs the admin PIN.</p>' +
+      '<form data-lock="on"><input class="pin" type="password" ' +
+      'inputmode="numeric" autocomplete="off" placeholder="Admin PIN" aria-label="Admin PIN">' +
+      '<button class="btn" type="submit">Unlock</button></form><p class="msg" hidden></p></div>';
+}
+document.addEventListener('submit', async e => {
+  const form = e.target.closest('form[data-lock="on"]'); if (!form) return;
+  e.preventDefault();
+  const input = form.querySelector('input'), msg = form.parentElement.querySelector('.msg');
+  const pin = input.value.trim();
+  let good = false;
+  try {
+    const r = await fetch(API + '/unlock', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pin})});
+    good = r.ok;
+  } catch (err) {
+    try { good = (await sha256Hex(pin)) === PIN_HASH; } catch (e2) { good = false; }
+  }
+  if (good){
+    unlocked = true;
+    try { localStorage.setItem(UNLOCK_KEY, PIN_HASH); } catch (e2) {}
+    renderLock(); render();
+  } else if (msg){ msg.hidden = false; msg.textContent = 'That PIN is not right.'; input.value=''; input.focus(); }
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-lock]'); if (!b) return;
+  if (b.dataset.lock === 'off'){
+    unlocked = false;
+    try { localStorage.removeItem(UNLOCK_KEY); } catch (e2) {}
+    renderLock(); render();
+  }
+  if (b.dataset.lock === 'wipe' && unlocked){ RESULTS = {}; saveResults(); render(); }
+});
+
 /* ── state ── */
 /* Sample results so the prototype opens fully populated. Fixed seed, so it
    looks the same every reload and a screenshot means something. Clear shows
@@ -398,7 +465,7 @@ function sideHTML(side, m){
     '<span class="nm">'+label+'</span>'+
     '<input class="sc" type="number" inputmode="numeric" min="0" max="'+CAP+'" '+
       'aria-label="score" data-k="'+m.k+'" data-n="'+n+'" '+
-      'value="'+(sc[n] == null ? '' : sc[n])+'"'+(known?'':' disabled')+'>'+
+      'value="'+(sc[n] == null ? '' : sc[n])+'"'+((known && unlocked)?'':' disabled')+'>'+
     '</div>';
 }
 
@@ -486,7 +553,7 @@ function render(){
     '<button class="dot" data-i="'+i+'"'+(i===0?' aria-current="true"':'')+'>'+esc(r.name)+'</button>').join('');
   renderPath(built, seeds);
   $('legend').innerHTML = seeds.length
-    ? '<b>Sample pool results, so the draw is seeded.</b> Type scores straight into the bracket and winners move on \u2014 rehearse the whole day. Braces show which match a winner feeds. <b>Clear bracket</b> wipes your picks, <b>Show pre-seeding</b> gives the morning view.'
+    ? '<b>The draw is seeded.</b> An admin types scores straight into the bracket and winners move on. Braces show which match a winner feeds, and every match already has its net and time.'
     : '<b>This is the morning view:</b> nets and times are already fixed, names are not. Teams know where to be before they know who they play.';
 }
 function renderPath(built, seeds){
@@ -567,14 +634,12 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
   document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', String(x===t)));
   render(); $('pager').scrollLeft = 0;
 }));
-$('sim').addEventListener('click', () => { SCORES = sampleScores(Date.now() % 1000000); render(); });
-$('clear').addEventListener('click', () => { SCORES = {}; render(); });
-$('reset').addEventListener('click', () => { RESULTS = {}; saveResults(); render(); });
+
 
 /* Store on input so nothing is lost mid-typing, but only redraw on change -
    a redraw mid-keystroke would pull the field out from under your thumb. */
 $('pager').addEventListener('input', e => {
-  const i = e.target.closest('input[data-k]'); if (!i) return;
+  const i = e.target.closest('input[data-k]'); if (!i || !unlocked) return;
   const k = i.dataset.k, n = Number(i.dataset.n);
   let v = i.value === '' ? null : Math.trunc(Number(i.value));
   if (v != null && (isNaN(v) || v < 0)) v = 0;
@@ -595,7 +660,28 @@ $('pager').addEventListener('scroll', () => {
   const i = Math.round($('pager').scrollLeft / $('pager').clientWidth);
   [...$('dots').children].forEach((d,j)=>d.setAttribute('aria-current', String(j===i)));
 }, {passive:true});
+renderLock();
 render();
+
+/* Seed the draw from the real pool scores when the desk has entered any,
+   falling back to a sample so the page is explorable before the day. */
+(async function loadPools(){
+  try {
+    const r = await fetch(API + '/state', {cache:'no-store'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const st = await r.json();
+    const n = st && st.scores ? Object.keys(st.scores).length : 0;
+    if (st && st.stored && st.tournament === 'last-splash-2026' && n > 0){
+      SCORES = st.scores;
+      $('src').textContent = 'Seeded from ' + n + ' live pool results';
+      render();
+      return;
+    }
+    $('src').textContent = 'No pool results yet \u2014 showing a sample draw';
+  } catch (e) {
+    $('src').textContent = 'Offline \u2014 showing a sample draw';
+  }
+})();
 </script>
 </body>
 </html>
