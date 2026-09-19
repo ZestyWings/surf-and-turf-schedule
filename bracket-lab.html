@@ -75,6 +75,9 @@
          border-radius:3px;padding:3px 8px 2px}
   .m-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;
           color:var(--fog);font-variant-numeric:tabular-nums}
+  .m-wave{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;
+          letter-spacing:.1em;text-transform:uppercase;background:var(--pink);color:var(--ink);
+          border-radius:3px;padding:2px 6px}
   .m-id{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
         letter-spacing:.12em;text-transform:uppercase;color:var(--fog)}
   .side{display:flex;align-items:center;gap:10px;padding:10px 12px}
@@ -240,7 +243,7 @@ function buildRounds(div, seeds){
     const matches = cfg.pis.map((p, i) => {
       const A = lines[p.hi] || null, B = lines[p.lo] || null;
       piNet[p.line] = a[i].net;
-      return {k: kOf('pi', i), id: 'PI ' + (i+1), net: a[i].net, time: a[i].time,
+      return {k: kOf('pi', i), id: 'PI ' + (i+1), net: a[i].net, time: a[i].time, wave: a[i].wave,
               teams: [A, B], sides: [{seed:p.hi+1, name:A}, {seed:p.lo+1, name:B}]};
     });
     R.push({key:'pi', name: cfg.pis.length > 1 ? 'Play-ins' : 'Play-in', matches});
@@ -263,7 +266,7 @@ function buildRounds(div, seeds){
   const abbr0 = {16:'R16', 8:'QF', 4:'SF'}[cfg.draw] || 'R';
   R.push({key:'r0', name:r0Name, matches: pairs0.map((pr, i) => {
     const t = pr.map(l => piLines.has(l) ? piWin(l) : (lines[l] || null));
-    return {k: kOf('r0', i), id: abbr0 + ' ' + (i+1), net:a0[i].net, time:a0[i].time, teams:t,
+    return {k: kOf('r0', i), id: abbr0 + ' ' + (i+1), net:a0[i].net, time:a0[i].time, wave:a0[i].wave, teams:t,
       sides: pr.map((l, n) => ({seed: l+1, name: t[n],
         from: piLines.has(l) && !t[n] ? 'Play-in winner' : null}))};
   })});
@@ -277,7 +280,7 @@ function buildRounds(div, seeds){
       const finA = winner(prevRoundKey, 0, prev.matches[0].teams[0], prev.matches[0].teams[1]);
       const finB = winner(prevRoundKey, 1, prev.matches[1].teams[0], prev.matches[1].teams[1]);
       const games = [0,1,2].map(g => ({
-        k: kOf('f', g), id: 'Game ' + (g+1), net: P.finalNet, time: span(start + g*SLOT),
+        k: kOf('f', g), id: 'Game ' + (g+1), net: P.finalNet, time: span(start + g*SLOT), wave: g,
         teams: [finA, finB],
         sides: [{name: finA, from: prev.matches[0].id + ' winner'},
                 {name: finB, from: prev.matches[1].id + ' winner'}]
@@ -294,7 +297,7 @@ function buildRounds(div, seeds){
     R.push({key:rk, name:nm, matches: Array.from({length:size/2}, (_, i) => {
       const A = winner(prevRoundKey, 2*i, prev.matches[2*i].teams[0], prev.matches[2*i].teams[1]);
       const B = winner(prevRoundKey, 2*i+1, prev.matches[2*i+1].teams[0], prev.matches[2*i+1].teams[1]);
-      return {k: kOf(rk, i), id: ab + ' ' + (i+1), net:a[i].net, time:a[i].time, teams:[A, B],
+      return {k: kOf(rk, i), id: ab + ' ' + (i+1), net:a[i].net, time:a[i].time, wave:a[i].wave, teams:[A, B],
         sides: [{name:A, from: prev.matches[2*i].id + ' winner'},
                 {name:B, from: prev.matches[2*i+1].id + ' winner'}]};
     })});
@@ -406,7 +409,9 @@ function matchHTML(m){
   const done = sc[0] != null && sc[1] != null && sc[0] !== sc[1];
   return '<div class="m'+(mine?' mine':'')+(done?' done':'')+'">'+
     '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
-    '<span class="m-time">'+m.time+'</span><span class="m-id">'+esc(m.id)+'</span></div>'+
+    '<span class="m-time">'+m.time+'</span>'+
+    (m.waveLabel ? '<span class="m-wave">'+m.waveLabel+'</span>' : '')+
+    '<span class="m-id">'+esc(m.id)+'</span></div>'+
     m.sides.map(x=>sideHTML(x,m)).join('')+'</div>';
 }
 /* The final is three games rather than one match, so it gets its own block with
@@ -435,6 +440,10 @@ function finalHTML(r){
    final is three games of one match, so it is not paired. */
 function matchesHTML(r, rounds){
   if (r.key === 'f') return finalHTML(r);
+  const waves = Math.max(...r.matches.map(m => m.wave || 0)) + 1;
+  r.matches.forEach(m => {
+    m.waveLabel = waves > 1 ? (m.wave === 0 ? '1st up' : '2nd up') : '';
+  });
   const next = rounds[rounds.indexOf(r) + 1];
   const half = r.matches.length >= 8;
   let out = '';
@@ -442,7 +451,10 @@ function matchesHTML(r, rounds){
     if (half && i % (r.matches.length/2) === 0){
       out += '<div class="half">'+(i === 0 ? 'Top half' : 'Bottom half')+' of the draw</div>';
     }
-    const pairMatches = r.matches.slice(i, i+2);
+    // Show the earlier match first. A later match sitting above an earlier one
+    // on the same net reads as a double booking when it is really a queue.
+    const pairMatches = r.matches.slice(i, i+2)
+      .slice().sort((a, b) => (a.wave||0) - (b.wave||0));
     const mine = FOLLOW && pairMatches.some(m => m.sides.some(s=>s.name===FOLLOW));
     // A lone trailing match (an odd play-in count) gets no brace.
     if (pairMatches.length < 2){ out += matchHTML(pairMatches[0]); continue; }
@@ -465,7 +477,10 @@ function render(){
   $('pager').innerHTML = rounds.map(r =>
     '<div class="col"><h3>'+esc(r.name)+'</h3>'+
     '<div class="meta">'+r.matches.length+(r.note?' games · '+r.note:' match'+(r.matches.length>1?'es':''))+
-      ' · nets '+[...new Set(r.matches.map(m=>m.net))].join(', ')+'</div>'+
+      ' · nets '+[...new Set(r.matches.map(m=>m.net))].sort().join(', ')+
+      ((Math.max(...r.matches.map(m=>m.wave||0)) > 0 && r.key !== 'f')
+        ? ' · two groups: 1st up starts on time, 2nd up takes that net when it frees, or the next one that does'
+        : '')+'</div>'+
     matchesHTML(r, rounds)+'</div>').join('');
   $('dots').innerHTML = rounds.map((r,i)=>
     '<button class="dot" data-i="'+i+'"'+(i===0?' aria-current="true"':'')+'>'+esc(r.name)+'</button>').join('');
