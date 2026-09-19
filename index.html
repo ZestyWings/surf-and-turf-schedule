@@ -299,6 +299,117 @@
   .is-out{opacity:.6}
   .is-out .m-mu,.is-out .team-col{text-decoration:line-through}
 
+  .pair{position:relative;padding-right:78px;margin-bottom:14px}
+  .pair .m{margin-bottom:8px}
+  .pair .m:last-of-type{margin-bottom:0}
+  .brace{position:absolute;right:54px;top:26px;bottom:26px;width:20px;
+         border:2px solid var(--edge);border-left:0;border-radius:0 10px 10px 0}
+  .brace::after{content:'';position:absolute;right:-13px;top:50%;width:13px;
+                border-top:2px solid var(--edge)}
+  .feeds{position:absolute;right:0;top:50%;transform:translateY(-50%);width:50px;
+         font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;
+         letter-spacing:.06em;text-transform:uppercase;color:var(--fog);line-height:1.15}
+  .pair.mine .brace{border-color:var(--gold)}
+  .pair.mine .brace::after{border-top-color:var(--gold)}
+  .pair.mine .feeds{color:var(--gold)}
+  .half{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+        letter-spacing:.16em;text-transform:uppercase;color:var(--fog);
+        margin:2px 0 8px;padding-top:8px;border-top:1px dashed var(--edge)}
+  .half:first-of-type{border-top:0;padding-top:0}
+
+  .side .sc{width:52px;height:38px;text-align:center;font-size:17px;font-weight:700;
+            font-variant-numeric:tabular-nums;color:var(--snow);background:var(--deep);
+            border:2px solid var(--edge);border-radius:5px;font-family:'Barlow',sans-serif}
+  .side .sc:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
+  .side .sc:disabled{opacity:.35}
+  .side .scr{min-width:52px;text-align:center;font-size:18px;font-weight:700;
+             font-variant-numeric:tabular-nums;color:var(--snow)}
+  .side.won{background:#22382B}
+  .side.won .nm{color:var(--lime)}
+  .side.lost{opacity:.55}
+  .m.done .m-top{background:#1B3326}
+  .champ{margin:12px 0 4px;background:var(--deep);border:3px solid var(--gold);border-radius:8px;
+         padding:18px 16px;text-align:center}
+  .champ .l{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+            letter-spacing:.2em;text-transform:uppercase;color:var(--pink)}
+  .champ .n{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(22px,6vw,30px);
+            color:var(--gold);line-height:1;margin-top:6px}
+  .series{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+          letter-spacing:.1em;text-transform:uppercase;color:var(--aqua);margin-bottom:8px}
+  .side .sc{width:52px;height:38px;text-align:center;font-size:17px;font-weight:700;
+            font-variant-numeric:tabular-nums;color:var(--snow);background:var(--deep);
+            border:2px solid var(--edge);border-radius:5px;font-family:'Barlow',sans-serif}
+  .side .sc:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
+  .side .sc:disabled{opacity:.35}
+  .side .scr{min-width:52px;text-align:center;font-size:18px;font-weight:700;
+             font-variant-numeric:tabular-nums;color:var(--snow)}
+  .side.won{background:#22382B}
+  .side.won .nm{color:var(--lime)}
+  .side.lost{opacity:.55}
+  .m.done .m-top{background:#1B3326}
+  .champ{margin:12px 0 4px;background:var(--deep);border:3px solid var(--gold);border-radius:8px;
+         padding:18px 16px;text-align:center}
+  .champ .l{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+            letter-spacing:.2em;text-transform:uppercase;color:var(--pink)}
+  .champ .n{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(22px,6vw,30px);
+            color:var(--gold);line-height:1;margin-top:6px}
+  .series{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+          letter-spacing:.1em;text-transform:uppercase;color:var(--aqua);margin-bottom:8px}
+  /* ── Bracket: one round per screen ─────────────────── */
+  .dots{display:flex;gap:6px;padding:4px 0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .dot{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.1em;
+       text-transform:uppercase;padding:7px 12px;border-radius:20px;border:1px solid var(--edge);
+       background:transparent;color:var(--fog);cursor:pointer;white-space:nowrap}
+  .dot[aria-current="true"]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .pager{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+         scrollbar-width:none;margin:0 -4px}
+  .pager::-webkit-scrollbar{display:none}
+  .col{flex:0 0 100%;scroll-snap-align:start;padding:2px 4px 10px}
+  .col h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:21px;color:var(--gold);
+          margin-bottom:2px}
+  .col .meta{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;
+             text-transform:uppercase;color:var(--fog);margin-bottom:12px;line-height:1.4}
+  .m{background:var(--card);border:1px solid var(--edge);border-radius:6px;margin-bottom:10px;overflow:hidden}
+  .m.mine{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+  .m.done .m-top{background:#1B3326}
+  .m-top{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#182335;
+         border-bottom:1px solid var(--edge);flex-wrap:wrap}
+  .m-net{font-family:'Anton',sans-serif;font-size:13px;background:var(--aqua);color:var(--ink);
+         border-radius:3px;padding:3px 8px 2px}
+  .m-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;
+          color:var(--fog);font-variant-numeric:tabular-nums}
+  .m-wave{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;
+          text-transform:uppercase;background:var(--pink);color:var(--ink);border-radius:3px;padding:2px 6px}
+  .m-id{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+        letter-spacing:.12em;text-transform:uppercase;color:var(--fog)}
+  .side{display:flex;align-items:center;gap:10px;padding:10px 12px}
+  .side + .side{border-top:1px solid var(--edge)}
+  .side .sd{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--fog);
+            min-width:26px;text-align:center}
+  .side .nm{flex:1;font-weight:700;font-size:15.5px;line-height:1.25;word-break:break-word}
+  .side .nm small{display:block;font-weight:500;font-size:12px;color:var(--fog)}
+  .side.tbd .nm{color:var(--fog);font-style:italic;font-weight:600}
+  .side.mine .nm{color:var(--gold)}
+  .side.won{background:#22382B}
+  .side.won .nm{color:var(--lime)}
+  .side.lost{opacity:.55}
+
+  /* ── Admin padlock ──────────────────────────────────── */
+  .adminbar{display:flex;justify-content:center;padding:26px 0 8px}
+  .adminbar > div{width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center}
+  .lockbtn{background:none;border:1px solid var(--edge);border-radius:20px;cursor:pointer;
+           color:var(--fog);font-size:15px;line-height:1;padding:8px 14px;min-height:38px;
+           display:flex;align-items:center;gap:7px}
+  .lockbtn .t{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
+              letter-spacing:.14em;text-transform:uppercase}
+  .lockbtn.on{border-color:var(--lime);color:var(--lime)}
+  .lockbtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .lockbar input.pin{width:140px;height:44px;letter-spacing:.2em;text-align:center;
+        font-family:'Barlow',sans-serif;font-size:17px;font-weight:700;color:var(--snow);
+        background:var(--deep);border:2px solid var(--edge);border-radius:5px}
+  .lockbar input.pin:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
+  .lockbar{width:100%;margin-top:10px}
+
   /* ── Standings ──────────────────────────────────────── */
   .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;
              background:var(--card);border:1px solid var(--edge);border-radius:5px;margin-bottom:18px}
@@ -514,7 +625,6 @@
       <section>
         <h2 class="display">Live scoring</h2>
         <p class="sub">Enter each final as it comes off the sheet. Games are to 21, win by 2, hard cap 25. Scores save on this device and drive standings and the bracket.</p>
-        <div id="lock-scores"></div>
         <p class="savenote" id="saveNote"></p>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-sc-mens" aria-controls="p-sc-mens" aria-selected="true">Men's</button>
@@ -548,7 +658,6 @@
       <section>
         <h2 class="display">Bracket</h2>
         <p class="sub">Fills itself in the moment the last pool score lands. Tap a team to advance them.</p>
-        <div id="lock-bracket"></div>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-br-mens" aria-controls="p-br-mens" aria-selected="true">Men's</button>
           <button class="tab" role="tab" id="tab-br-womens" aria-controls="p-br-womens" aria-selected="false">Women's</button>
@@ -571,13 +680,14 @@
       </section>
     </div>
   </main>
+  <div class="adminbar" id="lock"></div>
   <footer><b>See you on the sand.</b></footer>
 </div>
 
 <div id="printRoot"></div>
 
 <script>
-const DATA = {"event":{"name":"Last Splash Beach Tournament","org":"Surf and Turf","date":"Sunday, September 20, 2026","venue":"Harbor Beach","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~2:15 PM","format":"2v2","iso":"2026-09-20","startMin":510,"roundMin":20},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"MA","name":"Men's Pool A","div":"mens","courts":[1,2],"teams":[{"name":"Birria Banh Mi","players":"Andres Ramirez / Dustin Tran","tier":"Upper Intermediate"},{"name":"Free Ballin'","players":"Nick Aldrete / Carlos Aldrete","tier":"Upper Intermediate"},{"name":"Heavily Defeated Super Social Pool Play Participation Medalists","players":"Juvenal Perez / Juvenal Perez","tier":"Upper Intermediate"},{"name":"Sideout Papi's","players":"Brandon Budde / Wilson Jones","tier":"Upper Intermediate"},{"name":"Spring Valley U","players":"Joshua Valencia / Kalani Saunar","tier":"Upper Intermediate"},{"name":"The empire spikes back","players":"Trevor Richardson / Hady hamer","tier":"Upper Intermediate"},{"name":"Vamos caralho","players":"Aidan Wahl / Andy Jaszczynski","tier":"Upper Intermediate"},{"name":"Feminist literature authors","players":"Aden tran / Elliot shand","tier":"Lower Intermediate"},{"name":"SDSU","players":"Katsuharu Patrick Glennon / Myles Joseph Plaskonos","tier":"Lower Intermediate"}]},{"key":"MB","name":"Men's Pool B","div":"mens","courts":[3,4],"teams":[{"name":"Block Party","players":"Ruben Sevilla / Adrian","tier":"Upper Intermediate"},{"name":"EXPLOSION DYNAMITE KINGS","players":"Jerry Santoro / Jerry Santoro","tier":"Upper Intermediate"},{"name":"Laguna Locos","players":"Scott Allan Furniss / Dallas Johnson","tier":"Upper Intermediate"},{"name":"Rocket and Groot","players":"Lance Jundy / Declan Noriega","tier":"Upper Intermediate"},{"name":"Stupid slunks","players":"Max sluss / Xavier sluss","tier":"Upper Intermediate"},{"name":"Jack & Christian","players":"Jack Vermaak / Christian Gallardi","tier":"Upper Intermediate"},{"name":"Abrahaximus","players":"Abraham Rycus / Max Parker","tier":"Lower Intermediate"},{"name":"Caramel & Cream","players":"Jose Perez / TBD","tier":"Lower Intermediate"}]},{"key":"WA","name":"Women's Pool A","div":"womens","courts":[5],"teams":[{"name":"2nd string theory","players":"Maria Adams / Kayla Redfield","tier":"Upper Intermediate"},{"name":"Lucy Goosey Fans","players":"Louisa Black / Paige Bensing","tier":"Upper Intermediate"},{"name":"Set Happens","players":"Allie Carmickle / Shayd Silva","tier":"Upper Intermediate"},{"name":"Monarchs","players":"Mallorie Schmidt / Kristin Gabriel","tier":"Lower Intermediate"},{"name":"NO HEIGHT ALL FIGHT","players":"Tessa Young / Claire Henderson","tier":"Lower Intermediate"}]},{"key":"WB","name":"Women's Pool B","div":"womens","courts":[6],"teams":[{"name":"4 Game Warm Up Required","players":"Haley Michel / Alex Beccari","tier":"Upper Intermediate"},{"name":"Izquierda Derecha","players":"Isa Lara / Shyann Bolos","tier":"Upper Intermediate"},{"name":"Twin Terrors","players":"Jessica Shuen / Megan Meyerholtz","tier":"Upper Intermediate"},{"name":"All Gas, No Breaks","players":"Emily Correa / Kim Guillen","tier":"Lower Intermediate"},{"name":"Kiana & Sarah","players":"Kiana Perez / Sarah Carr","tier":"Lower Intermediate"}]}],"games":[{"r":1,"ct":1,"pool":"MA","a":"Birria Banh Mi","b":"Free Ballin'"},{"r":1,"ct":2,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Spring Valley U"},{"r":2,"ct":1,"pool":"MA","a":"Sideout Papi's","b":"Spring Valley U"},{"r":2,"ct":2,"pool":"MA","a":"The empire spikes back","b":"Feminist literature authors"},{"r":3,"ct":1,"pool":"MA","a":"Vamos caralho","b":"Feminist literature authors"},{"r":3,"ct":2,"pool":"MA","a":"SDSU","b":"Free Ballin'"},{"r":4,"ct":1,"pool":"MA","a":"Free Ballin'","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":4,"ct":2,"pool":"MA","a":"Sideout Papi's","b":"The empire spikes back"},{"r":5,"ct":1,"pool":"MA","a":"Spring Valley U","b":"The empire spikes back"},{"r":5,"ct":2,"pool":"MA","a":"Vamos caralho","b":"SDSU"},{"r":6,"ct":1,"pool":"MA","a":"Feminist literature authors","b":"SDSU"},{"r":6,"ct":2,"pool":"MA","a":"Birria Banh Mi","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":7,"ct":1,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Sideout Papi's"},{"r":7,"ct":2,"pool":"MA","a":"Spring Valley U","b":"Vamos caralho"},{"r":8,"ct":1,"pool":"MA","a":"The empire spikes back","b":"Vamos caralho"},{"r":8,"ct":2,"pool":"MA","a":"Feminist literature authors","b":"Birria Banh Mi"},{"r":9,"ct":1,"pool":"MA","a":"SDSU","b":"Birria Banh Mi"},{"r":9,"ct":2,"pool":"MA","a":"Free Ballin'","b":"Sideout Papi's"},{"r":1,"ct":3,"pool":"MB","a":"Block Party","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":4,"pool":"MB","a":"Laguna Locos","b":"Stupid slunks"},{"r":2,"ct":3,"pool":"MB","a":"Rocket and Groot","b":"Stupid slunks"},{"r":2,"ct":4,"pool":"MB","a":"Jack & Christian","b":"Caramel & Cream"},{"r":3,"ct":3,"pool":"MB","a":"Abrahaximus","b":"Caramel & Cream"},{"r":3,"ct":4,"pool":"MB","a":"Block Party","b":"Laguna Locos"},{"r":4,"ct":3,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Laguna Locos"},{"r":4,"ct":4,"pool":"MB","a":"Rocket and Groot","b":"Jack & Christian"},{"r":5,"ct":3,"pool":"MB","a":"Stupid slunks","b":"Jack & Christian"},{"r":5,"ct":4,"pool":"MB","a":"Abrahaximus","b":"Block Party"},{"r":6,"ct":3,"pool":"MB","a":"Caramel & Cream","b":"Block Party"},{"r":6,"ct":4,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Rocket and Groot"},{"r":7,"ct":3,"pool":"MB","a":"Laguna Locos","b":"Rocket and Groot"},{"r":7,"ct":4,"pool":"MB","a":"Stupid slunks","b":"Abrahaximus"},{"r":8,"ct":3,"pool":"MB","a":"Jack & Christian","b":"Abrahaximus"},{"r":8,"ct":4,"pool":"MB","a":"Caramel & Cream","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":5,"pool":"WA","a":"Monarchs","b":"NO HEIGHT ALL FIGHT"},{"r":2,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Set Happens"},{"r":3,"ct":5,"pool":"WA","a":"2nd string theory","b":"NO HEIGHT ALL FIGHT"},{"r":4,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Monarchs"},{"r":5,"ct":5,"pool":"WA","a":"2nd string theory","b":"Set Happens"},{"r":6,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"NO HEIGHT ALL FIGHT"},{"r":7,"ct":5,"pool":"WA","a":"Set Happens","b":"Monarchs"},{"r":8,"ct":5,"pool":"WA","a":"2nd string theory","b":"Lucy Goosey Fans"},{"r":9,"ct":5,"pool":"WA","a":"Set Happens","b":"NO HEIGHT ALL FIGHT"},{"r":10,"ct":5,"pool":"WA","a":"2nd string theory","b":"Monarchs"},{"r":1,"ct":6,"pool":"WB","a":"All Gas, No Breaks","b":"Kiana & Sarah"},{"r":2,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Twin Terrors"},{"r":3,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Kiana & Sarah"},{"r":4,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"All Gas, No Breaks"},{"r":5,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Twin Terrors"},{"r":6,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Kiana & Sarah"},{"r":7,"ct":6,"pool":"WB","a":"Twin Terrors","b":"All Gas, No Breaks"},{"r":8,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Izquierda Derecha"},{"r":9,"ct":6,"pool":"WB","a":"Twin Terrors","b":"Kiana & Sarah"},{"r":10,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"All Gas, No Breaks"}]};
+const DATA = {"event":{"name":"Last Splash Beach Tournament","org":"Surf and Turf","date":"Sunday, September 20, 2026","venue":"Oceanside Harbor Beach","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~2:15 PM","format":"2v2","iso":"2026-09-20","startMin":510,"roundMin":20},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"MA","name":"Men's Pool A","div":"mens","courts":[1,2],"teams":[{"name":"Birria Banh Mi","players":"Andres Ramirez / Dustin Tran","tier":"Upper Intermediate"},{"name":"Free Ballin'","players":"Nick Aldrete / Carlos Aldrete","tier":"Upper Intermediate"},{"name":"Heavily Defeated Super Social Pool Play Participation Medalists","players":"Juvenal Perez / Juvenal Perez","tier":"Upper Intermediate"},{"name":"Sideout Papi's","players":"Brandon Budde / Wilson Jones","tier":"Upper Intermediate"},{"name":"Spring Valley U","players":"Joshua Valencia / Kalani Saunar","tier":"Upper Intermediate"},{"name":"The empire spikes back","players":"Trevor Richardson / Hady hamer","tier":"Upper Intermediate"},{"name":"Vamos caralho","players":"Aidan Wahl / Andy Jaszczynski","tier":"Upper Intermediate"},{"name":"Feminist literature authors","players":"Aden tran / Elliot shand","tier":"Lower Intermediate"},{"name":"SDSU","players":"Katsuharu Patrick Glennon / Myles Joseph Plaskonos","tier":"Lower Intermediate"}]},{"key":"MB","name":"Men's Pool B","div":"mens","courts":[3,4],"teams":[{"name":"Block Party","players":"Ruben Sevilla / Adrian","tier":"Upper Intermediate"},{"name":"EXPLOSION DYNAMITE KINGS","players":"Jerry Santoro / Jerry Santoro","tier":"Upper Intermediate"},{"name":"Laguna Locos","players":"Scott Allan Furniss / Dallas Johnson","tier":"Upper Intermediate"},{"name":"Rocket and Groot","players":"Lance Jundy / Declan Noriega","tier":"Upper Intermediate"},{"name":"Stupid slunks","players":"Max sluss / Xavier sluss","tier":"Upper Intermediate"},{"name":"Jack & Christian","players":"Jack Vermaak / Christian Gallardi","tier":"Upper Intermediate"},{"name":"Abrahaximus","players":"Abraham Rycus / Max Parker","tier":"Lower Intermediate"},{"name":"Caramel & Cream","players":"Jose Perez / TBD","tier":"Lower Intermediate"}]},{"key":"WA","name":"Women's Pool A","div":"womens","courts":[5],"teams":[{"name":"2nd string theory","players":"Maria Adams / Kayla Redfield","tier":"Upper Intermediate"},{"name":"Lucy Goosey Fans","players":"Louisa Black / Paige Bensing","tier":"Upper Intermediate"},{"name":"Set Happens","players":"Allie Carmickle / Shayd Silva","tier":"Upper Intermediate"},{"name":"Monarchs","players":"Mallorie Schmidt / Kristin Gabriel","tier":"Lower Intermediate"},{"name":"NO HEIGHT ALL FIGHT","players":"Tessa Young / Claire Henderson","tier":"Lower Intermediate"}]},{"key":"WB","name":"Women's Pool B","div":"womens","courts":[6],"teams":[{"name":"4 Game Warm Up Required","players":"Haley Michel / Alex Beccari","tier":"Upper Intermediate"},{"name":"Izquierda Derecha","players":"Isa Lara / Shyann Bolos","tier":"Upper Intermediate"},{"name":"Twin Terrors","players":"Jessica Shuen / Megan Meyerholtz","tier":"Upper Intermediate"},{"name":"All Gas, No Breaks","players":"Emily Correa / Kim Guillen","tier":"Lower Intermediate"},{"name":"Kiana & Sarah","players":"Kiana Perez / Sarah Carr","tier":"Lower Intermediate"}]}],"games":[{"r":1,"ct":1,"pool":"MA","a":"Birria Banh Mi","b":"Free Ballin'"},{"r":1,"ct":2,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Spring Valley U"},{"r":2,"ct":1,"pool":"MA","a":"Sideout Papi's","b":"Spring Valley U"},{"r":2,"ct":2,"pool":"MA","a":"The empire spikes back","b":"Feminist literature authors"},{"r":3,"ct":1,"pool":"MA","a":"Vamos caralho","b":"Feminist literature authors"},{"r":3,"ct":2,"pool":"MA","a":"SDSU","b":"Free Ballin'"},{"r":4,"ct":1,"pool":"MA","a":"Free Ballin'","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":4,"ct":2,"pool":"MA","a":"Sideout Papi's","b":"The empire spikes back"},{"r":5,"ct":1,"pool":"MA","a":"Spring Valley U","b":"The empire spikes back"},{"r":5,"ct":2,"pool":"MA","a":"Vamos caralho","b":"SDSU"},{"r":6,"ct":1,"pool":"MA","a":"Feminist literature authors","b":"SDSU"},{"r":6,"ct":2,"pool":"MA","a":"Birria Banh Mi","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":7,"ct":1,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Sideout Papi's"},{"r":7,"ct":2,"pool":"MA","a":"Spring Valley U","b":"Vamos caralho"},{"r":8,"ct":1,"pool":"MA","a":"The empire spikes back","b":"Vamos caralho"},{"r":8,"ct":2,"pool":"MA","a":"Feminist literature authors","b":"Birria Banh Mi"},{"r":9,"ct":1,"pool":"MA","a":"SDSU","b":"Birria Banh Mi"},{"r":9,"ct":2,"pool":"MA","a":"Free Ballin'","b":"Sideout Papi's"},{"r":1,"ct":3,"pool":"MB","a":"Block Party","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":4,"pool":"MB","a":"Laguna Locos","b":"Stupid slunks"},{"r":2,"ct":3,"pool":"MB","a":"Rocket and Groot","b":"Stupid slunks"},{"r":2,"ct":4,"pool":"MB","a":"Jack & Christian","b":"Caramel & Cream"},{"r":3,"ct":3,"pool":"MB","a":"Abrahaximus","b":"Caramel & Cream"},{"r":3,"ct":4,"pool":"MB","a":"Block Party","b":"Laguna Locos"},{"r":4,"ct":3,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Laguna Locos"},{"r":4,"ct":4,"pool":"MB","a":"Rocket and Groot","b":"Jack & Christian"},{"r":5,"ct":3,"pool":"MB","a":"Stupid slunks","b":"Jack & Christian"},{"r":5,"ct":4,"pool":"MB","a":"Abrahaximus","b":"Block Party"},{"r":6,"ct":3,"pool":"MB","a":"Caramel & Cream","b":"Block Party"},{"r":6,"ct":4,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Rocket and Groot"},{"r":7,"ct":3,"pool":"MB","a":"Laguna Locos","b":"Rocket and Groot"},{"r":7,"ct":4,"pool":"MB","a":"Stupid slunks","b":"Abrahaximus"},{"r":8,"ct":3,"pool":"MB","a":"Jack & Christian","b":"Abrahaximus"},{"r":8,"ct":4,"pool":"MB","a":"Caramel & Cream","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":5,"pool":"WA","a":"Monarchs","b":"NO HEIGHT ALL FIGHT"},{"r":2,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Set Happens"},{"r":3,"ct":5,"pool":"WA","a":"2nd string theory","b":"NO HEIGHT ALL FIGHT"},{"r":4,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Monarchs"},{"r":5,"ct":5,"pool":"WA","a":"2nd string theory","b":"Set Happens"},{"r":6,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"NO HEIGHT ALL FIGHT"},{"r":7,"ct":5,"pool":"WA","a":"Set Happens","b":"Monarchs"},{"r":8,"ct":5,"pool":"WA","a":"2nd string theory","b":"Lucy Goosey Fans"},{"r":9,"ct":5,"pool":"WA","a":"Set Happens","b":"NO HEIGHT ALL FIGHT"},{"r":10,"ct":5,"pool":"WA","a":"2nd string theory","b":"Monarchs"},{"r":1,"ct":6,"pool":"WB","a":"All Gas, No Breaks","b":"Kiana & Sarah"},{"r":2,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Twin Terrors"},{"r":3,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Kiana & Sarah"},{"r":4,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"All Gas, No Breaks"},{"r":5,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Twin Terrors"},{"r":6,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Kiana & Sarah"},{"r":7,"ct":6,"pool":"WB","a":"Twin Terrors","b":"All Gas, No Breaks"},{"r":8,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Izquierda Derecha"},{"r":9,"ct":6,"pool":"WB","a":"Twin Terrors","b":"Kiana & Sarah"},{"r":10,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"All Gas, No Breaks"}]};
 
 /* ═══ Lookups ═══════════════════════════════════════════ */
 const POOL_OF = {}; DATA.pools.forEach(p => p.teams.forEach(t => POOL_OF[t.name] = p));
@@ -632,20 +742,35 @@ function setUnlocked(state){
   renderScoring('mens'); renderScoring('womens');
   renderDerived();
 }
+let lockPanel = false;
 function renderLocks(){
-  const bar = unlocked
-    ? '<div class="lockbar open"><span class="lk">Admin unlocked</span>' +
-      '<p>Scores and bracket picks can be edited on this device.</p>' +
-      '<button class="btn ghost" data-lock="off">Lock again</button></div>'
-    : '<div class="lockbar"><span class="lk">Locked</span>' +
-      '<p>Anyone can read the scores, standings and bracket. Entering results needs the admin PIN.</p>' +
-      '<form data-lock="on"><input type="password" inputmode="numeric" autocomplete="off" ' +
-      'placeholder="Admin PIN" aria-label="Admin PIN"><button class="btn" type="submit">Unlock</button></form>' +
-      '<p class="lk-msg" hidden></p></div>';
-  ['scores','bracket'].forEach(w => { const el = $('lock-' + w); if (el) el.innerHTML = bar; });
+  const el = $('lock');
+  if (!el) return;
+  const btn = '<button class="lockbtn'+(unlocked?' on':'')+'" data-lock="toggle" '+
+    'aria-label="'+(unlocked?'Admin unlocked':'Admin')+'">'+
+    (unlocked ? '\uD83D\uDD13' : '\uD83D\uDD12')+
+    '<span class="t">'+(unlocked ? 'Unlocked' : 'Admin')+'</span></button>';
+  let panel = '';
+  if (lockPanel){
+    panel = unlocked
+      ? '<div class="lockbar open"><span class="lk">Admin unlocked</span>' +
+        '<p>Scores and bracket results can be recorded on this device. It stays unlocked until you lock it again.</p>' +
+        '<div class="btnbar"><button class="btn ghost" data-lock="off">Lock again</button></div></div>'
+      : '<div class="lockbar"><span class="lk">Admin PIN</span>' +
+        '<p>Recording results needs the PIN. Everything else is readable by anyone.</p>' +
+        '<form data-lock="on"><input class="pin" type="password" inputmode="numeric" ' +
+        'autocomplete="off" placeholder="PIN" aria-label="Admin PIN">' +
+        '<button class="btn" type="submit">Unlock</button></form><p class="lk-msg" hidden></p></div>';
+  }
+  el.innerHTML = '<div>'+btn+panel+'</div>';
   const clear = $('clearScores');
   if (clear) clear.disabled = !unlocked;
 }
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-lock="toggle"]');
+  if (b){ lockPanel = !lockPanel; renderLocks(); postHeight(); }
+});
+
 document.addEventListener('submit', async (e) => {
   const form = e.target.closest('form[data-lock="on"]');
   if (!form) return;
@@ -666,6 +791,7 @@ document.addEventListener('submit', async (e) => {
     try { good = (await sha256Hex(pin)) === PIN_HASH; } catch (e2) { good = false; }
   }
   if (good){
+    lockPanel = false;                        // unlocked, so get out of the way
     try { localStorage.setItem(PIN_KEY, pin); } catch (e) {}
     setUnlocked(true);
     // First admin to unlock seeds the shared copy from what it already has;
@@ -682,7 +808,7 @@ document.addEventListener('submit', async (e) => {
   }
 });
 document.addEventListener('click', (e) => {
-  if (e.target.closest('[data-lock="off"]')) setUnlocked(false);
+  if (e.target.closest('[data-lock="off"]')){ lockPanel = false; setUnlocked(false); }
 });
 
 /* ═══ Header ════════════════════════════════════════════ */
@@ -902,7 +1028,7 @@ function renderMine(){
           '<div class="g-opp"><span>vs</span> '+esc(g.opp)+'</div>'+ res +'</div>'+
         '<div class="g-court">'+g.ct+'<small>Net</small></div>'+
       '</div>';
-    }).join('') + '</div>';
+    }).join('') + '</div>' + bracketPathHTML(name);
 }
 teamSel.addEventListener('change', () => {
   renderMine();
@@ -1272,20 +1398,18 @@ function arrangeLines(cfg, seeds){
 function seedBracket(div, seeds){
   const cfg = CFG[div];
   const arranged = arrangeLines(cfg, seeds);
-  BR[div] = Object.assign(emptyBracket(cfg), {
+  BR[div] = Object.assign(emptyBracket(), {
     locked: true, seeds: seeds, lines: arranged.lines,
     avoid: {repeats: arranged.repeats, maybe: arranged.maybe, samePool: arranged.samePool}
   });
   saveBracket(div);
 }
 
-const emptyBracket = cfg => ({
-  locked: false, seeds: [], lines: [], avoid: null,
-  pi: cfg.pis.map(() => null),
-  rounds: Array.from({length: cfg.nRounds}, (_, r) => Array(cfg.draw >> (r + 1)).fill(null)),
-  final: [null, null, null]
-});
-const BR = {mens: emptyBracket(CFG.mens), womens: emptyBracket(CFG.womens)};
+/* Results are keyed by match rather than held as arrays of winners: a score
+   says who won and by how much, and the bracket reads the same way the pool
+   sheets do. */
+const emptyBracket = () => ({locked:false, seeds:[], lines:[], avoid:null, results:{}});
+const BR = {mens: emptyBracket(), womens: emptyBracket()};
 
 function loadBrackets(){
   ['mens','womens'].forEach(div => {
@@ -1294,9 +1418,9 @@ function loadBrackets(){
       if (!raw) return;
       const s = JSON.parse(raw);
       // Guard against a stale shape from an older version of this page.
-      const fresh = emptyBracket(CFG[div]);
-      if (!s || !Array.isArray(s.rounds) || s.rounds.length !== fresh.rounds.length) return;
-      BR[div] = Object.assign(fresh, s);
+      const fresh = emptyBracket();
+      if (!s || !Array.isArray(s.seeds)) return;
+      BR[div] = Object.assign(fresh, s, {results: (s.results && typeof s.results === 'object') ? s.results : {}});
     } catch (e) {}
   });
 }
@@ -1351,6 +1475,283 @@ function matchBox(div, kind, r, i, a, b, label, la, lb, extraClass){
   '</div>';
 }
 
+/* ── Bracket layout ─────────────────────────────────────
+   Each division keeps the nets it used in pool play. Only the final is pinned,
+   because a final is easier to find when everyone knows where it is. */
+const SLOT = 20;
+const slotClock = m => { const h=Math.floor(m/60), mm=m%60, hh=h%12===0?12:h%12;
+  return hh+':'+String(mm).padStart(2,'0')+(h<12?' AM':' PM'); };
+const slotSpan = m => slotClock(m) + ' \u2013 ' + slotClock(m + SLOT);
+const PLAN = {
+  mens:   {nets:[1,2,3,4], pi:11*60+30, r0:11*60+50, finalNet:1},
+  womens: {nets:[5,6],     pi:11*60+50, r0:12*60+10, finalNet:5}
+};
+
+/* Nets are assigned so a team stays where it was wherever possible: each match
+   prefers a net one of its feeding matches used. Two matches feed one and only
+   one net can be inherited, but it keeps people from being sent across the
+   beach between rounds.
+
+   Matches fed by a play-in also go in the later wave - the play-in ends as the
+   first wave starts, so that winner would otherwise walk straight back on. */
+function assignRound(count, nets, startMin, lateIdx, parentNets){
+  const all = [...Array(count).keys()];
+  const late = new Set(lateIdx || []);
+  const order = all.filter(i => !late.has(i)).concat(all.filter(i => late.has(i)));
+  const out = all.map(() => ({}));
+  order.forEach((mi, pos) => { out[mi].wave = Math.floor(pos / nets.length); });
+
+  const byWave = {};
+  order.forEach(mi => { (byWave[out[mi].wave] = byWave[out[mi].wave] || []).push(mi); });
+  Object.keys(byWave).forEach(w => {
+    const used = new Set();
+    // first the matches that can keep a net from the round before
+    byWave[w].forEach(mi => {
+      const prefs = (parentNets ? parentNets(mi) : []).filter(n => nets.includes(n));
+      const pick = prefs.find(n => !used.has(n));
+      if (pick != null){ out[mi].net = pick; used.add(pick); }
+    });
+    byWave[w].forEach(mi => {
+      if (out[mi].net != null) return;
+      const free = nets.find(n => !used.has(n));
+      out[mi].net = free != null ? free : nets[0];
+      used.add(out[mi].net);
+    });
+  });
+  all.forEach(mi => { out[mi].time = slotSpan(startMin + out[mi].wave * SLOT); });
+  return out;
+}
+
+function buildRounds(div, seeds){
+  const cfg = CFG[div], P = PLAN[div], st = BR[div];
+  const lines = (st.lines && st.lines.length) ? st.lines : arrangeLines(cfg, seeds);
+  const R = [];
+  const kOf = (rk, i) => div + '|' + rk + '|' + i;
+  const winner = (rk, i, a, b) => {
+    const sc = st.results[kOf(rk, i)];
+    if (!sc || sc[0] == null || sc[1] == null || sc[0] === sc[1]) return null;
+    return sc[0] > sc[1] ? a : b;
+  };
+
+  // play-ins
+  const piNet = {};
+  if (cfg.pis.length){
+    const a = assignRound(cfg.pis.length, P.nets, P.pi, [], null);
+    const matches = cfg.pis.map((p, i) => {
+      const A = lines[p.hi] || null, B = lines[p.lo] || null;
+      piNet[p.line] = a[i].net;
+      return {k: kOf('pi', i), id: 'PI ' + (i+1), net: a[i].net, time: a[i].time, wave: a[i].wave,
+              teams: [A, B], sides: [{seed:p.hi+1, name:A}, {seed:p.lo+1, name:B}]};
+    });
+    R.push({key:'pi', name: cfg.pis.length > 1 ? 'Play-ins' : 'Play-in', matches});
+  }
+  const piWin = line => {
+    const k = cfg.pis.findIndex(p => p.line === line);
+    if (k < 0) return null;
+    const m = R[0].matches[k];
+    return winner('pi', k, m.teams[0], m.teams[1]);
+  };
+
+  // the draw proper
+  const piLines = new Set(cfg.pis.map(p => p.line));
+  const pairs0 = [];
+  for (let i = 0; i < cfg.draw; i += 2) pairs0.push([cfg.order[i], cfg.order[i+1]]);
+  const lateIdx = pairs0.map((pr, i) => (piLines.has(pr[0]) || piLines.has(pr[1])) ? i : -1).filter(i => i >= 0);
+  const a0 = assignRound(pairs0.length, P.nets, P.r0, lateIdx,
+    mi => pairs0[mi].filter(l => piLines.has(l)).map(l => piNet[l]));
+  const r0Name = {16:'Round of 16', 8:'Quarterfinals', 4:'Semifinals'}[cfg.draw] || 'Round 1';
+  const abbr0 = {16:'R16', 8:'QF', 4:'SF'}[cfg.draw] || 'R';
+  R.push({key:'r0', name:r0Name, matches: pairs0.map((pr, i) => {
+    const t = pr.map(l => piLines.has(l) ? piWin(l) : (lines[l] || null));
+    return {k: kOf('r0', i), id: abbr0 + ' ' + (i+1), net:a0[i].net, time:a0[i].time, wave:a0[i].wave, teams:t,
+      sides: pr.map((l, n) => ({seed: l+1, name: t[n],
+        from: piLines.has(l) && !t[n] ? 'Play-in winner' : null}))};
+  })});
+
+  // fold the winners forward
+  let prev = R[R.length-1], size = cfg.draw / 2;
+  let start = P.r0 + (Math.max(...a0.map(x => x.wave)) + 1) * SLOT;
+  while (size >= 2){
+    const prevRoundKey = prev.key;
+    if (size === 2){
+      const finA = winner(prevRoundKey, 0, prev.matches[0].teams[0], prev.matches[0].teams[1]);
+      const finB = winner(prevRoundKey, 1, prev.matches[1].teams[0], prev.matches[1].teams[1]);
+      const games = [0,1,2].map(g => ({
+        k: kOf('f', g), id: 'Game ' + (g+1), net: P.finalNet, time: slotSpan(start + g*SLOT), wave: g,
+        teams: [finA, finB],
+        sides: [{name: finA, from: prev.matches[0].id + ' winner'},
+                {name: finB, from: prev.matches[1].id + ' winner'}]
+      }));
+      R.push({key:'f', name:'Final', note:'best 2 of 3', matches:games, finalists:[finA, finB]});
+      break;
+    }
+    const nets = P.nets;
+    const a = assignRound(size/2, nets, start, [],
+      mi => [prev.matches[2*mi].net, prev.matches[2*mi+1].net]);
+    const nm = {8:'Quarterfinals', 4:'Semifinals'}[size] || ('Round of ' + size);
+    const ab = size === 8 ? 'QF' : size === 4 ? 'SF' : 'R' + size;
+    const rk = 'r' + size;
+    R.push({key:rk, name:nm, matches: Array.from({length:size/2}, (_, i) => {
+      const A = winner(prevRoundKey, 2*i, prev.matches[2*i].teams[0], prev.matches[2*i].teams[1]);
+      const B = winner(prevRoundKey, 2*i+1, prev.matches[2*i+1].teams[0], prev.matches[2*i+1].teams[1]);
+      return {k: kOf(rk, i), id: ab + ' ' + (i+1), net:a[i].net, time:a[i].time, wave:a[i].wave, teams:[A, B],
+        sides: [{name:A, from: prev.matches[2*i].id + ' winner'},
+                {name:B, from: prev.matches[2*i+1].id + ' winner'}]};
+    })});
+    prev = R[R.length-1];
+    start += (Math.max(...a.map(x => x.wave)) + 1) * SLOT;
+    size /= 2;
+  }
+  return {rounds:R, lines, cfg};
+}
+
+/* A match key is "div|round|index", so the division it belongs to is in it. */
+/* The bracket highlights whichever team is chosen in "My team". */
+const followed = () => (typeof teamSel !== 'undefined' && teamSel) ? teamSel.value : '';
+const DIVOF = m => m.k.slice(0, m.k.indexOf('|'));
+
+function sideHTML(side, m){
+  const mine = !!followed() && side.name === followed();
+  const known = !!side.name;
+  const sc = BR[DIVOF(m)].results[m.k] || [null, null];
+  const n = m.sides.indexOf(side);
+  const both = sc[0] != null && sc[1] != null;
+  const won = both && sc[0] !== sc[1] && (sc[n] > sc[1-n]);
+  const lost = both && sc[0] !== sc[1] && !won;
+  const label = known ? esc(side.name) + (TEAM[side.name] ? '<small>'+esc(TEAM[side.name].players)+'</small>' : '')
+                      : esc(side.from || ('Seed ' + side.seed));
+  // Locked, a score is a number to read; unlocked, it is a box to type in.
+  // Showing players a grid of empty inputs they cannot use is just noise.
+  const scoreCell = unlocked
+    ? '<input class="sc" type="number" inputmode="numeric" min="0" max="'+CAP+'" '+
+      'aria-label="score" data-k="'+m.k+'" data-n="'+n+'" '+
+      'value="'+(sc[n] == null ? '' : sc[n])+'"'+(known?'':' disabled')+'>'
+    : '<span class="scr">'+(sc[n] == null ? '' : sc[n])+'</span>';
+  return '<div class="side'+(known?'':' tbd')+(mine?' mine':'')+(won?' won':'')+(lost?' lost':'')+'">'+
+    '<span class="sd">'+(side.seed?side.seed:'\u2013')+'</span>'+
+    '<span class="nm">'+label+'</span>'+ scoreCell +'</div>';
+}
+
+/* One card. */
+function matchHTML(m){
+  const mine = !!followed() && m.sides.some(x=>x.name===followed());
+  const sc = BR[DIVOF(m)].results[m.k] || [null,null];
+  const done = sc[0] != null && sc[1] != null && sc[0] !== sc[1];
+  return '<div class="m'+(mine?' mine':'')+(done?' done':'')+'">'+
+    '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
+    '<span class="m-time">'+m.time+'</span>'+
+    (m.waveLabel ? '<span class="m-wave">'+m.waveLabel+'</span>' : '')+
+    '<span class="m-id">'+esc(m.id)+'</span></div>'+
+    m.sides.map(x=>sideHTML(x,m)).join('')+'</div>';
+}
+/* The final is three games rather than one match, so it gets its own block with
+   the series score and, once someone has two, a champion. */
+function finalHTML(r){
+  const [A, B] = r.finalists || [null, null];
+  const div = DIVOF(r.matches[0]);
+  const wins = n => r.matches.filter(m => {
+    const sc = BR[DIVOF(m)].results[m.k];
+    return sc && sc[0] != null && sc[1] != null && sc[0] !== sc[1] && (sc[n] > sc[1-n]);
+  }).length;
+  const wa = A ? wins(0) : 0, wb = B ? wins(1) : 0;
+  const champ = wa === 2 ? A : wb === 2 ? B : null;
+  const played = wa + wb;
+  let out = '';
+  if (A && B) out += '<div class="series">'+esc(A)+' '+wa+' \u2013 '+wb+' '+esc(B)+'</div>';
+  r.matches.forEach((m, g) => {
+    if (champ && g >= played) return;          // no dead rubber
+    out += matchHTML(m);
+  });
+  if (champ) out += '<div class="champ"><div class="lbl2">Last Splash '+DIV_LABEL[div]+
+    ' champion</div><div class="nm2">'+esc(champ)+'</div></div>';
+  return out;
+}
+
+/* Matches braced in pairs, each brace labelled with the match it feeds. The
+   final is three games of one match, so it is not paired. */
+function matchesHTML(r, rounds){
+  if (r.key === 'f') return finalHTML(r);
+  const waves = Math.max(...r.matches.map(m => m.wave || 0)) + 1;
+  r.matches.forEach(m => {
+    m.waveLabel = waves > 1 ? (m.wave === 0 ? '1st up' : '2nd up') : '';
+  });
+  const next = rounds[rounds.indexOf(r) + 1];
+  const half = r.matches.length >= 8;
+  let out = '';
+  for (let i = 0; i < r.matches.length; i += 2){
+    if (half && i % (r.matches.length/2) === 0){
+      out += '<div class="half">'+(i === 0 ? 'Top half' : 'Bottom half')+' of the draw</div>';
+    }
+    // Show the earlier match first. A later match sitting above an earlier one
+    // on the same net reads as a double booking when it is really a queue.
+    const pairMatches = r.matches.slice(i, i+2)
+      .slice().sort((a, b) => (a.wave||0) - (b.wave||0));
+    const mine = !!followed() && pairMatches.some(m => m.sides.some(x=>x.name===followed()));
+    // A lone trailing match (an odd play-in count) gets no brace.
+    if (pairMatches.length < 2){ out += matchHTML(pairMatches[0]); continue; }
+    // The final is a series, so its matches are "Game 1..3"; pointing a
+    // semifinal brace at "Game 1" reads as nonsense. Name the round instead.
+    const feedsId = r.key === 'pi' ? 'the draw'
+      : next && next.key === 'f' ? 'Final'
+      : (next && next.matches[i/2] ? next.matches[i/2].id : '');
+    out += '<div class="pair'+(mine?' mine':'')+'">'+
+      pairMatches.map(m=>matchHTML(m)).join('')+
+      '<span class="brace"></span><span class="feeds">&rarr; '+esc(feedsId)+'</span></div>';
+  }
+  return out;
+}
+
+/* A team's route through its bracket, shown under its pool games. The route is
+   fixed by which line it sits on: at round r it is in match floor(pos/2^(r+1)),
+   and the nets differ per match, so walking the tree is the only way to point
+   anyone at the right one. */
+function bracketPathHTML(name){
+  const div = POOL_OF[name].div, st = BR[div];
+  if (!st.locked || !st.seeds.length) return '';
+  const built = buildRounds(div, st.seeds);
+  const {rounds, lines, cfg} = built;
+  const li = lines.indexOf(name);
+  if (li < 0) return '';
+  const pi = cfg.pis.find(x => x.hi === li || x.lo === li);
+  const pos = cfg.order.indexOf(pi ? pi.line : li);
+  const steps = [];
+  let played = false;
+  rounds.forEach(r => {
+    if (r.key === 'pi'){
+      if (!pi) return;
+      const m = r.matches[cfg.pis.indexOf(pi)];
+      const opp = m.sides.find(x => x.name !== name);
+      steps.push({net:m.net, time:m.time, rd:r.name,
+        vs: opp && opp.name ? 'vs ' + opp.name : 'vs TBD', cond:false});
+      played = true; return;
+    }
+    if (r.key === 'f'){
+      const m = r.matches[0];
+      steps.push({net:m.net, time:m.time, rd:'Final \u00b7 best 2 of 3', vs:'if you get there', cond:true});
+      return;
+    }
+    const ri = rounds.filter(x => x.key !== 'pi' && x.key !== 'f').indexOf(r);
+    const m = r.matches[Math.floor(pos / Math.pow(2, ri + 1))];
+    if (!m) return;
+    const mine = m.sides.some(x => x.name === name);
+    const opp = m.sides.find(x => x.name !== name);
+    steps.push({net:m.net, time:m.time, rd:r.name,
+      vs: mine && opp && opp.name ? 'vs ' + opp.name
+        : mine ? 'vs ' + (opp && opp.from ? opp.from : 'TBD')
+        : 'if you win the ' + (played ? 'previous round' : 'round before'),
+      cond: !mine});
+    if (mine) played = true;
+  });
+  if (!steps.length) return '';
+  return '<h3 class="display" style="margin-top:22px">Your bracket</h3>' +
+    '<div class="games">' + steps.map(x =>
+      '<div class="game"'+(x.cond?' style="opacity:.62"':'')+'>'+
+        '<div class="g-rd">'+x.net+'<small>Net</small></div>'+
+        '<div class="g-main"><div class="g-time tnum">'+esc(x.rd)+' \u00b7 '+x.time+'</div>'+
+        '<div class="g-opp">'+esc(x.vs)+'</div></div></div>').join('') + '</div>';
+}
+
+
 function renderBracket(div){
   const cfg = CFG[div], st = BR[div], panel = $('p-br-' + div);
   const games = gamesOfDiv(div);
@@ -1362,162 +1763,36 @@ function renderBracket(div){
     panel.innerHTML =
       '<div class="bnote">'+
         (left > 0
-          ? '<b>'+done+' of '+games.length+'</b> '+DIV_LABEL[div]+' pool games are in. The bracket fills itself the moment the last score lands &mdash; '+left+' game'+(left === 1 ? '' : 's')+' to go.'
+          ? '<b>'+done+' of '+games.length+'</b> '+DIV_LABEL[div]+' pool games are in. The bracket fills itself the moment the last score lands \u2014 '+left+' game'+(left === 1 ? '' : 's')+' to go.'
           : 'Every '+DIV_LABEL[div]+' pool game is final. Locking in the seeding now.')+
       '</div>'+
-      (live.length ? '<h4 style="font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.16em;text-transform:uppercase;font-size:13px;color:var(--turf-deep);margin-bottom:8px">Seeding as it stands</h4>' + stTable(tally(games), {seed:true}) : '')+
+      (live.length ? stTable(tally(games), {seed:true}) : '')+
       (unlocked ? '<div class="btnbar"><button class="btn" data-fill="'+div+'">Fill the bracket now</button></div>' : '');
     return;
   }
 
-  const stale = JSON.stringify(seedsOf(div)) !== JSON.stringify(st.seeds);
-  let html =
-    (stale ? '<div class="warn">Pool scores have changed since this bracket was seeded, so the seeds below no longer match the standings. Unlock and re-seed to refresh it.</div>' : '') +
-    '<div class="bnote"><b>'+cfg.field+' teams, no byes.</b> '+
-      (cfg.pis.length
-        ? 'Seeds 1&ndash;'+(cfg.draw - cfg.pis.length)+' start in the '+roundName(cfg.draw, 0)+'; the bottom '+(cfg.pis.length * 2)+' play in for the last '+cfg.pis.length+' line'+(cfg.pis.length === 1 ? '' : 's')+'. '
-        : '') +
-      'Every match is one game to 21 &mdash; the Final is best 2 of 3. Tap a team to advance them.' +
+  const built = buildRounds(div, st.seeds);
+  const rounds = built.rounds;
+  panel.innerHTML =
+    '<div class="bnote">Seeded on combined pool record across both pools. Every match already has its net and time.'+
       (st.avoid
         ? (st.avoid.repeats > 0
-            ? ' Round one still has ' + st.avoid.repeats + ' unavoidable rematch' +
-              (st.avoid.repeats === 1 ? '' : 'es') + ' from pool play.'
+            ? ' Round one still has ' + st.avoid.repeats + ' unavoidable rematch' + (st.avoid.repeats === 1 ? '' : 'es') + '.'
             : (st.avoid.maybe > 0
-                ? ' <b>Round one avoids rematches</b>, so seeds may not sit in textbook order. ' +
-                  st.avoid.maybe + ' match' + (st.avoid.maybe === 1 ? '' : 'es') +
-                  ' could still become one, depending on who wins a play-in.'
+                ? ' <b>Round one avoids rematches</b>, so seeds may not sit in textbook order. ' + st.avoid.maybe +
+                  ' could still become one depending on a play-in.'
                 : ' <b>Round one avoids rematches</b>, so seeds may not sit in textbook order.'))
-        : '') + '</div>'+
-    (unlocked
-      ? '<div class="btnbar"><button class="btn ghost" data-clear="'+div+'">Clear picks</button>'+
-        '<button class="btn danger" data-reseed="'+div+'">Unlock &amp; re-seed</button></div>'
-      : '');
-
-  if (cfg.pis.length){
-    html += '<div class="bround"><h4>Play-in &mdash; winner takes the seed line</h4><div class="bgrid">' +
-      cfg.pis.map((p, i) => {
-        const onLine = (st.lines && st.lines.length) ? st.lines : st.seeds;
-        const a = onLine[p.hi], b = onLine[p.lo];
-        return matchBox(div, 'pi', 0, i, a, b,
-          'Play-in ' + (i + 1), trueSeed(st, a), trueSeed(st, b), 'pi');
-      }).join('') +
-      '</div></div>';
-  }
-
-  for (let r = 0; r < cfg.nRounds; r++){
-    const teams = roundTeams(cfg, st, r);
-    const boxes = [];
-    for (let i = 0; i < teams.length / 2; i++){
-      const a = teams[2*i], b = teams[2*i + 1];
-      const label = r === 0
-        ? (trueSeed(st, a) || 'PI') + ' v ' + (trueSeed(st, b) || 'PI')
-        : roundAbbr(cfg.draw, r) + ' ' + (i + 1);
-      const la = r === 0 ? trueSeed(st, a) : '';
-      const lb = r === 0 ? trueSeed(st, b) : '';
-      boxes.push(matchBox(div, 'r', r, i, a, b, label, la, lb, ''));
-    }
-    html += '<div class="bround"><h4>'+roundName(cfg.draw, r)+'</h4><div class="bgrid">'+boxes.join('')+'</div></div>';
-  }
-
-  /* Final — best 2 of 3. Show the games played plus the next one, and stop
-     as soon as somebody reaches two. */
-  const fin = st.rounds[cfg.nRounds - 1];
-  html += '<div class="bround"><h4>Final &mdash; best 2 of 3</h4>';
-  if (!fin[0] || !fin[1]){
-    html += '<div class="bnote">Waiting on the semifinals.</div>';
-  } else {
-    const wa = st.final.filter(x => x === fin[0]).length;
-    const wb = st.final.filter(x => x === fin[1]).length;
-    const champ = wa === 2 ? fin[0] : (wb === 2 ? fin[1] : null);
-    const played = st.final.filter(Boolean).length;
-    const show = champ ? played : Math.min(3, played + 1);
-    html += '<p class="series">'+esc(fin[0])+' '+wa+' &ndash; '+wb+' '+esc(fin[1])+'</p><div class="bgrid">';
-    for (let g = 0; g < show; g++){
-      html += '<div class="bmatch"><div class="lbl">Game '+(g+1)+' &mdash; to 25</div>'+
-        btnTeam(div, 'f', 0, g, fin[0], st.final[g] === fin[0], '') +
-        btnTeam(div, 'f', 0, g, fin[1], st.final[g] === fin[1], '') + '</div>';
-    }
-    html += '</div>';
-    if (champ){
-      html += '<div class="champ"><div class="lbl2">Last Splash '+DIV_LABEL[div]+' champion</div>'+
-              '<div class="nm2">'+esc(champ)+'</div></div>';
-    }
-  }
-  html += '</div>';
-  panel.innerHTML = html;
-}
-
-document.addEventListener('click', e => {
-  const pick = e.target.closest('.bteam[data-name]');
-  if (pick){
-    const div = pick.dataset.div, cfg = CFG[div], st = BR[div];
-    const r = Number(pick.dataset.r), i = Number(pick.dataset.i), name = pick.dataset.name;
-    if (pick.dataset.kind === 'pi'){ st.pi[i] = name; clearFrom(cfg, st, 0); }
-    else if (pick.dataset.kind === 'r'){ st.rounds[r][i] = name; clearFrom(cfg, st, r + 1); }
-    else { st.final[i] = name; }
-    saveBracket(div); renderBracket(div); postHeight();
-    return;
-  }
-  const lock = e.target.closest('[data-fill]');
-  if (lock){
-    const div = lock.dataset.fill, seeds = seedsOf(div);
-    if (seeds.length < CFG[div].field){
-      lock.insertAdjacentHTML('afterend',
-        '<p class="warn" style="margin:10px 0 0">All '+CFG[div].field+' '+DIV_LABEL[div]+
-        ' teams need a recorded result first — '+seeds.length+' are ranked so far.</p>');
-      postHeight();
-      return;
-    }
-    seedBracket(div, seeds);
-    renderBracket(div); postHeight();
-    return;
-  }
-  const clr = e.target.closest('[data-clear]');
-  if (clr){
-    armConfirm(clr, 'Tap again to clear picks', () => {
-      const div = clr.dataset.clear, st = BR[div];
-      st.pi = CFG[div].pis.map(() => null);
-      clearFrom(CFG[div], st, 0);
-      saveBracket(div); renderBracket(div); postHeight();
-    });
-    return;
-  }
-  const unl = e.target.closest('[data-reseed]');
-  if (unl){
-    armConfirm(unl, 'Tap again to unlock', () => {
-      const div = unl.dataset.reseed;
-      BR[div] = emptyBracket(CFG[div]);
-      saveBracket(div); renderBracket(div); postHeight();
-    });
-    return;
-  }
-  const pc = e.target.closest('[data-print-court]');
-  if (pc){
-    e.preventDefault();          // it lives in a <summary>; don't toggle the section
-    printSheets([Number(pc.dataset.printCourt)]);
-  }
-});
-
-/* Seed the bracket the instant the division's last pool score is entered. */
-function autoLock(div){
-  const st = BR[div];
-  if (st.locked) return;
-  if (!gamesOfDiv(div).every(isFinal)) return;
-  const seeds = seedsOf(div);
-  if (seeds.length < CFG[div].field) return;
-  seedBracket(div, seeds);
-}
-
-/* Everything downstream of a score, in one call. */
-function renderDerived(){
-  renderLocks();
-  renderEmergency();
-  renderMine();
-  renderSchedule();
-  renderStandings();
-  ['mens','womens'].forEach(div => { autoLock(div); renderBracket(div); });
-  noteSaved();
-  postHeight();
+        : '')+'</div>'+
+    '<div class="dots" data-dots="'+div+'">'+rounds.map((r,i)=>
+      '<button class="dot" data-jump="'+i+'"'+(i===0?' aria-current="true"':'')+'>'+esc(r.name)+'</button>').join('')+'</div>'+
+    '<div class="pager" data-pager="'+div+'">'+rounds.map(r =>
+      '<div class="col"><h3>'+esc(r.name)+'</h3>'+
+      '<div class="meta">'+r.matches.length+(r.note?' games \u00b7 '+r.note:' match'+(r.matches.length>1?'es':''))+
+        ' \u00b7 nets '+[...new Set(r.matches.map(m=>m.net))].sort().join(', ')+
+        ((Math.max(...r.matches.map(m=>m.wave||0)) > 0 && r.key !== 'f')
+          ? ' \u00b7 two groups: 1st up starts on time, 2nd up takes that net when it frees, or the next one that does'
+          : '')+'</div>'+
+      matchesHTML(r, rounds)+'</div>').join('')+'</div>';
 }
 
 /* ═══ Print: net sheets + master schedule ═════════════ */
@@ -1661,6 +1936,64 @@ document.addEventListener('toggle', (e) => {
   if (!(d instanceof HTMLDetailsElement) || !d.open || !d.dataset.acc) return;
   document.querySelectorAll('details[data-acc="' + d.dataset.acc + '"][open]')
     .forEach(other => { if (other !== d) other.open = false; });
+}, true);
+
+function autoLock(div){
+  const st = BR[div];
+  if (st.locked) return;
+  if (!gamesOfDiv(div).every(isFinal)) return;
+  const seeds = seedsOf(div);
+  if (seeds.length < CFG[div].field) return;
+  seedBracket(div, seeds);
+}
+
+function renderDerived(){
+  renderLocks();
+  renderEmergency();
+  renderMine();
+  renderSchedule();
+  renderStandings();
+  ['mens','womens'].forEach(div => { autoLock(div); renderBracket(div); });
+  noteSaved();
+  postHeight();
+}
+
+/* ═══ Bracket results ═══════════════════════════════════
+   Typed like a pool score. Stored on input so nothing is lost mid-keystroke,
+   redrawn on change so the winner moves on without the field vanishing from
+   under a thumb. */
+document.addEventListener('input', e => {
+  const i = e.target.closest('.pager input[data-k]');
+  if (!i || !unlocked) return;
+  const k = i.dataset.k, n = Number(i.dataset.n), div = k.slice(0, k.indexOf('|'));
+  let v = i.value === '' ? null : Math.trunc(Number(i.value));
+  if (v != null && (isNaN(v) || v < 0)) v = 0;
+  if (v != null && v > CAP){ v = CAP; i.value = CAP; }
+  const cur = BR[div].results[k] || [null, null];
+  cur[n] = v;
+  if (cur[0] == null && cur[1] == null) delete BR[div].results[k];
+  else BR[div].results[k] = cur;
+  saveBracket(div);
+});
+document.addEventListener('change', e => {
+  const i = e.target.closest('.pager input[data-k]');
+  if (!i || !unlocked) return;
+  renderBracket(i.dataset.k.slice(0, i.dataset.k.indexOf('|')));
+  postHeight();
+});
+document.addEventListener('click', e => {
+  const d = e.target.closest('[data-jump]');
+  if (!d) return;
+  const pager = d.closest('.view').querySelector('.pager:not([hidden])') ||
+                d.parentElement.nextElementSibling;
+  if (pager) pager.scrollTo({left: pager.clientWidth * Number(d.dataset.jump), behavior:'smooth'});
+});
+document.addEventListener('scroll', e => {
+  const pager = e.target.closest ? e.target.closest('.pager') : null;
+  if (!pager) return;
+  const i = Math.round(pager.scrollLeft / pager.clientWidth);
+  const dots = pager.parentElement.querySelector('.dots');
+  if (dots) [...dots.children].forEach((d, j) => d.setAttribute('aria-current', String(j === i)));
 }, true);
 
 /* ═══ Live sync ═════════════════════════════════════════
