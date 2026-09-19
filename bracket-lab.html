@@ -105,14 +105,23 @@
         margin:2px 0 8px;padding-top:8px;border-top:1px dashed var(--edge)}
   .half:first-of-type{border-top:0;padding-top:0}
 
-  /* Whole-draw overview: where your line sits and who is on the other side. */
-  .map{margin:0 16px 10px;background:var(--card);border:1px solid var(--edge);
-       border-radius:6px;padding:10px 12px 8px}
-  .map .cap{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
-            letter-spacing:.14em;text-transform:uppercase;color:var(--fog);margin-bottom:6px;
-            display:flex;gap:8px;align-items:baseline}
-  .map .cap b{color:var(--gold)}
-  .map svg{display:block;width:100%;height:auto}
+  .side .sc{width:52px;height:38px;text-align:center;font-size:17px;font-weight:700;
+            font-variant-numeric:tabular-nums;color:var(--snow);background:var(--deep);
+            border:2px solid var(--edge);border-radius:5px;font-family:'Barlow',sans-serif}
+  .side .sc:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
+  .side .sc:disabled{opacity:.35}
+  .side.won{background:#22382B}
+  .side.won .nm{color:var(--lime)}
+  .side.lost{opacity:.55}
+  .m.done .m-top{background:#1B3326}
+  .champ{margin:12px 0 4px;background:var(--deep);border:3px solid var(--gold);border-radius:8px;
+         padding:18px 16px;text-align:center}
+  .champ .l{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;
+            letter-spacing:.2em;text-transform:uppercase;color:var(--pink)}
+  .champ .n{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(22px,6vw,30px);
+            color:var(--gold);line-height:1;margin-top:6px}
+  .series{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
+          letter-spacing:.1em;text-transform:uppercase;color:var(--aqua);margin-bottom:8px}
   .legend{padding:0 16px 40px;color:var(--fog);font-size:13.5px;line-height:1.5}
   .legend b{color:var(--snow)}
 </style>
@@ -129,12 +138,12 @@
     </div>
     <select id="team"><option value="">Follow a team&hellip;</option></select>
     <div class="btnrow">
-      <button class="btn" id="sim">Reshuffle results</button>
+      <button class="btn" id="sim">Reshuffle pools</button>
       <button class="btn" id="clear">Show pre-seeding</button>
+      <button class="btn" id="reset">Clear bracket</button>
     </div>
   </div>
   <div id="path"></div>
-  <div id="map"></div>
   <div class="dots" id="dots"></div>
   <div class="pager" id="pager"></div>
   <p class="legend" id="legend"></p>
@@ -166,79 +175,131 @@ function cfgFor(div){
 const CFG = {mens: cfgFor('mens'), womens: cfgFor('womens')};
 
 /* ── net + time plan. Each division keeps the nets it used in pool play. ── */
+const CAP = 25;                      // games to 21, win by 2, hard cap 25
 const SLOT = 20;
 const clock = m => { const h=Math.floor(m/60), mm=m%60, hh=h%12===0?12:h%12;
   return hh+':'+String(mm).padStart(2,'0')+(h<12?' AM':' PM'); };
 const span = m => clock(m)+' – '+clock(m+SLOT);
 const PLAN = {
-  mens:   {nets:[1,2,3,4], pi:11*60+30, r0:11*60+50, sfNets:[1,2], finalNet:1},
-  womens: {nets:[5,6],     pi:11*60+50, r0:12*60+10, sfNets:[5,6], finalNet:5}
+  // finalNet is fixed on purpose: a final is easier to find if everyone knows
+  // where it is, and only one of the two finalists could have inherited anyway.
+  mens:   {nets:[1,2,3,4], pi:11*60+30, r0:11*60+50, finalNet:1},
+  womens: {nets:[5,6],     pi:11*60+50, r0:12*60+10, finalNet:5}
 };
 
-/* Matches fed by a play-in go in the later wave: that winner has just come off
-   a game, and the whole point of laying this out in advance is that nobody is
-   sent straight back on. */
-function assign(count, nets, startMin, lateFirst){
-  const idx = Array.from({length:count},(_,i)=>i);
-  const late = new Set(lateFirst || []);
-  const ordered = idx.filter(i=>!late.has(i)).concat(idx.filter(i=>late.has(i)));
-  const out = [];
-  ordered.forEach((matchIdx, pos) => {
-    const wave = Math.floor(pos / nets.length);
-    out[matchIdx] = {net: nets[pos % nets.length], wave, time: span(startMin + wave*SLOT)};
+/* Nets are assigned so a team stays where it was wherever possible: each match
+   prefers a net one of its feeding matches used. Two matches feed one and only
+   one net can be inherited, but it keeps people from being sent across the
+   beach between rounds.
+
+   Matches fed by a play-in also go in the later wave - the play-in ends as the
+   first wave starts, so that winner would otherwise walk straight back on. */
+function assignRound(count, nets, startMin, lateIdx, parentNets){
+  const all = [...Array(count).keys()];
+  const late = new Set(lateIdx || []);
+  const order = all.filter(i => !late.has(i)).concat(all.filter(i => late.has(i)));
+  const out = all.map(() => ({}));
+  order.forEach((mi, pos) => { out[mi].wave = Math.floor(pos / nets.length); });
+
+  const byWave = {};
+  order.forEach(mi => { (byWave[out[mi].wave] = byWave[out[mi].wave] || []).push(mi); });
+  Object.keys(byWave).forEach(w => {
+    const used = new Set();
+    // first the matches that can keep a net from the round before
+    byWave[w].forEach(mi => {
+      const prefs = (parentNets ? parentNets(mi) : []).filter(n => nets.includes(n));
+      const pick = prefs.find(n => !used.has(n));
+      if (pick != null){ out[mi].net = pick; used.add(pick); }
+    });
+    byWave[w].forEach(mi => {
+      if (out[mi].net != null) return;
+      const free = nets.find(n => !used.has(n));
+      out[mi].net = free != null ? free : nets[0];
+      used.add(out[mi].net);
+    });
   });
+  all.forEach(mi => { out[mi].time = span(startMin + out[mi].wave * SLOT); });
   return out;
 }
 
 function buildRounds(div, seeds){
   const cfg = CFG[div], P = PLAN[div];
   const lines = arrangeLines(cfg, seeds);
-  const nameAt = i => lines[i] || null;
   const R = [];
+  const kOf = (rk, i) => div + '|' + rk + '|' + i;
+  const winner = (rk, i, a, b) => {
+    const sc = RESULTS[kOf(rk, i)];
+    if (!sc || sc[0] == null || sc[1] == null || sc[0] === sc[1]) return null;
+    return sc[0] > sc[1] ? a : b;
+  };
 
+  // play-ins
+  const piNet = {};
   if (cfg.pis.length){
-    const a = assign(cfg.pis.length, P.nets, P.pi, []);
-    R.push({key:'pi', name: cfg.pis.length>1?'Play-ins':'Play-in',
-      matches: cfg.pis.map((p,i)=>({
-        id:'PI '+(i+1), ...a[i],
-        sides:[{seed:p.hi+1, name:nameAt(p.hi)}, {seed:p.lo+1, name:nameAt(p.lo)}]
-      }))});
+    const a = assignRound(cfg.pis.length, P.nets, P.pi, [], null);
+    const matches = cfg.pis.map((p, i) => {
+      const A = lines[p.hi] || null, B = lines[p.lo] || null;
+      piNet[p.line] = a[i].net;
+      return {k: kOf('pi', i), id: 'PI ' + (i+1), net: a[i].net, time: a[i].time,
+              teams: [A, B], sides: [{seed:p.hi+1, name:A}, {seed:p.lo+1, name:B}]};
+    });
+    R.push({key:'pi', name: cfg.pis.length > 1 ? 'Play-ins' : 'Play-in', matches});
   }
-  // round 0: the draw proper
-  const piLines = new Set(cfg.pis.map(p=>p.line));
-  const r0 = [];
-  for (let i=0;i<cfg.draw;i+=2){
-    const x=cfg.order[i], y=cfg.order[i+1];
-    r0.push({x,y,fed: piLines.has(x)||piLines.has(y)});
-  }
-  const lateIdx = r0.map((m,i)=>m.fed?i:-1).filter(i=>i>=0);
-  const a0 = assign(r0.length, P.nets, P.r0, lateIdx);
+  const piWin = line => {
+    const k = cfg.pis.findIndex(p => p.line === line);
+    if (k < 0) return null;
+    const m = R[0].matches[k];
+    return winner('pi', k, m.teams[0], m.teams[1]);
+  };
+
+  // the draw proper
+  const piLines = new Set(cfg.pis.map(p => p.line));
+  const pairs0 = [];
+  for (let i = 0; i < cfg.draw; i += 2) pairs0.push([cfg.order[i], cfg.order[i+1]]);
+  const lateIdx = pairs0.map((pr, i) => (piLines.has(pr[0]) || piLines.has(pr[1])) ? i : -1).filter(i => i >= 0);
+  const a0 = assignRound(pairs0.length, P.nets, P.r0, lateIdx,
+    mi => pairs0[mi].filter(l => piLines.has(l)).map(l => piNet[l]));
   const r0Name = {16:'Round of 16', 8:'Quarterfinals', 4:'Semifinals'}[cfg.draw] || 'Round 1';
-  R.push({key:'r0', name:r0Name, matches: r0.map((m,i)=>({
-    id: r0Name.replace(/[^A-Z0-9]/g,'').slice(0,3).toUpperCase()+' '+(i+1), ...a0[i],
-    sides:[
-      {seed:m.x+1, name: piLines.has(m.x)?null:nameAt(m.x), from: piLines.has(m.x)?'Play-in winner':null},
-      {seed:m.y+1, name: piLines.has(m.y)?null:nameAt(m.y), from: piLines.has(m.y)?'Play-in winner':null}
-    ]}))});
-  // later rounds fold the winners
-  let prev = R[R.length-1], size = cfg.draw/2, start = P.r0 + a0.reduce((m,g)=>Math.max(m,g.wave),0)*SLOT + SLOT;
+  const abbr0 = {16:'R16', 8:'QF', 4:'SF'}[cfg.draw] || 'R';
+  R.push({key:'r0', name:r0Name, matches: pairs0.map((pr, i) => {
+    const t = pr.map(l => piLines.has(l) ? piWin(l) : (lines[l] || null));
+    return {k: kOf('r0', i), id: abbr0 + ' ' + (i+1), net:a0[i].net, time:a0[i].time, teams:t,
+      sides: pr.map((l, n) => ({seed: l+1, name: t[n],
+        from: piLines.has(l) && !t[n] ? 'Play-in winner' : null}))};
+  })});
+
+  // fold the winners forward
+  let prev = R[R.length-1], size = cfg.draw / 2;
+  let start = P.r0 + (Math.max(...a0.map(x => x.wave)) + 1) * SLOT;
   while (size >= 2){
-    const nm = {8:'Quarterfinals',4:'Semifinals',2:'Final'}[size] || ('Round of '+size);
+    const prevRoundKey = prev.key;
     if (size === 2){
-      const games = [0,1,2].map(g=>({id:'Game '+(g+1), net:P.finalNet, wave:g, time:span(start+g*SLOT),
-        sides:[{from:'Semifinal 1 winner'},{from:'Semifinal 2 winner'}]}));
-      R.push({key:'f', name:'Final', note:'best 2 of 3', matches:games});
+      const finA = winner(prevRoundKey, 0, prev.matches[0].teams[0], prev.matches[0].teams[1]);
+      const finB = winner(prevRoundKey, 1, prev.matches[1].teams[0], prev.matches[1].teams[1]);
+      const games = [0,1,2].map(g => ({
+        k: kOf('f', g), id: 'Game ' + (g+1), net: P.finalNet, time: span(start + g*SLOT),
+        teams: [finA, finB],
+        sides: [{name: finA, from: prev.matches[0].id + ' winner'},
+                {name: finB, from: prev.matches[1].id + ' winner'}]
+      }));
+      R.push({key:'f', name:'Final', note:'best 2 of 3', matches:games, finalists:[finA, finB]});
       break;
     }
-    const nets = size===4 ? P.sfNets : PLAN[div].nets;
-    const a = assign(size/2, nets, start, []);
-    const abbr = size===8?'QF':size===4?'SF':'R'+size;
-    R.push({key:'r'+size, name:nm, matches: Array.from({length:size/2},(_,i)=>({
-      id: abbr+' '+(i+1), ...a[i],
-      sides:[{from: prev.matches[2*i].id+' winner'},{from: prev.matches[2*i+1].id+' winner'}]
-    }))});
+    const nets = P.nets;
+    const a = assignRound(size/2, nets, start, [],
+      mi => [prev.matches[2*mi].net, prev.matches[2*mi+1].net]);
+    const nm = {8:'Quarterfinals', 4:'Semifinals'}[size] || ('Round of ' + size);
+    const ab = size === 8 ? 'QF' : size === 4 ? 'SF' : 'R' + size;
+    const rk = 'r' + size;
+    R.push({key:rk, name:nm, matches: Array.from({length:size/2}, (_, i) => {
+      const A = winner(prevRoundKey, 2*i, prev.matches[2*i].teams[0], prev.matches[2*i].teams[1]);
+      const B = winner(prevRoundKey, 2*i+1, prev.matches[2*i+1].teams[0], prev.matches[2*i+1].teams[1]);
+      return {k: kOf(rk, i), id: ab + ' ' + (i+1), net:a[i].net, time:a[i].time, teams:[A, B],
+        sides: [{name:A, from: prev.matches[2*i].id + ' winner'},
+                {name:B, from: prev.matches[2*i+1].id + ' winner'}]};
+    })});
     prev = R[R.length-1];
-    start += (Math.max(...a.map(g=>g.wave))+1)*SLOT;
+    start += (Math.max(...a.map(x => x.wave)) + 1) * SLOT;
     size /= 2;
   }
   return {rounds:R, lines, cfg};
@@ -307,33 +368,73 @@ function sampleScores(seed){
   return out;
 }
 let SCORES = sampleScores(20260920), DIV = 'mens', FOLLOW = '';
+/* Bracket results, so the whole day can be rehearsed on a phone. Kept in this
+   browser only - the prototype deliberately does not touch the shared state the
+   live page syncs with. */
+const RES_KEY = 'ls-lab-results';
+let RESULTS = {};
+try { RESULTS = JSON.parse(localStorage.getItem(RES_KEY) || '{}') || {}; } catch (e) {}
+function saveResults(){ try { localStorage.setItem(RES_KEY, JSON.stringify(RESULTS)); } catch (e) {} }
 const $ = id => document.getElementById(id);
 const gamesOf = d => DATA.games.filter(g => POOL_OF[g.a].div === d);
 const seedsOf = d => Object.keys(SCORES).length ? tally(gamesOf(d), SCORES) : [];
 
 /* ── render ── */
-function sideHTML(s, seeds){
-  const mine = FOLLOW && s.name === FOLLOW;
-  const known = !!s.name;
-  const label = known ? esc(s.name) + (TEAM[s.name] ? '<small>'+esc(TEAM[s.name].players)+'</small>' : '')
-                      : esc(s.from || ('Seed ' + s.seed));
-  return '<div class="side'+(known?'':' tbd')+(mine?' mine':'')+'">'+
-    '<span class="sd">'+(s.seed?s.seed:'–')+'</span>'+
-    '<span class="nm">'+label+'</span></div>';
+function sideHTML(side, m){
+  const mine = FOLLOW && side.name === FOLLOW;
+  const known = !!side.name;
+  const sc = RESULTS[m.k] || [null, null];
+  const n = m.sides.indexOf(side);
+  const both = sc[0] != null && sc[1] != null;
+  const won = both && sc[0] !== sc[1] && (sc[n] > sc[1-n]);
+  const lost = both && sc[0] !== sc[1] && !won;
+  const label = known ? esc(side.name) + (TEAM[side.name] ? '<small>'+esc(TEAM[side.name].players)+'</small>' : '')
+                      : esc(side.from || ('Seed ' + side.seed));
+  return '<div class="side'+(known?'':' tbd')+(mine?' mine':'')+(won?' won':'')+(lost?' lost':'')+'">'+
+    '<span class="sd">'+(side.seed?side.seed:'\u2013')+'</span>'+
+    '<span class="nm">'+label+'</span>'+
+    '<input class="sc" type="number" inputmode="numeric" min="0" max="'+CAP+'" '+
+      'aria-label="score" data-k="'+m.k+'" data-n="'+n+'" '+
+      'value="'+(sc[n] == null ? '' : sc[n])+'"'+(known?'':' disabled')+'>'+
+    '</div>';
 }
+
 /* One card. */
-function matchHTML(m, seeds){
+function matchHTML(m){
   const mine = FOLLOW && m.sides.some(s=>s.name===FOLLOW);
-  return '<div class="m'+(mine?' mine':'')+'">'+
+  const sc = RESULTS[m.k] || [null,null];
+  const done = sc[0] != null && sc[1] != null && sc[0] !== sc[1];
+  return '<div class="m'+(mine?' mine':'')+(done?' done':'')+'">'+
     '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
     '<span class="m-time">'+m.time+'</span><span class="m-id">'+esc(m.id)+'</span></div>'+
-    m.sides.map(s=>sideHTML(s,seeds)).join('')+'</div>';
+    m.sides.map(x=>sideHTML(x,m)).join('')+'</div>';
 }
+/* The final is three games rather than one match, so it gets its own block with
+   the series score and, once someone has two, a champion. */
+function finalHTML(r){
+  const [A, B] = r.finalists || [null, null];
+  const wins = n => r.matches.filter(m => {
+    const sc = RESULTS[m.k];
+    return sc && sc[0] != null && sc[1] != null && sc[0] !== sc[1] && (sc[n] > sc[1-n]);
+  }).length;
+  const wa = A ? wins(0) : 0, wb = B ? wins(1) : 0;
+  const champ = wa === 2 ? A : wb === 2 ? B : null;
+  const played = wa + wb;
+  let out = '';
+  if (A && B) out += '<div class="series">'+esc(A)+' '+wa+' \u2013 '+wb+' '+esc(B)+'</div>';
+  r.matches.forEach((m, g) => {
+    if (champ && g >= played) return;          // no dead rubber
+    out += matchHTML(m);
+  });
+  if (champ) out += '<div class="champ"><div class="l">Last Splash '+
+    (DIV === 'mens' ? "Men's" : "Women's")+' champion</div><div class="n">'+esc(champ)+'</div></div>';
+  return out;
+}
+
 /* Matches braced in pairs, each brace labelled with the match it feeds. The
    final is three games of one match, so it is not paired. */
 function matchesHTML(r, rounds){
-  const seeds = seedsOf(DIV);
-  if (r.key === 'f') return r.matches.map(m=>matchHTML(m,seeds)).join('');
+  if (r.key === 'f') return finalHTML(r);
   const next = rounds[rounds.indexOf(r) + 1];
   const half = r.matches.length >= 8;
   let out = '';
@@ -344,64 +445,17 @@ function matchesHTML(r, rounds){
     const pairMatches = r.matches.slice(i, i+2);
     const mine = FOLLOW && pairMatches.some(m => m.sides.some(s=>s.name===FOLLOW));
     // A lone trailing match (an odd play-in count) gets no brace.
-    if (pairMatches.length < 2){ out += matchHTML(pairMatches[0], seeds); continue; }
+    if (pairMatches.length < 2){ out += matchHTML(pairMatches[0]); continue; }
     // The final is a series, so its matches are "Game 1..3"; pointing a
     // semifinal brace at "Game 1" reads as nonsense. Name the round instead.
     const feedsId = r.key === 'pi' ? 'the draw'
       : next && next.key === 'f' ? 'Final'
       : (next && next.matches[i/2] ? next.matches[i/2].id : '');
     out += '<div class="pair'+(mine?' mine':'')+'">'+
-      pairMatches.map(m=>matchHTML(m,seeds)).join('')+
+      pairMatches.map(m=>matchHTML(m)).join('')+
       '<span class="brace"></span><span class="feeds">&rarr; '+esc(feedsId)+'</span></div>';
   }
   return out;
-}
-
-/* A small picture of the whole draw: every match a node, winners flowing right.
-   Your line is drawn in gold, so you can see which side you came out on and who
-   is waiting on the other. */
-function renderMap(built){
-  const box = $('map');
-  const {rounds, lines, cfg} = built;
-  const draw = rounds.filter(r => r.key !== 'pi' && r.key !== 'f');
-  if (!draw.length){ box.innerHTML = ''; return; }
-  const cols = [];
-  let n = cfg.draw / 2;
-  while (n >= 1){ cols.push(n); n /= 2; }          // 8,4,2,1 for a 16 draw
-  const leaves = cols[0];
-  const ROW = 16, PADY = 8, W = 320, PADX = 6;
-  const H = leaves * ROW + PADY*2;
-  const colX = i => PADX + (i * (W - PADX*2 - 26)) / (cols.length - 1 || 1);
-  const yOf = (c, i) => PADY + (i + 0.5) * (leaves / cols[c]) * ROW;
-
-  // which node is on my path
-  let myPos = -1;
-  if (FOLLOW && lines.length){
-    const li = lines.indexOf(FOLLOW);
-    if (li >= 0){
-      const pi = cfg.pis.find(p => p.hi === li || p.lo === li);
-      myPos = cfg.order.indexOf(pi ? pi.line : li);
-    }
-  }
-  const mineAt = (c, i) => myPos >= 0 && Math.floor(myPos / Math.pow(2, c+1)) === i;
-
-  let svg = '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">';
-  for (let c = 0; c < cols.length; c++){
-    for (let i = 0; i < cols[c]; i++){
-      const x = colX(c), y = yOf(c, i), mine = mineAt(c, i);
-      svg += '<line x1="'+x+'" y1="'+y+'" x2="'+(x+16)+'" y2="'+y+'" stroke="'+
-        (mine?'#F2CE63':'#33455C')+'" stroke-width="'+(mine?3:2)+'" stroke-linecap="round"/>';
-      if (c + 1 < cols.length){
-        const px = colX(c+1), py = yOf(c+1, Math.floor(i/2));
-        svg += '<path d="M'+(x+16)+' '+y+' H'+((x+16+px)/2)+' V'+py+' H'+px+'" fill="none" stroke="'+
-          (mine?'#F2CE63':'#33455C')+'" stroke-width="'+(mine?2.5:1.5)+'"/>';
-      }
-    }
-  }
-  svg += '</svg>';
-  box.innerHTML = '<div class="map"><div class="cap"><span>The draw</span>'+
-    (myPos >= 0 ? '<b>'+esc(FOLLOW)+'&rsquo;s route in gold</b>' : '<span>pick a team to trace a route</span>')+
-    '</div>'+svg+'</div>';
 }
 
 function render(){
@@ -416,9 +470,8 @@ function render(){
   $('dots').innerHTML = rounds.map((r,i)=>
     '<button class="dot" data-i="'+i+'"'+(i===0?' aria-current="true"':'')+'>'+esc(r.name)+'</button>').join('');
   renderPath(built, seeds);
-  renderMap(built);
   $('legend').innerHTML = seeds.length
-    ? '<b>Showing sample results</b> so you can see it full. Braces join the two matches that feed the next one, and the map traces where a team lands. Tap <b>Show pre-seeding</b> for what teams see on the morning.'
+    ? '<b>Sample pool results, so the draw is seeded.</b> Type scores straight into the bracket and winners move on \u2014 rehearse the whole day. Braces show which match a winner feeds. <b>Clear bracket</b> wipes your picks, <b>Show pre-seeding</b> gives the morning view.'
     : '<b>This is the morning view:</b> nets and times are already fixed, names are not. Teams know where to be before they know who they play.';
 }
 function renderPath(built, seeds){
@@ -501,6 +554,24 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
 }));
 $('sim').addEventListener('click', () => { SCORES = sampleScores(Date.now() % 1000000); render(); });
 $('clear').addEventListener('click', () => { SCORES = {}; render(); });
+$('reset').addEventListener('click', () => { RESULTS = {}; saveResults(); render(); });
+
+/* Store on input so nothing is lost mid-typing, but only redraw on change -
+   a redraw mid-keystroke would pull the field out from under your thumb. */
+$('pager').addEventListener('input', e => {
+  const i = e.target.closest('input[data-k]'); if (!i) return;
+  const k = i.dataset.k, n = Number(i.dataset.n);
+  let v = i.value === '' ? null : Math.trunc(Number(i.value));
+  if (v != null && (isNaN(v) || v < 0)) v = 0;
+  if (v != null && v > CAP) { v = CAP; i.value = CAP; }
+  const cur = RESULTS[k] || [null, null];
+  cur[n] = v;
+  if (cur[0] == null && cur[1] == null) delete RESULTS[k]; else RESULTS[k] = cur;
+  saveResults();
+});
+$('pager').addEventListener('change', e => {
+  if (e.target.closest('input[data-k]')) render();
+});
 $('dots').addEventListener('click', e => {
   const d = e.target.closest('.dot'); if(!d) return;
   $('pager').scrollTo({left: $('pager').clientWidth * Number(d.dataset.i), behavior:'smooth'});
