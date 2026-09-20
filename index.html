@@ -223,6 +223,15 @@
                    font-size:13px;color:var(--fog);padding-top:2px}
   .pool li b{font-weight:700;font-size:15.5px;display:block;line-height:1.25;color:var(--snow)}
   .pool li span{color:var(--fog);font-size:13.5px}
+  .pool li .was{display:block;font-size:11.5px;font-style:italic;opacity:.75}
+  .btn.mini.rn{margin-left:6px;vertical-align:middle;border-color:var(--aqua);color:var(--aqua)}
+  form.rename{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  form.rename input{flex:1 1 150px;min-width:0;padding:9px 11px;height:42px;font-size:16px;
+        font-weight:600;color:var(--snow);background:var(--deep);
+        border:2px solid var(--edge);border-radius:5px;font-family:'Barlow',sans-serif}
+  form.rename input:focus-visible{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--aqua)}
+  form.rename .btn{padding:9px 12px;min-height:42px}
+  form.rename .rn-msg{flex:1 0 100%;color:var(--loss);font-weight:700;font-size:13.5px;margin:2px 0 0}
 
   /* ── Buttons ────────────────────────────────────────── */
   .btnbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
@@ -690,8 +699,28 @@
 const DATA = {"event":{"name":"Last Splash Beach Tournament","org":"Surf and Turf","date":"Sunday, September 20, 2026","venue":"Oceanside Harbor Beach","checkin":"7:45 AM","firstServe":"8:30 AM","finish":"~2:15 PM","format":"2v2","iso":"2026-09-20","startMin":510,"roundMin":20},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"MA","name":"Men's Pool A","div":"mens","courts":[1,2],"teams":[{"name":"Birria Banh Mi","players":"Andres Ramirez / Dustin Tran","tier":"Upper Intermediate"},{"name":"Free Ballin'","players":"Nick Aldrete / Carlos Aldrete","tier":"Upper Intermediate"},{"name":"Heavily Defeated Super Social Pool Play Participation Medalists","players":"Juvenal Perez / Juvenal Perez","tier":"Upper Intermediate"},{"name":"Sideout Papi's","players":"Brandon Budde / Wilson Jones","tier":"Upper Intermediate"},{"name":"Spring Valley U","players":"Joshua Valencia / Kalani Saunar","tier":"Upper Intermediate"},{"name":"The empire spikes back","players":"Trevor Richardson / Hady hamer","tier":"Upper Intermediate"},{"name":"Vamos caralho","players":"Aidan Wahl / Andy Jaszczynski","tier":"Upper Intermediate"},{"name":"Feminist literature authors","players":"Aden tran / Elliot shand","tier":"Lower Intermediate"},{"name":"SDSU","players":"Katsuharu Patrick Glennon / Myles Joseph Plaskonos","tier":"Lower Intermediate"}]},{"key":"MB","name":"Men's Pool B","div":"mens","courts":[3,4],"teams":[{"name":"Block Party","players":"Ruben Sevilla / Adrian","tier":"Upper Intermediate"},{"name":"EXPLOSION DYNAMITE KINGS","players":"Jerry Santoro / Jerry Santoro","tier":"Upper Intermediate"},{"name":"Laguna Locos","players":"Scott Allan Furniss / Dallas Johnson","tier":"Upper Intermediate"},{"name":"Rocket and Groot","players":"Lance Jundy / Declan Noriega","tier":"Upper Intermediate"},{"name":"Stupid slunks","players":"Max sluss / Xavier sluss","tier":"Upper Intermediate"},{"name":"Jack & Christian","players":"Jack Vermaak / Christian Gallardi","tier":"Upper Intermediate"},{"name":"Abrahaximus","players":"Abraham Rycus / Max Parker","tier":"Lower Intermediate"},{"name":"Caramel & Cream","players":"Jose Perez / TBD","tier":"Lower Intermediate"}]},{"key":"WA","name":"Women's Pool A","div":"womens","courts":[5],"teams":[{"name":"2nd string theory","players":"Maria Adams / Kayla Redfield","tier":"Upper Intermediate"},{"name":"Lucy Goosey Fans","players":"Louisa Black / Paige Bensing","tier":"Upper Intermediate"},{"name":"Set Happens","players":"Allie Carmickle / Shayd Silva","tier":"Upper Intermediate"},{"name":"Monarchs","players":"Mallorie Schmidt / Kristin Gabriel","tier":"Lower Intermediate"},{"name":"NO HEIGHT ALL FIGHT","players":"Tessa Young / Claire Henderson","tier":"Lower Intermediate"}]},{"key":"WB","name":"Women's Pool B","div":"womens","courts":[6],"teams":[{"name":"4 Game Warm Up Required","players":"Haley Michel / Alex Beccari","tier":"Upper Intermediate"},{"name":"Izquierda Derecha","players":"Isa Lara / Shyann Bolos","tier":"Upper Intermediate"},{"name":"Twin Terrors","players":"Jessica Shuen / Megan Meyerholtz","tier":"Upper Intermediate"},{"name":"All Gas, No Breaks","players":"Emily Correa / Kim Guillen","tier":"Lower Intermediate"},{"name":"Kiana & Sarah","players":"Kiana Perez / Sarah Carr","tier":"Lower Intermediate"}]}],"games":[{"r":1,"ct":1,"pool":"MA","a":"Birria Banh Mi","b":"Free Ballin'"},{"r":1,"ct":2,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Spring Valley U"},{"r":2,"ct":1,"pool":"MA","a":"Sideout Papi's","b":"Spring Valley U"},{"r":2,"ct":2,"pool":"MA","a":"The empire spikes back","b":"Feminist literature authors"},{"r":3,"ct":1,"pool":"MA","a":"Vamos caralho","b":"Feminist literature authors"},{"r":3,"ct":2,"pool":"MA","a":"SDSU","b":"Free Ballin'"},{"r":4,"ct":1,"pool":"MA","a":"Free Ballin'","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":4,"ct":2,"pool":"MA","a":"Sideout Papi's","b":"The empire spikes back"},{"r":5,"ct":1,"pool":"MA","a":"Spring Valley U","b":"The empire spikes back"},{"r":5,"ct":2,"pool":"MA","a":"Vamos caralho","b":"SDSU"},{"r":6,"ct":1,"pool":"MA","a":"Feminist literature authors","b":"SDSU"},{"r":6,"ct":2,"pool":"MA","a":"Birria Banh Mi","b":"Heavily Defeated Super Social Pool Play Participation Medalists"},{"r":7,"ct":1,"pool":"MA","a":"Heavily Defeated Super Social Pool Play Participation Medalists","b":"Sideout Papi's"},{"r":7,"ct":2,"pool":"MA","a":"Spring Valley U","b":"Vamos caralho"},{"r":8,"ct":1,"pool":"MA","a":"The empire spikes back","b":"Vamos caralho"},{"r":8,"ct":2,"pool":"MA","a":"Feminist literature authors","b":"Birria Banh Mi"},{"r":9,"ct":1,"pool":"MA","a":"SDSU","b":"Birria Banh Mi"},{"r":9,"ct":2,"pool":"MA","a":"Free Ballin'","b":"Sideout Papi's"},{"r":1,"ct":3,"pool":"MB","a":"Block Party","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":4,"pool":"MB","a":"Laguna Locos","b":"Stupid slunks"},{"r":2,"ct":3,"pool":"MB","a":"Rocket and Groot","b":"Stupid slunks"},{"r":2,"ct":4,"pool":"MB","a":"Jack & Christian","b":"Caramel & Cream"},{"r":3,"ct":3,"pool":"MB","a":"Abrahaximus","b":"Caramel & Cream"},{"r":3,"ct":4,"pool":"MB","a":"Block Party","b":"Laguna Locos"},{"r":4,"ct":3,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Laguna Locos"},{"r":4,"ct":4,"pool":"MB","a":"Rocket and Groot","b":"Jack & Christian"},{"r":5,"ct":3,"pool":"MB","a":"Stupid slunks","b":"Jack & Christian"},{"r":5,"ct":4,"pool":"MB","a":"Abrahaximus","b":"Block Party"},{"r":6,"ct":3,"pool":"MB","a":"Caramel & Cream","b":"Block Party"},{"r":6,"ct":4,"pool":"MB","a":"EXPLOSION DYNAMITE KINGS","b":"Rocket and Groot"},{"r":7,"ct":3,"pool":"MB","a":"Laguna Locos","b":"Rocket and Groot"},{"r":7,"ct":4,"pool":"MB","a":"Stupid slunks","b":"Abrahaximus"},{"r":8,"ct":3,"pool":"MB","a":"Jack & Christian","b":"Abrahaximus"},{"r":8,"ct":4,"pool":"MB","a":"Caramel & Cream","b":"EXPLOSION DYNAMITE KINGS"},{"r":1,"ct":5,"pool":"WA","a":"Monarchs","b":"NO HEIGHT ALL FIGHT"},{"r":2,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Set Happens"},{"r":3,"ct":5,"pool":"WA","a":"2nd string theory","b":"NO HEIGHT ALL FIGHT"},{"r":4,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"Monarchs"},{"r":5,"ct":5,"pool":"WA","a":"2nd string theory","b":"Set Happens"},{"r":6,"ct":5,"pool":"WA","a":"Lucy Goosey Fans","b":"NO HEIGHT ALL FIGHT"},{"r":7,"ct":5,"pool":"WA","a":"Set Happens","b":"Monarchs"},{"r":8,"ct":5,"pool":"WA","a":"2nd string theory","b":"Lucy Goosey Fans"},{"r":9,"ct":5,"pool":"WA","a":"Set Happens","b":"NO HEIGHT ALL FIGHT"},{"r":10,"ct":5,"pool":"WA","a":"2nd string theory","b":"Monarchs"},{"r":1,"ct":6,"pool":"WB","a":"All Gas, No Breaks","b":"Kiana & Sarah"},{"r":2,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Twin Terrors"},{"r":3,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Kiana & Sarah"},{"r":4,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"All Gas, No Breaks"},{"r":5,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Twin Terrors"},{"r":6,"ct":6,"pool":"WB","a":"Izquierda Derecha","b":"Kiana & Sarah"},{"r":7,"ct":6,"pool":"WB","a":"Twin Terrors","b":"All Gas, No Breaks"},{"r":8,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"Izquierda Derecha"},{"r":9,"ct":6,"pool":"WB","a":"Twin Terrors","b":"Kiana & Sarah"},{"r":10,"ct":6,"pool":"WB","a":"4 Game Warm Up Required","b":"All Gas, No Breaks"}]};
 
 /* ═══ Lookups ═══════════════════════════════════════════ */
-const POOL_OF = {}; DATA.pools.forEach(p => p.teams.forEach(t => POOL_OF[t.name] = p));
-const TEAM    = {}; DATA.pools.forEach(p => p.teams.forEach(t => TEAM[t.name] = t));
+/* ═══ Team names ════════════════════════════════════════
+   A team can be renamed on the day - partners get confirmed, a placeholder
+   becomes a real name, somebody fixes a typo. Names are the key everything
+   hangs off, so the registered name is kept on every record and the current
+   name is derived from it. That way a rename can be changed or undone without
+   the original ever being lost. */
+DATA.pools.forEach(p => p.teams.forEach(t => { t.orig = t.name; }));
+DATA.games.forEach(g => { g.origA = g.a; g.origB = g.b; });
+
+const RENAME_KEY = 'ls2026_renames_v1';
+let RENAMES = {};                       // registered name -> name in use
+try { RENAMES = JSON.parse(localStorage.getItem(RENAME_KEY) || '{}') || {}; } catch (e) {}
+
+const POOL_OF = {}, TEAM = {};
+function rebuildNames(){
+  DATA.pools.forEach(p => p.teams.forEach(t => { t.name = RENAMES[t.orig] || t.orig; }));
+  DATA.games.forEach(g => { g.a = RENAMES[g.origA] || g.origA; g.b = RENAMES[g.origB] || g.origB; });
+  Object.keys(POOL_OF).forEach(k => delete POOL_OF[k]);
+  Object.keys(TEAM).forEach(k => delete TEAM[k]);
+  DATA.pools.forEach(p => p.teams.forEach(t => { POOL_OF[t.name] = p; TEAM[t.name] = t; }));
+}
+rebuildNames();
 const POOL    = {}; DATA.pools.forEach(p => POOL[p.key] = p);
 const COURTS  = [1,2,3,4,5,6];
 const E = DATA.event;
@@ -740,6 +769,7 @@ function setUnlocked(state){
     else { localStorage.removeItem(UNLOCK_KEY); localStorage.removeItem(PIN_KEY); }
   } catch (e) {}
   renderScoring('mens'); renderScoring('womens');
+  renderTeams();                       // Edit buttons appear and vanish with the lock
   renderDerived();
 }
 let lockPanel = false;
@@ -923,6 +953,43 @@ function noteSaved(){
   el.textContent = (storageOK ? '' : 'This browser is blocking local storage. ') + count + tail;
 }
 
+/* Names live in a few places besides DATA: who has withdrawn, and a locked
+   bracket's seeds and lines. Those are rewritten here rather than rebuilt, so a
+   rename mid-tournament does not disturb a draw that is already under way. */
+function renameTeam(orig, next){
+  const clean = String(next || '').trim().slice(0, 60);
+  const before = RENAMES[orig] || orig;
+  if (!clean || clean === before) return false;
+  const taken = DATA.pools.flatMap(p => p.teams)
+    .filter(t => t.orig !== orig).some(t => t.name === clean);
+  if (taken) return 'taken';
+
+  if (clean === orig) delete RENAMES[orig]; else RENAMES[orig] = clean;
+  rebuildNames();
+
+  if (WITHDRAWN[before] !== undefined){
+    WITHDRAWN[clean] = WITHDRAWN[before];
+    delete WITHDRAWN[before];
+    saveWithdrawn();
+  }
+  ['mens','womens'].forEach(div => {
+    const st = BR[div];
+    let touched = false;
+    ['seeds','lines'].forEach(k => {
+      if (!Array.isArray(st[k])) return;
+      st[k] = st[k].map(n => { if (n === before){ touched = true; return clean; } return n; });
+    });
+    if (touched) saveBracket(div);
+  });
+
+  try { localStorage.setItem(RENAME_KEY, JSON.stringify(RENAMES)); } catch (e) {}
+  queuePatch({renames: Object.keys(RENAMES).map(k => [k, RENAMES[k]])});
+  fillTeamPicker();
+  renderScoring('mens'); renderScoring('womens');
+  renderSchedule(); renderTeams(); renderDerived();
+  return true;
+}
+
 /* ═══ Withdrawals ═══════════════════════════════════════
    A no-show is recorded as forfeits, not as a deletion. Their four opponents
    each still need a result, and dropping the games would leave those teams on
@@ -991,13 +1058,19 @@ const seedsOf = div => tally(gamesOfDiv(div)).map(t => t.name);
 
 /* ═══ My team ═══════════════════════════════════════════ */
 const teamSel = $('teamSel');
-DATA.pools.forEach(p => {
-  const g = document.createElement('optgroup');
-  g.label = p.name;
-  p.teams.slice().sort((a,b) => a.name.localeCompare(b.name))
-    .forEach(t => { const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; g.appendChild(o); });
-  teamSel.appendChild(g);
-});
+function fillTeamPicker(){
+  const keep = teamSel.value;
+  teamSel.innerHTML = '<option value="">Choose your team&hellip;</option>';
+  DATA.pools.forEach(p => {
+    const g = document.createElement('optgroup');
+    g.label = p.name;
+    p.teams.slice().sort((a,b) => a.name.localeCompare(b.name))
+      .forEach(t => { const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; g.appendChild(o); });
+    teamSel.appendChild(g);
+  });
+  if (keep && TEAM[keep]) teamSel.value = keep;
+}
+fillTeamPicker();
 
 function gamesFor(name){
   return DATA.games.filter(g => g.a === name || g.b === name)
@@ -1076,13 +1149,54 @@ function renderSchedule(){
   }).join('');
 }
 
-$('p-teams').innerHTML = '<div class="teamgrid">' + DATA.pools.map((p, pi) =>
-  '<details class="pool" data-acc="pools"'+(pi === 0 ? ' open' : '')+'>'+
-  '<summary class="pool-hd" data-pool="'+p.key+'">'+esc(p.name)+
-    '<em>Nets '+p.courts.join('&ndash;')+'</em></summary><ol>' +
-    p.teams.slice().sort((a,b) => a.name.localeCompare(b.name)).map(t =>
-      '<li><b>'+esc(t.name)+outTag(t.name)+'</b>'+(t.players ? '<span>'+esc(t.players)+'</span>' : '')+'</li>').join('') +
-  '</ol></details>').join('') + '</div>';
+let EDITING = null;                 // registered name of the team being renamed
+function renderTeams(){
+  $('p-teams').innerHTML = '<div class="teamgrid">' + DATA.pools.map((p, pi) =>
+    '<details class="pool" data-acc="pools"'+(pi === 0 ? ' open' : '')+'>'+
+    '<summary class="pool-hd" data-pool="'+p.key+'">'+esc(p.name)+
+      '<em>Nets '+p.courts.join('&ndash;')+'</em></summary><ol>' +
+      p.teams.slice().sort((a,b) => a.name.localeCompare(b.name)).map(t => {
+        if (EDITING === t.orig){
+          return '<li><form class="rename" data-orig="'+attr(t.orig)+'">'+
+            '<input type="text" maxlength="60" aria-label="Team name" value="'+attr(t.name)+'">'+
+            '<button class="btn" type="submit">Save</button>'+
+            '<button class="btn ghost" type="button" data-cancel="1">Cancel</button>'+
+            (RENAMES[t.orig] ? '<button class="btn ghost" type="button" data-revert="'+attr(t.orig)+'">Undo</button>' : '')+
+            '<p class="rn-msg" hidden></p></form></li>';
+        }
+        return '<li><b>'+esc(t.name)+outTag(t.name)+
+          (unlocked ? ' <button class="btn mini rn" data-edit="'+attr(t.orig)+'">Edit</button>' : '')+'</b>'+
+          (t.players ? '<span>'+esc(t.players)+'</span>' : '')+
+          (RENAMES[t.orig] ? '<span class="was">registered as '+esc(t.orig)+'</span>' : '')+'</li>';
+      }).join('') +
+    '</ol></details>').join('') + '</div>';
+}
+
+/* Renaming is an admin job, so it sits behind the same padlock as the scores. */
+document.addEventListener('click', e => {
+  const ed = e.target.closest('[data-edit]');
+  if (ed && unlocked){
+    EDITING = ed.dataset.edit; renderTeams(); postHeight();
+    const i = document.querySelector('.rename input'); if (i){ i.focus(); i.select(); }
+    return;
+  }
+  if (e.target.closest('[data-cancel]')){ EDITING = null; renderTeams(); postHeight(); return; }
+  const rv = e.target.closest('[data-revert]');
+  if (rv && unlocked){ renameTeam(rv.dataset.revert, rv.dataset.revert); EDITING = null; renderTeams(); postHeight(); }
+});
+document.addEventListener('submit', e => {
+  const form = e.target.closest('form.rename');
+  if (!form) return;
+  e.preventDefault();
+  if (!unlocked) return;
+  const res = renameTeam(form.dataset.orig, form.querySelector('input').value);
+  if (res === 'taken'){
+    const msg = form.querySelector('.rn-msg');
+    if (msg){ msg.hidden = false; msg.textContent = 'Another team already has that name.'; }
+    return;
+  }
+  EDITING = null; renderTeams(); postHeight();
+});
 
 /* ═══ Live scoring ══════════════════════════════════════ */
 function stateOf(g){
@@ -2025,6 +2139,8 @@ function mergePatch(older, newer){
   };
   const w = newer.withdrawn || older.withdrawn;   // whole-list, newest wins
   if (w) out.withdrawn = w;
+  const r = newer.renames || older.renames;
+  if (r) out.renames = r;
   return out;
 }
 /* Changes are queued and sent together a moment later, so typing both halves
@@ -2059,6 +2175,14 @@ function applyRemote(remote){
     });
   }
   try { localStorage.setItem(WITHDRAWN_KEY, JSON.stringify(WITHDRAWN)); } catch (e) {}
+  if (Array.isArray(remote.renames)){
+    RENAMES = {};
+    remote.renames.forEach(pair => {
+      if (Array.isArray(pair) && typeof pair[0] === 'string' && typeof pair[1] === 'string') RENAMES[pair[0]] = pair[1];
+    });
+    try { localStorage.setItem(RENAME_KEY, JSON.stringify(RENAMES)); } catch (e) {}
+    rebuildNames(); fillTeamPicker(); renderTeams(); renderSchedule();
+  }
   ['mens','womens'].forEach(div => {
     const r = remote.brackets && remote.brackets[div];
     const fresh = emptyBracket(CFG[div]);
@@ -2118,6 +2242,7 @@ loadScores();
 loadWithdrawn();
 loadBrackets();
 renderFormatNotes();
+renderTeams();          // needs attr(), so it cannot run before the file is parsed
 renderScoring('mens');
 renderScoring('womens');
 renderDerived();
