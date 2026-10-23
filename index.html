@@ -136,7 +136,6 @@
   .game{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:14px;
         background:var(--card);border:1px solid var(--edge);border-left:5px solid var(--aqua);
         border-radius:5px;padding:12px 14px}
-  .game.now{border-color:var(--accent);background:#2A3446;box-shadow:0 0 0 2px var(--accent)}
   .g-rd{font-family:'Anton',sans-serif;font-size:26px;color:var(--accent);line-height:1;text-align:center}
   .g-rd small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
               letter-spacing:.13em;color:var(--fog);margin-top:2px}
@@ -153,7 +152,7 @@
            white-space:nowrap;text-align:center;line-height:1.1}
   .g-court small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:9px;
                  letter-spacing:.14em;opacity:.75}
-  .nowtag{display:inline-block;background:var(--accent);color:var(--ink);
+  .nowtag-unused{display:inline-block;background:var(--accent);color:var(--ink);
           font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;
           letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-left:8px}
   .empty{color:var(--fog);font-style:italic;padding:12px 0}
@@ -182,7 +181,6 @@
   .acc-tally{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
     letter-spacing:.1em;background:rgba(0,0,0,.28);padding:2px 8px;border-radius:3px}
   .acc-tally.done{background:var(--lime);color:var(--ink)}
-  .round.now{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   .round-hd{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:11px 14px;
             background:var(--deep);color:var(--snow);border-bottom:1px solid var(--edge)}
   .round-hd b{font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;
@@ -198,8 +196,11 @@
   .slot .fin{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;
              letter-spacing:.08em;color:var(--lime);margin-top:2px}
   .slot.idle .mu{color:var(--fog);font-style:italic;font-weight:500}
-  .slot.hl{background:#2A3446}
 
+  .testbox{margin-top:16px;padding:13px 15px;border:1px dashed var(--edge);border-radius:5px;background:var(--raise)}
+  .testbox b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.16em;
+             text-transform:uppercase;color:var(--pink);display:block;margin-bottom:5px}
+  .testbox p{font-size:13.5px;color:var(--fog);line-height:1.45;margin-bottom:10px}
   .teamgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
   .pool{background:var(--card);border:1px solid var(--edge);border-radius:5px;overflow:hidden;
         margin-bottom:14px}
@@ -214,6 +215,15 @@
                    font-size:13px;color:var(--fog);padding-top:2px}
   .pool li b{font-weight:700;font-size:15.5px;display:block;line-height:1.25;color:var(--snow)}
   .pool li span{color:var(--fog);font-size:13.5px}
+  /* One player a line. They used to run together separated by slashes, which
+     read as one long name on a phone.
+
+     Everything under the team name has to be put in column 2 by hand: the row
+     is a 22px counter column plus the rest, so anything auto-placed after the
+     name lands in the 22px one and wraps a line per word. */
+  .pool li b, .pool li .pl, .pool li .was{grid-column:2}
+  .pool li .pl{display:block;margin-top:3px}
+  .pool li .pl span{display:block;line-height:1.5}
   .pool li .was{display:block;font-size:11.5px;font-style:italic;opacity:.75}
   .btn.mini.rn{margin-left:6px;vertical-align:middle;border-color:var(--aqua);color:var(--aqua)}
   form.rename{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -372,7 +382,7 @@
          border-bottom:1px solid var(--edge);flex-wrap:wrap}
   .m-net{font-family:'Anton',sans-serif;font-size:13px;background:var(--aqua);color:var(--ink);
          border-radius:3px;padding:3px 8px 2px}
-  .m-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;
+  .m-time-unused{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;
           color:var(--fog);font-variant-numeric:tabular-nums}
   .m-wave{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.1em;
           text-transform:uppercase;background:var(--pink);color:var(--ink);border-radius:3px;padding:2px 6px}
@@ -653,6 +663,15 @@
         <div class="btnbar" style="margin-top:18px">
           <button class="btn danger" id="clearScores">Clear all scores</button>
         </div>
+        <div class="testbox" id="testbox" hidden>
+          <b>Testing</b>
+          <p>Fills the card with made-up finals so the bracket can be walked through before the day.
+             Scores stay <b>on this device only</b> and are not sent to anyone else. Clear them when you are done.</p>
+          <div class="btnbar">
+            <button class="btn ghost" id="fillScores">Fill random scores</button>
+            <button class="btn ghost" id="playBracket">Play out bracket</button>
+          </div>
+        </div>
         <div id="emergency"></div>
       </section>
     </div>
@@ -867,6 +886,8 @@ function renderLocks(){
   el.innerHTML = '<div>'+btn+panel+'</div>';
   const clear = $('clearScores');
   if (clear) clear.disabled = !unlocked;
+  const tb = $('testbox');
+  if (tb) tb.hidden = !unlocked;
 }
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-lock="toggle"]');
@@ -929,8 +950,7 @@ $('facts').innerHTML = [
   ['Check-in', E.checkin, ''],
   ['First serve', E.firstServe, 'All ' + COURTS.length + ' nets'],
   ['Pool games', String(GAMES_PER), 'Guaranteed, every team'],
-  ['Bracket'].concat(bracketFact()),
-  ['Wraps up', E.finish, 'After the finals']
+  ['Bracket'].concat(bracketFact())
 ].map(([k,v,s]) => '<div class="fact"><dt>'+k+'</dt><dd>'+v+(s?'<small>'+s+'</small>':'')+'</dd></div>').join('');
 
 (function renderUpdated(){
@@ -945,13 +965,16 @@ $('facts').innerHTML = [
 })();
 
 /* The headline count, built from whatever divisions exist. */
+/* Divisions are separated with a semicolon, not "and": the pool sizes inside
+   each already use "and", and two levels of it ran together as "9 and 9 and
+   16 Social". */
 $('teamsNote').textContent = DATA.pools.reduce((t, p) => t + p.teams.length, 0) + ' teams \u2014 ' +
-  joinList(DIVS.map(d => {
+  DIVS.map(d => {
     const ps = DATA.pools.filter(p => p.div === d);
     return teamsInDiv(d) + ' ' + DIV_LABEL[d] + (ps.length === 1
       ? ' in one pool'
-      : ' across ' + ps.length + ' pools of ' + joinList(ps.map(p => p.teams.length), ' and '));
-  }), ' and ') + '.';
+      : ' in pools of ' + joinList(ps.map(p => p.teams.length), ' and '));
+  }).join('; ') + '.';
 
 /* The format notes are generated too. The config knows the shape of the day,
    so the prose describing it is written out by the generator rather than
@@ -973,17 +996,11 @@ $('dayNote').innerHTML = 'Rounds are ' + E.roundMin + ' minutes &mdash; a game t
   ' plus changeover. Everything below is the plan, not a promise; the desk calls the day.';
 $('netNote').innerHTML = NET_NOTE;
 
-$('timeline').innerHTML = TIMELINE.map(([t,d,cls]) => '<div class="tl-i'+(cls?' '+cls:'')+'"><div class="tl-t tnum">'+t+'</div><div class="tl-d">'+d+'</div></div>').join('');
-
-/* Which round is live right now (tournament day only). */
-function liveRound(){
-  const now = new Date(), d = new Date(DATA.event.iso + 'T00:00:00');
-  if (now.toDateString() !== d.toDateString()) return -1;
-  const mins = now.getHours()*60 + now.getMinutes();
-  const i = Math.floor((mins - DATA.event.startMin) / DATA.event.roundMin);
-  return (i >= 0 && i < DATA.rounds.length) ? i : -1;
-}
-const LIVE = liveRound();
+/* The day plan says what happens in what order. It used to put a clock time on
+   each step, and people read those as promises - they would go off and come
+   back for a time that had already slipped. The desk calls the day. */
+$('timeline').innerHTML = TIMELINE.map(([t,d,cls]) =>
+  '<div class="tl-i'+(cls?' '+cls:'')+'"><div class="tl-d">'+d+'</div></div>').join('');
 
 /* ═══ Scores ════════════════════════════════════════════
    One entry per game, keyed "round-court", persisted on this device.
@@ -1010,12 +1027,21 @@ function winnerOf(g){
   if (a === null || b === null || a === b) return null;
   return a > b ? g.a : g.b;
 }
+function agoText(d){
+  const secs = Math.round((Date.now() - d) / 1000);
+  if (secs < 10) return 'just now';
+  if (secs < 60) return secs + 's ago';
+  const mins = Math.round(secs / 60);
+  return mins < 60 ? mins + ' min ago' : Math.round(mins / 60) + 'h ago';
+}
 function noteSaved(){
   const el = $('saveNote');
   if (!el) return;
   const done = DATA.games.filter(isFinal).length;
   const count = done + ' of ' + DATA.games.length + ' pool games recorded';
-  const at = syncedAt ? syncedAt.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
+  /* Relative, not a clock time. It is here to say whether sync is alive, and
+     a clock time anywhere on this page gets read as a schedule. */
+  const at = syncedAt ? agoText(syncedAt) : '';
   let tail;
   if (syncState === 'live') tail = ' · live for everyone' + (at ? ' · synced ' + at : '');
   else if (syncState === 'idle') tail = ' · shared scoring not started yet — this device only';
@@ -1167,10 +1193,9 @@ function renderMine(){
       const res = !isFinal(g) ? ''
         : (mine === theirs ? '<div class="g-res">Tied '+mine+'&ndash;'+theirs+' &middot; check the sheet</div>'
           : '<div class="g-res '+(mine > theirs ? 'w' : 'l')+'">'+(mine > theirs ? 'Won ' : 'Lost ')+mine+'&ndash;'+theirs+'</div>');
-      return '<div class="game'+(g.r-1 === LIVE ? ' now' : '')+'" data-pool="'+g.pool+'">'+
+      return '<div class="game" data-pool="'+g.pool+'">'+
         '<div class="g-rd">'+g.r+'<small>Round</small></div>'+
-        '<div class="g-main"><div class="g-time tnum">'+esc(DATA.rounds[g.r-1])+
-          (g.r-1 === LIVE ? '<span class="nowtag">On now</span>' : '')+'</div>'+
+        '<div class="g-main">'+
           '<div class="g-opp"><span>vs</span> '+esc(g.opp)+'</div>'+ res +'</div>'+
         '<div class="g-court">'+g.ct+'<small>Net</small></div>'+
       '</div>';
@@ -1193,7 +1218,7 @@ function finalLine(g){
   return '<div class="fin tnum">'+a+'&ndash;'+b+(w ? ' &middot; ' + esc(w) : ' &middot; tied')+'</div>';
 }
 function renderSchedule(){
-  $('p-round').innerHTML = DATA.rounds.map((time, i) => {
+  $('p-round').innerHTML = DATA.rounds.map((_, i) => {
     const r = i + 1, ms = DATA.games.filter(g => g.r === r);
     const slots = COURTS.map(ct => {
       const g = ms.find(x => x.ct === ct);
@@ -1201,11 +1226,10 @@ function renderSchedule(){
       return '<div class="slot" data-pool="'+g.pool+'"><div class="ct">Net '+ct+'</div>'+
              '<div class="mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div>'+ finalLine(g) +'</div>';
     }).join('');
-    const open = i === (LIVE >= 0 ? LIVE : 0);
-    return '<details class="round'+(i === LIVE ? ' now' : '')+'" data-acc="by-round"'+(open ? ' open' : '')+'>'+
+    return '<details class="round" data-acc="by-round"'+(i === 0 ? ' open' : '')+'>'+
            '<summary class="round-hd"><b>Round '+r+'</b>'+
-           '<span class="tnum">'+esc(time)+'</span>'+
-           (i === LIVE ? '<span class="nowtag">On now</span>' : '')+'</summary><div class="slots">'+slots+'</div></details>';
+           '<span>'+ms.length+' game'+(ms.length === 1 ? '' : 's')+'</span>'+
+           '</summary><div class="slots">'+slots+'</div></details>';
   }).join('');
 
   $('p-court').innerHTML = COURTS.map(ct => {
@@ -1214,8 +1238,8 @@ function renderSchedule(){
       '<summary class="round-hd"><b>Net '+ct+'</b><span>'+esc(netOwner(ct))+' &middot; '+gs.length+' games</span>'+
       '<button class="btn mini" data-print-court="'+ct+'">Print</button></summary>'+
       '<div class="slots" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">' + gs.map(g =>
-        '<div class="slot'+(g.r-1 === LIVE ? ' hl' : '')+'" data-pool="'+g.pool+'">'+
-        '<div class="ct tnum">Round '+g.r+' &middot; '+esc(DATA.rounds[g.r-1])+'</div>'+
+        '<div class="slot" data-pool="'+g.pool+'">'+
+        '<div class="ct tnum">Round '+g.r+'</div>'+
         '<div class="mu">'+esc(g.a)+' <em>vs</em> '+esc(g.b)+'</div>'+ finalLine(g) +'</div>').join('') +
       '</div></details>';
   }).join('');
@@ -1238,7 +1262,8 @@ function renderTeams(){
         }
         return '<li><b>'+esc(t.name)+outTag(t.name)+
           (unlocked ? ' <button class="btn mini rn" data-edit="'+attr(t.orig)+'">Edit</button>' : '')+'</b>'+
-          (t.players ? '<span>'+esc(t.players)+'</span>' : '')+
+          (t.players ? '<span class="pl">'+t.players.split(' / ')
+            .map(x => '<span>'+esc(x.trim())+'</span>').join('')+'</span>' : '')+
           (RENAMES[t.orig] ? '<span class="was">registered as '+esc(t.orig)+'</span>' : '')+'</li>';
       }).join('') +
     '</ol></details>').join('') + '</div>';
@@ -1276,10 +1301,11 @@ function stateOf(g){
   const [a,b] = scoreOf(g);
   return a === b ? ['tied', 'Tied — check the sheet'] : ['done', 'Final · ' + esc(winnerOf(g))];
 }
-/* Open the round the desk is most likely to want: the live one, else the
-   earliest with a game still unrecorded, else the first. */
+/* Open the round the desk is most likely to want: the earliest with a game
+   still unrecorded, else the first. This used to prefer whichever round the
+   clock said was running, but rounds do not start on the clock and the page
+   no longer pretends they do. */
 function firstOpenRound(games){
-  if (LIVE >= 0) return LIVE + 1;
   for (let r = 1; r <= DATA.rounds.length; r++){
     const ms = games.filter(g => g.r === r);
     if (ms.length && ms.some(g => !isFinal(g))) return r;
@@ -1289,14 +1315,13 @@ function firstOpenRound(games){
 function renderScoring(div){
   const games = gamesOfDiv(div);
   const openRound = firstOpenRound(games);
-  $('p-sc-' + div).innerHTML = DATA.rounds.map((time, i) => {
+  $('p-sc-' + div).innerHTML = DATA.rounds.map((_, i) => {
     const r = i + 1, ms = games.filter(g => g.r === r).sort((a,b) => a.ct - b.ct);
     if (!ms.length) return '';
     const inRound = ms.filter(isFinal).length;
-    return '<details class="round'+(i === LIVE ? ' now' : '')+'" data-acc="sc-'+div+'"'+
+    return '<details class="round" data-acc="sc-'+div+'"'+
       (r === openRound ? ' open' : '')+'>'+
-      '<summary class="round-hd"><b>Round '+r+'</b><span class="tnum">'+esc(time)+'</span>'+
-      (i === LIVE ? '<span class="nowtag">On now</span>' : '')+
+      '<summary class="round-hd"><b>Round '+r+'</b>'+
       '<span class="acc-tally'+(inRound === ms.length ? ' done' : '')+'">'+inRound+'/'+ms.length+'</span></summary>'+
       ms.map(g => {
         const [sa, sb] = scoreOf(g), st = stateOf(g);
@@ -1856,7 +1881,6 @@ function matchHTML(m){
   const done = sc[0] != null && sc[1] != null && sc[0] !== sc[1];
   return '<div class="m'+(mine?' mine':'')+(done?' done':'')+'">'+
     '<div class="m-top"><span class="m-net">Net '+m.net+'</span>'+
-    '<span class="m-time">'+m.time+'</span>'+
     (m.waveLabel ? '<span class="m-wave">'+m.waveLabel+'</span>' : '')+
     '<span class="m-id">'+esc(m.id)+'</span></div>'+
     m.sides.map(x=>sideHTML(x,m)).join('')+'</div>';
@@ -1964,7 +1988,7 @@ function bracketPathHTML(name){
     '<div class="games">' + steps.map(x =>
       '<div class="game"'+(x.cond?' style="opacity:.62"':'')+'>'+
         '<div class="g-rd">'+x.net+'<small>Net</small></div>'+
-        '<div class="g-main"><div class="g-time tnum">'+esc(x.rd)+' \u00b7 '+x.time+'</div>'+
+        '<div class="g-main"><div class="g-time tnum">'+esc(x.rd)+'</div>'+
         '<div class="g-opp">'+esc(x.vs)+'</div></div></div>').join('') + '</div>';
 }
 
@@ -2050,9 +2074,9 @@ function masterSheet(){
   const head = '<tr><th style="width:7%">Round</th>' + COURTS.map(ct =>
     '<th>Net '+ct+'<br><span style="font-weight:400;font-size:6.5pt">'+
     esc(netOwner(ct))+'</span></th>').join('') + '</tr>';
-  const body = DATA.rounds.map((time, i) => {
+  const body = DATA.rounds.map((_, i) => {
     const r = i + 1, ms = DATA.games.filter(g => g.r === r);
-    return '<tr><td class="mrd">'+r+'<span>'+esc(time).replace(' – ', '<br>')+'</span></td>' +
+    return '<tr><td class="mrd">'+r+'</td>' +
       COURTS.map(ct => {
         const g = ms.find(x => x.ct === ct);
         return g ? '<td><div class="mtm">'+esc(g.a)+'</div><div class="mvs">vs</div><div class="mtm">'+esc(g.b)+'</div></td>'
@@ -2292,7 +2316,8 @@ function queuePatch(patch){
   // Only an admin writes. A viewer's bracket still fills in locally from the
   // synced scores, but pushing it would be refused for want of a PIN and would
   // leave the page claiming to be offline when it is perfectly connected.
-  if (applying || !unlocked) return;        // don't echo a change we just pulled
+  // TESTING is the made-up card: it must never leave this device.
+  if (applying || !unlocked || TESTING) return;   // don't echo a change we just pulled
   queued = queued ? mergePatch(queued, patch) : patch;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(push, 400);
@@ -2379,6 +2404,82 @@ function startSync(){
   document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
   window.addEventListener('online', () => { pull(); push(); });
 }
+
+/* ═══ Testing tools ═════════════════════════════════════
+   Walking the bracket to check it flows correctly means 68 pool games and then
+   30 bracket matches, which is not something to do by hand on a phone.
+
+   These write straight to this device and nowhere else: TESTING suppresses
+   every outgoing patch, including the one seedBracket triggers when the last
+   score lands. A made-up card reaching the teams' phones would be worse than
+   not being able to test at all. */
+let TESTING = false;
+
+/* A believable final. Games go to 21, win by 2, hard cap 25: up to 19 the
+   winner is on 21, from 20 they need two clear, and at the cap 25 takes it by
+   one. Weighted so most look like real games rather than deuces. */
+function randomFinal(){
+  const r = Math.random();
+  const loser = r < 0.18 ? Math.floor(Math.random() * 8)           // 0-7, a hiding
+              : r < 0.86 ? 8 + Math.floor(Math.random() * 12)      // 8-19, normal
+                         : 20 + Math.floor(Math.random() * 5);     // 20-24, deuce
+  const winner = loser <= 19 ? 21 : Math.min(loser + 2, CAP);
+  return Math.random() < 0.5 ? [winner, loser] : [loser, winner];
+}
+
+function fillRandomScores(){
+  TESTING = true;
+  try {
+    DATA.games.forEach(g => { if (!isFinal(g)) SCORES[GID(g)] = randomFinal(); });
+    saveScores();
+    DIVS.forEach(renderScoring);
+    renderDerived();                     // seeds both brackets once the card is full
+  } finally { TESTING = false; }
+}
+
+/* Plays every undecided match, round by round, until nothing changes - a round
+   cannot be filled before the one feeding it, so it takes a few passes. The
+   final is best 2 of 3, so it stops as soon as someone has two. */
+function playOutBracket(){
+  TESTING = true;
+  try {
+    DIVS.forEach(div => {
+      const st = BR[div];
+      if (!st.locked) return;
+      for (let pass = 0; pass < 10; pass++){
+        let changed = false;
+        for (const r of buildRounds(div, st.seeds).rounds){
+          if (r.key === 'f'){
+            const wins = [0, 0];
+            for (const m of r.matches){
+              if (wins[0] === 2 || wins[1] === 2) break;
+              if (!m.teams[0] || !m.teams[1]) break;
+              let sc = st.results[m.k];
+              if (!sc || sc[0] == null){ sc = randomFinal(); st.results[m.k] = sc; changed = true; }
+              wins[sc[0] > sc[1] ? 0 : 1]++;
+            }
+            continue;
+          }
+          for (const m of r.matches){
+            if (!m.teams || !m.teams[0] || !m.teams[1]) continue;
+            if (st.results[m.k] && st.results[m.k][0] != null) continue;
+            st.results[m.k] = randomFinal();
+            changed = true;
+          }
+        }
+        if (!changed) break;
+      }
+      saveBracket(div);
+      renderBracket(div);
+    });
+  } finally { TESTING = false; }
+  postHeight();
+}
+
+$('fillScores').addEventListener('click', e =>
+  armConfirm(e.currentTarget, 'Tap again to fill every empty game', () => { fillRandomScores(); postHeight(); }));
+$('playBracket').addEventListener('click', e =>
+  armConfirm(e.currentTarget, 'Tap again to play out both brackets', playOutBracket));
 
 /* ═══ Boot ══════════════════════════════════════════════ */
 loadScores();
