@@ -741,7 +741,7 @@ const DIV_CUT = {"comp":16,"social":null};
 const PLAN = {"comp":{"nets":[1,2,3,4],"pi":690,"r0":690,"finalNet":1},"social":{"nets":[5,6,7,8],"pi":670,"r0":670,"finalNet":5}};
 
 const NET_NOTE = "Nets 1&ndash;2 are Competitive Pool A, Nets 3&ndash;4 are Competitive Pool B. Nets 5&ndash;6 are Social Pool A, Nets 7&ndash;8 are Social Pool B. All nets run Rounds 1&ndash;8; Social finishes there and Competitive plays on through Round 9.";
-const FMT_NOTES = ["Two divisions: <b>Competitive</b> (18 teams, pools of 9 and 9) and <b>Social</b> (16 teams, pools of 8 and 8).","Competitive pools get two nets each, and Social pools get two nets each. No team ever changes nets during pool play.","Every team plays <b>4 pool games</b> to 21, win by 2, hard cap 25. No repeat opponents.","Social finishes pool play first, so that bracket starts while Competitive is still in pool play.","<b>Competitive:</b> the <b>top 16 of 18</b> make the bracket, seeded on pool record across two pools. Single elimination. A clean 16-team draw &mdash; no play-ins, no byes.","<b>Social:</b> <b>every team makes the bracket</b>, all 16 of them. Single elimination. A clean 16-team draw &mdash; no play-ins, no byes.","Round one of each bracket is arranged to <b>avoid rematches</b> from pool play wherever it can.","Every bracket match is one game to 21. <b>Finals are best 2 of 3.</b>","Rules: <a href=\"https://www.surfandturfvolleyball.net/tournaments\">surfandturfvolleyball.net/tournaments</a>"];
+const FMT_NOTES = ["Two divisions: <b>Competitive</b> (18 teams, pools of 9 and 9) and <b>Social</b> (16 teams, pools of 8 and 8).","Every pool gets <b>two nets of its own</b>. No team changes nets during pool play.","Every team plays <b>4 pool games</b> to 21, win by 2, hard cap 25. No repeat opponents.","Social finishes pool play first, so that bracket starts while Competitive is still in pool play.","Standings are <b>ranked inside your own pool</b>, not against the whole division.","<b>Competitive:</b> the top 8 of each pool make the bracket, so the bottom team in each pool goes out. Single elimination, a clean 16-team draw.","<b>Social:</b> all 8 of each pool make the bracket. Nobody is cut. Single elimination, a clean 16-team draw.","The draw <b>zippers the two pools together</b>: round one is one pool against the other, top of one against bottom of the other, so nobody meets a pool-mate in round one.","Every bracket match is one game to 21. <b>Finals are best 2 of 3.</b>","Rules: <a href=\"https://www.surfandturfvolleyball.net/tournaments\">surfandturfvolleyball.net/tournaments</a>"];
 const TIMELINE = [["8:30 AM","Pool play, Rounds 1&ndash;8. All eight nets busy."],["11:10 AM","Round 9 &mdash; Competitive finishes pool play on Nets 1&ndash;4 &middot; Social Round of 16 on Nets 5&ndash;8, two waves of four."],["11:30 AM","Competitive Round of 16 on Nets 1&ndash;4, two waves of four."],["11:50 AM","Social Quarterfinals on Nets 5&ndash;8."],["12:10 PM","Competitive Quarterfinals on Nets 1&ndash;4 &middot; Social Semifinals on Nets 5&ndash;8."],["12:30 PM","Competitive Semifinals on Nets 1&ndash;4 &middot; Social Final on Net 5, best 2 of 3."],["12:50 PM","Competitive Final on Net 1, best 2 of 3."],["1:30 PM","Awards. A final that goes 2&ndash;0 wraps the day sooner.","end"]]
 
 const DATA = {"event":{"name":"Volleyween","org":"Surf and Turf","date":"Sunday, October 25, 2026","iso":"2026-10-25","venue":"Mance Buchanon Park, Oceanside","checkin":"7:45 AM","firstServe":"8:30 AM","format":"3v3","startMin":510,"roundMin":20,"subtitle":"Grass · 3v3 · Coed","surface":"grass","finish":"~1:30 PM"},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM"],"pools":[{"key":"CA","name":"Competitive Pool A","div":"comp","courts":[1,2],"teams":[{"name":"Pound Town","players":"Gracie Bunt / Aiden Gardiner / Thomas Sprouse","tier":"S"},{"name":"Alvin and the chipmunks","players":"Alicia Vasquez / Nolan Apodaca / James Brady","tier":"A"},{"name":"Goobers","players":"Preston Young / Dean D'Onofrio / Phoebe Corgiat","tier":"A"},{"name":"Shark Week","players":"Ruben Sevilla / Lance Jundy / Izzy Chu","tier":"A"},{"name":"Spooky Spikers","players":"Logan Shepard / Maggie Grammer / Nico Espinoza","tier":"A"},{"name":"Big Buc-ee's Bussy","players":"Makana K. / Christian S. / Savannah M.","tier":"B"},{"name":"Bumps and Lines","players":"Joe Fernandez / Tanner Quenneville / Madison Cronk","tier":"B"},{"name":"No Diggity","players":"Noah Franco / Diego Schreck / Linzi Carter","tier":"B"},{"name":"The hornies","players":"Gorety nguyen / Lee Nguyen / Bret papas","tier":"B"}],"sharedNets":false},{"key":"CB","name":"Competitive Pool B","div":"comp","courts":[3,4],"teams":[{"name":"VAMO","players":"James Santos / Zach Nyamdagva / Katie Biscocho","tier":"S"},{"name":"3 amigos","players":"Javier martinez / TBD / TBD","tier":"A"},{"name":"Mucha Lucha","players":"Julio mayo / Isa Lara / Brian Martinez","tier":"A"},{"name":"SAC","players":"Siraj Khanna / Andrew Cheng / Carissa Fernandez","tier":"A"},{"name":"Two Men and a Baby","players":"Austin Davis / Benji Beltran / Tessa Young","tier":"A"},{"name":"BFF's","players":"Brandon Luna / Faith Fortune / Fray Ramírez","tier":"B"},{"name":"Felony spikes","players":"Victor Saldana / Alijah Saelao / Shyann Bolos","tier":"B"},{"name":"Hit Happens","players":"Tessa Roberson / Nick Rodgers / Jack Taylor","tier":"B"},{"name":"Two Tacos One Egg Roll","players":"Dustin Tran / Kimberly Guillen / Andres Ramirez","tier":"B"}],"sharedNets":false},{"key":"SA","name":"Social Pool A","div":"social","courts":[5,6],"teams":[{"name":"3 blind mice","players":"Alex Billings / Alejandra Robles / Christian Valasquez","tier":"B"},{"name":"Diggin' balls","players":"Alejandra Gonzalez / Ashton Brockett / Terrance Lee","tier":"B"},{"name":"Holy dig","players":"Arnel Delacruz / Courtney schwingle / Dedrean walton","tier":"B"},{"name":"Skeleton Crew","players":"Evan Jones / Jennifer J / Natalie J","tier":"B"},{"name":"SpiderMeme","players":"Chelsey / Maggie / Adrian","tier":"B"},{"name":"Halloweenies","players":"Francisco Cazares / Barbie / Alan Curiel","tier":"C"},{"name":"Ibuprofen","players":"Jacob Parker / Teresa Moto / Hannah Arellano","tier":"C"},{"name":"Showtime Mikus","players":"TyDolla / ZestyWang / Qulaire","tier":"D"}],"sharedNets":false},{"key":"SB","name":"Social Pool B","div":"social","courts":[7,8],"teams":[{"name":"Buzz Ball","players":"Emily Correa / Cassie Gree / Xavier Martinez","tier":"B"},{"name":"Dave's goons","players":"Josh mendoza / Cleo / AJ","tier":"B"},{"name":"Michael Cubed","players":"Brandon Luu / Amanda Wagner / Nina Miguel","tier":"B"},{"name":"Monjitas","players":"David Luna / Martin Salazar / Karolina Lara","tier":"B"},{"name":"TBD (Williams)","players":"David Williams / Beth / Nick G","tier":"B"},{"name":"3 Sheets to the Wind1","players":"Chip Dykes / Kalam Park / Kalam's Friend","tier":"C"},{"name":"Jaki-o-lanterns","players":"Ryan Bulanadi / Jakilynn Thrope / Tristian De Perio","tier":"C"},{"name":"Serial Killers","players":"Charles Nan-son / Huntah Killah / su-Spence","tier":"D"}],"sharedNets":false}],"games":[{"r":1,"ct":1,"pool":"CA","a":"Pound Town","b":"Alvin and the chipmunks"},{"r":1,"ct":2,"pool":"CA","a":"Goobers","b":"Shark Week"},{"r":2,"ct":1,"pool":"CA","a":"Spooky Spikers","b":"Big Buc-ee's Bussy"},{"r":2,"ct":2,"pool":"CA","a":"Bumps and Lines","b":"No Diggity"},{"r":3,"ct":1,"pool":"CA","a":"Alvin and the chipmunks","b":"Goobers"},{"r":3,"ct":2,"pool":"CA","a":"Pound Town","b":"The hornies"},{"r":4,"ct":1,"pool":"CA","a":"Shark Week","b":"Spooky Spikers"},{"r":4,"ct":2,"pool":"CA","a":"Big Buc-ee's Bussy","b":"Bumps and Lines"},{"r":5,"ct":1,"pool":"CA","a":"No Diggity","b":"The hornies"},{"r":5,"ct":2,"pool":"CA","a":"Pound Town","b":"Goobers"},{"r":6,"ct":1,"pool":"CA","a":"Alvin and the chipmunks","b":"Shark Week"},{"r":6,"ct":2,"pool":"CA","a":"Spooky Spikers","b":"Bumps and Lines"},{"r":7,"ct":1,"pool":"CA","a":"Goobers","b":"Spooky Spikers"},{"r":7,"ct":2,"pool":"CA","a":"Big Buc-ee's Bussy","b":"No Diggity"},{"r":8,"ct":1,"pool":"CA","a":"Bumps and Lines","b":"The hornies"},{"r":8,"ct":2,"pool":"CA","a":"Pound Town","b":"No Diggity"},{"r":9,"ct":1,"pool":"CA","a":"Shark Week","b":"Big Buc-ee's Bussy"},{"r":9,"ct":2,"pool":"CA","a":"Alvin and the chipmunks","b":"The hornies"},{"r":1,"ct":3,"pool":"CB","a":"VAMO","b":"3 amigos"},{"r":1,"ct":4,"pool":"CB","a":"Mucha Lucha","b":"SAC"},{"r":2,"ct":3,"pool":"CB","a":"Two Men and a Baby","b":"BFF's"},{"r":2,"ct":4,"pool":"CB","a":"Felony spikes","b":"Hit Happens"},{"r":3,"ct":3,"pool":"CB","a":"3 amigos","b":"Mucha Lucha"},{"r":3,"ct":4,"pool":"CB","a":"VAMO","b":"Two Tacos One Egg Roll"},{"r":4,"ct":3,"pool":"CB","a":"SAC","b":"Two Men and a Baby"},{"r":4,"ct":4,"pool":"CB","a":"BFF's","b":"Felony spikes"},{"r":5,"ct":3,"pool":"CB","a":"Hit Happens","b":"Two Tacos One Egg Roll"},{"r":5,"ct":4,"pool":"CB","a":"VAMO","b":"Mucha Lucha"},{"r":6,"ct":3,"pool":"CB","a":"3 amigos","b":"SAC"},{"r":6,"ct":4,"pool":"CB","a":"Two Men and a Baby","b":"Felony spikes"},{"r":7,"ct":3,"pool":"CB","a":"Mucha Lucha","b":"Two Men and a Baby"},{"r":7,"ct":4,"pool":"CB","a":"BFF's","b":"Hit Happens"},{"r":8,"ct":3,"pool":"CB","a":"Felony spikes","b":"Two Tacos One Egg Roll"},{"r":8,"ct":4,"pool":"CB","a":"VAMO","b":"Hit Happens"},{"r":9,"ct":3,"pool":"CB","a":"SAC","b":"BFF's"},{"r":9,"ct":4,"pool":"CB","a":"3 amigos","b":"Two Tacos One Egg Roll"},{"r":1,"ct":5,"pool":"SA","a":"3 blind mice","b":"Diggin' balls"},{"r":1,"ct":6,"pool":"SA","a":"Holy dig","b":"Skeleton Crew"},{"r":2,"ct":5,"pool":"SA","a":"SpiderMeme","b":"Halloweenies"},{"r":2,"ct":6,"pool":"SA","a":"Ibuprofen","b":"Showtime Mikus"},{"r":3,"ct":5,"pool":"SA","a":"Diggin' balls","b":"Holy dig"},{"r":3,"ct":6,"pool":"SA","a":"Skeleton Crew","b":"SpiderMeme"},{"r":4,"ct":5,"pool":"SA","a":"Halloweenies","b":"Ibuprofen"},{"r":4,"ct":6,"pool":"SA","a":"3 blind mice","b":"Showtime Mikus"},{"r":5,"ct":5,"pool":"SA","a":"Diggin' balls","b":"Skeleton Crew"},{"r":5,"ct":6,"pool":"SA","a":"Holy dig","b":"SpiderMeme"},{"r":6,"ct":5,"pool":"SA","a":"Halloweenies","b":"Showtime Mikus"},{"r":6,"ct":6,"pool":"SA","a":"3 blind mice","b":"Ibuprofen"},{"r":7,"ct":5,"pool":"SA","a":"3 blind mice","b":"Holy dig"},{"r":7,"ct":6,"pool":"SA","a":"Skeleton Crew","b":"Halloweenies"},{"r":8,"ct":5,"pool":"SA","a":"SpiderMeme","b":"Ibuprofen"},{"r":8,"ct":6,"pool":"SA","a":"Diggin' balls","b":"Showtime Mikus"},{"r":1,"ct":7,"pool":"SB","a":"Buzz Ball","b":"Dave's goons"},{"r":1,"ct":8,"pool":"SB","a":"Michael Cubed","b":"Monjitas"},{"r":2,"ct":7,"pool":"SB","a":"TBD (Williams)","b":"3 Sheets to the Wind1"},{"r":2,"ct":8,"pool":"SB","a":"Jaki-o-lanterns","b":"Serial Killers"},{"r":3,"ct":7,"pool":"SB","a":"Dave's goons","b":"Michael Cubed"},{"r":3,"ct":8,"pool":"SB","a":"Monjitas","b":"TBD (Williams)"},{"r":4,"ct":7,"pool":"SB","a":"3 Sheets to the Wind1","b":"Jaki-o-lanterns"},{"r":4,"ct":8,"pool":"SB","a":"Buzz Ball","b":"Serial Killers"},{"r":5,"ct":7,"pool":"SB","a":"Dave's goons","b":"Monjitas"},{"r":5,"ct":8,"pool":"SB","a":"Michael Cubed","b":"TBD (Williams)"},{"r":6,"ct":7,"pool":"SB","a":"3 Sheets to the Wind1","b":"Serial Killers"},{"r":6,"ct":8,"pool":"SB","a":"Buzz Ball","b":"Jaki-o-lanterns"},{"r":7,"ct":7,"pool":"SB","a":"Buzz Ball","b":"Michael Cubed"},{"r":7,"ct":8,"pool":"SB","a":"Monjitas","b":"3 Sheets to the Wind1"},{"r":8,"ct":7,"pool":"SB","a":"TBD (Williams)","b":"Jaki-o-lanterns"},{"r":8,"ct":8,"pool":"SB","a":"Dave's goons","b":"Serial Killers"}]};
@@ -1154,9 +1154,44 @@ function tally(games){
     else if (sb > sa) { t[g.b].w++; t[g.a].l++; }
   });
   return Object.values(t).map(x => ({...x, diff: x.pf - x.pa}))
-    .sort((a,b) => b.w - a.w || b.diff - a.diff || b.pf - a.pf || a.name.localeCompare(b.name));
+    .sort(rankCmp);
 }
-const seedsOf = div => tally(gamesOfDiv(div)).map(t => t.name);
+/* Wins, then point difference, then points scored. Negative means a ranks first. */
+function rankCmp(a, b){
+  return b.w - a.w || b.diff - a.diff || b.pf - a.pf || a.name.localeCompare(b.name);
+}
+
+/* ═══ Seeding ═══════════════════════════════════════════
+   Teams are ranked inside their own pool, not against the whole division, and
+   the two pools then zipper into one seed list: A1, B1, A2, B2 and so on.
+
+   That does two jobs at once. The cut falls out of it - the first 16 of an
+   alternating list is exactly the top 8 of each pool, so the bottom of each
+   pool goes out rather than whoever happens to have the worst record overall.
+   And the first round comes out entirely cross-pool, because a bracket pairs
+   seed i with seed (draw + 1 - i), those two always being one odd and one
+   even. Nobody meets a pool-mate in round one, by construction rather than by
+   searching for an arrangement that avoids it.
+
+   Which pool leads the zipper is decided by its winner's record, so the top
+   line is earned instead of going to whichever pool is called A. */
+const poolsOfDiv = div => DATA.pools.filter(p => p.div === div);
+const zipped = div => poolsOfDiv(div).length === 2;
+
+function poolRanks(div){
+  return poolsOfDiv(div).map(p => tally(DATA.games.filter(g => g.pool === p.key)));
+}
+function seedsOf(div){
+  if (!zipped(div)) return tally(gamesOfDiv(div)).map(t => t.name);   // one pool, or three
+  const ranks = poolRanks(div);
+  const lead = rankCmp(ranks[0][0], ranks[1][0]) <= 0 ? 0 : 1;
+  const a = ranks[lead], b = ranks[1 - lead], out = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++){
+    if (a[i]) out.push(a[i].name);
+    if (b[i]) out.push(b[i].name);
+  }
+  return out;
+}
 
 /* ═══ My team ═══════════════════════════════════════════ */
 const teamSel = $('teamSel');
@@ -1477,32 +1512,32 @@ function stTable(rows, opts){
 }
 function renderStandings(){
   DIVS.forEach(div => {
-    const cfg = CFG[div], all = teamsInDiv(div);
-    const capped = DIV_CUT[div] && DIV_CUT[div] < all;
-    const pools = DATA.pools.filter(p => p.div === div);
-    const straight = cfg.draw - cfg.pis.length;
-    const first = roundName(cfg.draw, 0);
-    /* Where the dashed line goes: with a cutoff it marks who is in the bracket
-       at all, and without one, where the play-in starts. */
-    const line = capped ? DIV_CUT[div] : (cfg.pis.length ? straight : cfg.field);
-    const note = capped
-      ? 'Top ' + DIV_CUT[div] + ' of ' + all + ' make the bracket. The dashed line is the cutoff.'
-      : (cfg.pis.length
-          ? 'Seeds 1&ndash;' + straight + ' go straight to the ' + first + '; the dashed line is where the play-in starts.'
-          : 'Every team makes the ' + first + '.');
-    $('p-sd-' + div).innerHTML =
-      '<details class="round" data-acc="standings" open>' +
-        '<summary class="round-hd"><b>Seeding</b><span>' +
-          (capped ? 'top ' + DIV_CUT[div] + ' advance' : 'all ' + all + ' advance') + '</span></summary>' +
+    const cfg = CFG[div], pools = poolsOfDiv(div);
+    /* Each pool sends the same number up, so the cut is the bottom of each
+       pool rather than the worst records in the division. A team that had a
+       hard pool is not punished for it. */
+    const perPool = Math.floor(cfg.field / pools.length);
+    const zip = zipped(div);
+    const ranks = zip ? poolRanks(div) : pools.map(p => tally(DATA.games.filter(g => g.pool === p.key)));
+    const anyCut = zip && ranks.some(r => perPool < r.length);
+
+    const intro = '<p class="sub">' + (zip
+      ? 'Ranked inside each pool. ' + (anyCut
+          ? 'The top ' + perPool + ' of each pool make the bracket and the dashed line is the cutoff. '
+          : 'Every team makes the bracket. ') +
+        'The draw then zippers the pools together, so round one is one pool against the other: ' +
+        'the top of one plays the bottom of the other, and nobody meets a pool-mate.'
+      : 'Ranked across the division.') + '</p>';
+
+    $('p-sd-' + div).innerHTML = intro + pools.map((p, i) => {
+      const rows = ranks[i];
+      const cut = zip && perPool < rows.length ? perPool : 0;
+      return '<details class="round" data-acc="standings"' + (i === 0 ? ' open' : '') + '>' +
+        '<summary class="round-hd"><b>' + esc(p.name) + '</b>' +
+          '<span>' + netLabel(p) + ' &middot; ' + rows.length + ' teams</span></summary>' +
         '<div style="padding:12px 14px 2px">' +
-        '<p class="sub">' + (pools.length > 1 ? 'All ' + pools.length + ' ' + DIV_LABEL[div].toLowerCase() + ' pools combined. ' : '') + note + '</p>' +
-        stTable(tally(gamesOfDiv(div)), {seed:true, cut: line}) + '</div></details>' +
-      pools.map(p =>
-        '<details class="round" data-acc="standings">' +
-          '<summary class="round-hd"><b>' + esc(p.name) + '</b><span>' + netLabel(p) + ' &middot; ' +
-            p.teams.length + ' teams</span></summary>' +
-          '<div style="padding:12px 14px 2px">' +
-          stTable(tally(DATA.games.filter(g => g.pool === p.key)), {}) + '</div></details>').join('');
+        stTable(rows, {seed: true, cut}) + '</div></details>';
+    }).join('');
   });
 }
 
@@ -1621,6 +1656,14 @@ function arrangeLines(cfg, seeds){
     for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i];
     return false;
   };
+  /* With two pools the zipper has already placed everyone: every first-round
+     match is cross-pool, so any swap could only break that. Report what the
+     draw looks like and leave the order alone. */
+  if (zipped(cfg.div)){
+    const asIs = seeds.slice(), c = cost(asIs);
+    return {lines: asIs, repeats: c[0], maybe: c[1], samePool: c[2], drift: 0};
+  }
+
   // Two guardrails on what may move. The bottom seeds are the ones who play
   // in, and that must stay true whatever we do about rematches - so a swap
   // never crosses the play-in boundary. And a team only ever shifts a few
@@ -2038,7 +2081,11 @@ function renderBracket(div){
         (unlocked ? '<div class="btnbar" style="margin-top:10px"><button class="btn danger" data-reseed="'+div+'">Re-seed from current standings</button></div>' : '')+
         '</div>'
       : '')+
-    '<div class="bnote">Seeded on combined pool record across both pools. Every match already has its net and time.'+
+    '<div class="bnote">'+
+      (zipped(div)
+        ? 'Seeded inside each pool, then zippered: the first round is one pool against the other, so nobody meets a pool-mate. '
+        : 'Seeded on combined pool record across both pools. ')+
+      'Every match already has its net.'+
       (st.avoid
         ? (st.avoid.repeats > 0
             ? ' Round one still has ' + st.avoid.repeats + ' unavoidable rematch' + (st.avoid.repeats === 1 ? '' : 'es') + '.'
