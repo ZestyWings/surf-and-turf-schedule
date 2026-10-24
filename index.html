@@ -1181,9 +1181,21 @@ const zipped = div => poolsOfDiv(div).length === 2;
 function poolRanks(div){
   return poolsOfDiv(div).map(p => tally(DATA.games.filter(g => g.pool === p.key)));
 }
+/* A team that withdrew does not go into the bracket, whatever its record.
+
+   Withdrawing forfeits the games it has not played but leaves the ones it has
+   alone, which is right - those results really happened and its opponents
+   keep them. The side effect is that a team which played one game, won it and
+   left finishes 1-3, which can rank above a team that played all four and
+   lost them all. That no-show would take a bracket line and hand whoever drew
+   it a walkover, while the team that turned up all day got cut instead.
+
+   They stay in the standings, tagged, so their opponents' results still make
+   sense. They are only kept out of the draw. */
 function seedsOf(div){
-  if (!zipped(div)) return tally(gamesOfDiv(div)).map(t => t.name);   // one pool, or three
-  const ranks = poolRanks(div);
+  const live = rows => rows.filter(t => !isOut(t.name));
+  if (!zipped(div)) return live(tally(gamesOfDiv(div))).map(t => t.name);   // one pool, or three
+  const ranks = poolRanks(div).map(live);
   const lead = rankCmp(ranks[0][0], ranks[1][0]) <= 0 ? 0 : 1;
   const a = ranks[lead], b = ranks[1 - lead], out = [];
   for (let i = 0; i < Math.max(a.length, b.length); i++){
@@ -1531,7 +1543,11 @@ function renderStandings(){
 
     $('p-sd-' + div).innerHTML = intro + pools.map((p, i) => {
       const rows = ranks[i];
-      const cut = zip && perPool < rows.length ? perPool : 0;
+      /* Count past anyone who withdrew: they are listed but do not advance, so
+         the line belongs after the last team that actually does. */
+      let seen = 0, cut = 0;
+      rows.forEach((t, n) => { if (!isOut(t.name) && ++seen === perPool) cut = n + 1; });
+      if (!zip || cut >= rows.length) cut = 0;
       return '<details class="round" data-acc="standings"' + (i === 0 ? ' open' : '') + '>' +
         '<summary class="round-hd"><b>' + esc(p.name) + '</b>' +
           '<span>' + netLabel(p) + ' &middot; ' + rows.length + ' teams</span></summary>' +
