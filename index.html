@@ -2051,8 +2051,31 @@ function bracketPathHTML(name){
 }
 
 
+/* The round you are looking at, and putting you back on it.
+
+   Entering a bracket score redraws the whole panel so the winner moves on,
+   which built a fresh pager scrolled back to the start. Type a quarterfinal
+   score, tab out, and you were looking at the Round of 16 again. */
+function pagerPage(panel){
+  const p = panel.querySelector('.pager');
+  return (p && p.clientWidth) ? Math.round(p.scrollLeft / p.clientWidth) : 0;
+}
+function syncDots(pager){
+  if (!pager || !pager.clientWidth) return;
+  const i = Math.round(pager.scrollLeft / pager.clientWidth);
+  const dots = pager.parentElement.querySelector('.dots');
+  if (dots) [...dots.children].forEach((d, j) => d.setAttribute('aria-current', String(j === i)));
+}
+function restorePage(panel, page){
+  const p = panel.querySelector('.pager');
+  if (!p || !page) return;
+  p.scrollLeft = p.clientWidth * page;   // no smooth scroll: this is a redraw, not a move
+  syncDots(p);
+}
+
 function renderBracket(div){
   const cfg = CFG[div], st = BR[div], panel = $('p-br-' + div);
+  const page = pagerPage(panel);
   const games = gamesOfDiv(div);
   const done = games.filter(isFinal).length;
 
@@ -2104,6 +2127,7 @@ function renderBracket(div){
           ? ' \u00b7 two groups: 1st up starts on time, 2nd up takes that net when it frees, or the next one that does'
           : '')+'</div>'+
       matchesHTML(r, rounds)+'</div>').join('')+'</div>';
+  restorePage(panel, page);
 }
 
 /* ═══ Print: net sheets + master schedule ═════════════ */
@@ -2331,16 +2355,22 @@ document.addEventListener('click', e => {
   }
   const d = e.target.closest('[data-jump]');
   if (!d) return;
-  const pager = d.closest('.view').querySelector('.pager:not([hidden])') ||
-                d.parentElement.nextElementSibling;
+  /* Within this division's panel, not the view. Both divisions' pagers live in
+     the bracket view and neither carries `hidden` - the panel does - so
+     `.pager:not([hidden])` always found the first one. The Social round
+     buttons were scrolling the Competitive bracket, which looked like they
+     did nothing at all. */
+  const owner = d.closest('.panel') || d.closest('.view');
+  const pager = owner && owner.querySelector('.pager');
   if (pager) pager.scrollTo({left: pager.clientWidth * Number(d.dataset.jump), behavior:'smooth'});
 });
+/* Capture, because a scroll event on an element does not bubble: this
+   listener never fired, so the round buttons never showed which one you were
+   on however far you swiped. */
 document.addEventListener('scroll', e => {
   const pager = e.target.closest ? e.target.closest('.pager') : null;
   if (!pager) return;
-  const i = Math.round(pager.scrollLeft / pager.clientWidth);
-  const dots = pager.parentElement.querySelector('.dots');
-  if (dots) [...dots.children].forEach((d, j) => d.setAttribute('aria-current', String(j === i)));
+  syncDots(pager);
 }, true);
 
 /* ═══ Live sync ═════════════════════════════════════════
