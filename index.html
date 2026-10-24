@@ -432,6 +432,18 @@
   table.st td.tm{text-align:left;padding-left:14px;font-weight:700;white-space:normal;min-width:170px}
   table.st td.tm small{display:block;font-weight:500;color:var(--fog);font-size:13px}
   table.st tr.cut td{border-bottom:2px dashed var(--accent)}
+  /* Seven columns do not fit a phone, and the table was side-scrolling inside
+     its own box - which reads as broken rather than scrollable. Points for and
+     against come off below 560px; wins, losses and the difference are what
+     anyone reads off a standings table anyway, and the full numbers are still
+     there on a wider screen. */
+  @media (max-width:560px){
+    table.st{font-size:14px}
+    table.st th.pf, table.st th.pa, table.st td.pf, table.st td.pa{display:none}
+    table.st td{padding:9px 4px}
+    table.st th{padding:7px 4px}
+    table.st td.tm, table.st th.tm{padding-left:10px;min-width:0}
+  }
   .seedno{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;
           border-radius:4px;background:var(--aqua);color:var(--ink);
           font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;padding:0 5px}
@@ -664,7 +676,7 @@
         <div class="tabs" role="tablist" id="tabs-sc"></div>
         <div id="panels-sc"></div>
         <div class="btnbar" style="margin-top:18px">
-          <button class="btn danger" id="clearScores">Clear all scores</button>
+          <button class="btn danger" id="clearScores">Clear all scores and brackets</button>
         </div>
         <div class="testbox" id="testbox" hidden>
           <b>Testing</b>
@@ -732,7 +744,7 @@ const TOURNAMENT = "volleyween-2026";
 const KP = "vw2026_";          // every storage key on this device is scoped to the tournament
 const WIN = 21, CAP = 25, GAMES_PER = 4;
 const RULES = "Games to 21, win by 2, hard cap 25. Switch sides at 11. Call your own lines, rock-paper-scissors for serve.";
-const UPDATE = {"id":"2026-10-23-2","when":"Fri Oct 23","note":"Michael Cubed moved to Social, so both divisions have been re-pooled. Check your pool, your rounds and your net again."};
+const UPDATE = {"id":"2026-10-24-1","when":"Sat Oct 24","note":""};
 
 const DIVS = ["comp","social"];
 const DIV_LABEL = {"comp":"Competitive","social":"Social"};
@@ -956,7 +968,11 @@ $('facts').innerHTML = [
   ['Bracket'].concat(bracketFact())
 ].map(([k,v,s]) => '<div class="fact"><dt>'+k+'</dt><dd>'+v+(s?'<small>'+s+'</small>':'')+'</dd></div>').join('');
 
+/* An empty note means no banner at all. The mechanism stays for when there is
+   something teams actually need told; a change they do not need to know about
+   is not worth a flag on the page. */
 (function renderUpdated(){
+  if (!UPDATE.note){ $('updated').hidden = true; return; }
   let seen = null;
   try { seen = localStorage.getItem(SEEN_KEY); } catch (e) {}
   const isNew = seen !== UPDATE.id;
@@ -1433,13 +1449,17 @@ document.addEventListener('input', e => {
   renderDerived();
 });
 
-$('clearScores').addEventListener('click', e => armConfirm(e.currentTarget, 'Tap again to erase every score', () => {
+$('clearScores').addEventListener('click', e => armConfirm(e.currentTarget, 'Tap again to erase every score and both brackets', () => {
   const cleared = {};
   DATA.games.forEach(g => { cleared[GID(g)] = null; });
   SCORES = {};
   WITHDRAWN = {};
   saveScores();
   saveWithdrawn();
+  /* The bracket has to go too. Clearing only the scores left it seeded, with
+     every result still in it, so the page came back to a tournament that had
+     not been played and a bracket that had been won. */
+  DIVS.forEach(div => { BR[div] = emptyBracket(); saveBracket(div); });
   queuePatch({scores: cleared});
   DIVS.forEach(renderScoring);
   renderDerived();
@@ -1509,7 +1529,7 @@ document.addEventListener('click', (e) => {
 function stTable(rows, opts){
   opts = opts || {};
   const head = '<tr>' + (opts.seed ? '<th>Seed</th>' : '<th>#</th>') +
-    '<th class="tm">Team</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th></tr>';
+    '<th class="tm">Team</th><th>W</th><th>L</th><th class="pf">PF</th><th class="pa">PA</th><th>Diff</th></tr>';
   const body = rows.map((t, i) => {
     const d = (t.diff > 0 ? '+' : '') + t.diff;
     const cls = t.diff > 0 ? 'pos' : (t.diff < 0 ? 'neg' : '');
@@ -1517,7 +1537,7 @@ function stTable(rows, opts){
       '<td><span class="seedno">'+(i+1)+'</span></td>'+
       '<td class="tm'+(isOut(t.name) ? ' is-out' : '')+'">'+esc(t.name)+outTag(t.name)+
         (TEAM[t.name] && TEAM[t.name].players ? '<small>'+esc(TEAM[t.name].players)+'</small>' : '')+'</td>'+
-      '<td>'+t.w+'</td><td>'+t.l+'</td><td>'+t.pf+'</td><td>'+t.pa+'</td>'+
+      '<td>'+t.w+'</td><td>'+t.l+'</td><td class="pf">'+t.pf+'</td><td class="pa">'+t.pa+'</td>'+
       '<td class="'+cls+'">'+d+'</td></tr>';
   }).join('');
   return '<div class="tablewrap"><table class="st"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
