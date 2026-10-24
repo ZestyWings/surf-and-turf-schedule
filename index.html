@@ -1819,8 +1819,28 @@ function assignRound(count, nets, startMin, lateIdx, parentNets){
   return out;
 }
 
+/* What a team's seed says in the bracket.
+
+   It used to be the draw line number, 1 to 16, and only in the first round -
+   every later round left `seed` off its sides entirely, so a team reaching the
+   quarterfinals lost its seed and showed a dash instead.
+
+   Now it is the team's place in its own pool, A3 or B7, which is the number
+   the standings show and the one that does not change as they advance. It
+   also tells you at a glance which pool a quarterfinal is drawn from. */
+function seedLabels(div){
+  const out = {}, pools = poolsOfDiv(div), ranks = poolRanks(div);
+  pools.forEach((p, i) => {
+    const letter = p.key.slice(-1);
+    ranks[i].forEach((t, j) => { out[t.name] = letter + (j + 1); });
+  });
+  return out;
+}
+
 function buildRounds(div, seeds){
   const cfg = CFG[div], P = PLAN[div], st = BR[div];
+  const SEED = seedLabels(div);
+  const sd = n => (n && SEED[n]) || null;
   const lines = (st.lines && st.lines.length) ? st.lines : arrangeLines(cfg, seeds);
   const R = [];
   const kOf = (rk, i) => div + '|' + rk + '|' + i;
@@ -1839,7 +1859,7 @@ function buildRounds(div, seeds){
       piNet[p.line] = a[i].net;
       return {k: kOf('pi', i), id: (piIsFirstRound(cfg) ? roundAbbr(cfg.draw * 2, 0) : 'PI') + ' ' + (i+1),
               net: a[i].net, time: a[i].time, wave: a[i].wave,
-              teams: [A, B], sides: [{seed:p.hi+1, name:A}, {seed:p.lo+1, name:B}]};
+              teams: [A, B], sides: [{seed: sd(A), name:A}, {seed: sd(B), name:B}]};
     });
     R.push({key:'pi', name: piIsFirstRound(cfg) ? roundName(cfg.draw * 2, 0)
       : (cfg.pis.length > 1 ? 'Play-ins' : 'Play-in'), matches});
@@ -1863,7 +1883,7 @@ function buildRounds(div, seeds){
   R.push({key:'r0', name:r0Name, matches: pairs0.map((pr, i) => {
     const t = pr.map(l => piLines.has(l) ? piWin(l) : (lines[l] || null));
     return {k: kOf('r0', i), id: abbr0 + ' ' + (i+1), net:a0[i].net, time:a0[i].time, wave:a0[i].wave, teams:t,
-      sides: pr.map((l, n) => ({seed: l+1, name: t[n],
+      sides: pr.map((l, n) => ({seed: sd(t[n]), name: t[n],
         from: piLines.has(l) && !t[n]
           ? (piIsFirstRound(cfg) ? roundAbbr(cfg.draw * 2, 0) + ' winner' : 'Play-in winner') : null}))};
   })});
@@ -1879,8 +1899,8 @@ function buildRounds(div, seeds){
       const games = [0,1,2].map(g => ({
         k: kOf('f', g), id: 'Game ' + (g+1), net: P.finalNet, time: slotSpan(start + g*SLOT), wave: g,
         teams: [finA, finB],
-        sides: [{name: finA, from: prev.matches[0].id + ' winner'},
-                {name: finB, from: prev.matches[1].id + ' winner'}]
+        sides: [{seed: sd(finA), name: finA, from: prev.matches[0].id + ' winner'},
+                {seed: sd(finB), name: finB, from: prev.matches[1].id + ' winner'}]
       }));
       R.push({key:'f', name:'Final', note:'best 2 of 3', matches:games, finalists:[finA, finB]});
       break;
@@ -1895,8 +1915,8 @@ function buildRounds(div, seeds){
       const A = winner(prevRoundKey, 2*i, prev.matches[2*i].teams[0], prev.matches[2*i].teams[1]);
       const B = winner(prevRoundKey, 2*i+1, prev.matches[2*i+1].teams[0], prev.matches[2*i+1].teams[1]);
       return {k: kOf(rk, i), id: ab + ' ' + (i+1), net:a[i].net, time:a[i].time, wave:a[i].wave, teams:[A, B],
-        sides: [{name:A, from: prev.matches[2*i].id + ' winner'},
-                {name:B, from: prev.matches[2*i+1].id + ' winner'}]};
+        sides: [{seed: sd(A), name:A, from: prev.matches[2*i].id + ' winner'},
+                {seed: sd(B), name:B, from: prev.matches[2*i+1].id + ' winner'}]};
     })});
     prev = R[R.length-1];
     start += (Math.max(...a.map(x => x.wave)) + 1) * SLOT;
