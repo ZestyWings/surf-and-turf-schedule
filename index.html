@@ -624,7 +624,7 @@
       <div>
         <p class="kicker">Scorekeeping</p>
         <h2>Teams record their own scores</h2>
-        <p>Every net has a <b>clipboard with that net&rsquo;s printed schedule</b>. After each game, write the
+        <p>Each division has one <b>clipboard with all of its games</b> on it. After each game, write the
            final score on that sheet &mdash; it is the official record. An admin types the same scores in here,
            and standings and the bracket update live on everyone&rsquo;s phone.</p>
       </div>
@@ -750,7 +750,7 @@
    into the markup, and every per-division loop in the page. */
 const TOURNAMENT = "setsgiving-2026";
 const KP = "sg2026_";          // every storage key on this device is scoped to the tournament
-const WIN = 21, CAP = 25, GAMES_PER = 7;
+const WIN = 21, CAP = 25;
 const RULES = "Games to 21, win by 2, hard cap 25. Both teams record the final score on this sheet right after the game - it is the official record.";
 const UPDATE = {"id":"2026-11-20-1","when":"Fri Nov 20","note":""};
 
@@ -968,10 +968,30 @@ function bracketFact(){
 
 $('when').textContent  = E.date;
 $('where').textContent = E.venue;
+/* Pool games per team is read off the schedule rather than typed in. It
+   used to be one number, GAMES_PER, for the whole event - which was true
+   only while both divisions were the same size. Competitive's 8 teams play
+   7 and Social's 7 play 6, and the card told every Social team it had 7. */
+function gamesPerTeam(div){
+  const keys = new Set(DATA.pools.filter(p => p.div === div).map(p => p.key));
+  const n = {};
+  DATA.games.filter(g => keys.has(g.pool)).forEach(g => {
+    n[g.a] = (n[g.a] || 0) + 1; n[g.b] = (n[g.b] || 0) + 1;
+  });
+  const c = [...new Set(Object.values(n))].sort((a, b) => a - b);
+  return c.length ? (c.length === 1 ? String(c[0]) : c[0] + '\u2013' + c[c.length - 1]) : '0';
+}
+function gamesFact(){
+  const per = DIVS.map(gamesPerTeam);
+  return [...new Set(per)].length === 1
+    ? [per[0], 'Guaranteed, every team']
+    : [per.join(' / '), DIVS.map(d => DIV_LABEL[d]).join(' / ')];
+}
+
 $('facts').innerHTML = [
   ['Check-in', E.checkin, ''],
   ['First serve', E.firstServe, 'All ' + COURTS.length + ' nets'],
-  ['Pool games', String(GAMES_PER), 'Guaranteed, every team'],
+  ['Pool games'].concat(gamesFact()),
   ['Bracket'].concat(bracketFact())
 ].map(([k,v,s]) => '<div class="fact"><dt>'+k+'</dt><dd>'+v+(s?'<small>'+s+'</small>':'')+'</dd></div>').join('');
 
@@ -1016,8 +1036,8 @@ function renderFormatNotes(){
    said six nets after the schedule had changed. Generated now. */
 /* Scoring and round length are config, and were written into the prose by
    hand: the day plan claimed 25-minute rounds while the schedule ran on 20. */
-$('myTeamNote').textContent = 'Pick your team to see your ' + GAMES_PER +
-  ' pool games \u2014 which round, which net, and who you play.';
+$('myTeamNote').textContent = 'Pick your team to see your pool games \u2014 '+
+  'which round, which net, and who you play.';
 $('scoreNote').innerHTML = 'Enter each final as it comes off the sheet. Games are to ' + WIN +
   ', win by 2, hard cap ' + CAP + '. Scores save on this device and drive standings and the bracket.';
 $('dayNote').innerHTML = 'Rounds are ' + E.roundMin + ' minutes &mdash; a game to ' + WIN +
