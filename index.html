@@ -537,7 +537,7 @@
     .sh-brand{font-family:'Anton',Arial,sans-serif;font-size:10pt;letter-spacing:.08em;
               text-transform:uppercase;color:#2C6350}
     .sh-date{font-size:8.5pt;color:#555}
-    .sh-ttl{display:flex;justify-content:space-between;align-items:baseline;margin:10pt 0 3pt}
+    .sh-ttl{display:flex;justify-content:space-between;align-items:baseline;margin:7pt 0 3pt}
     .sh-ct{font-family:'Anton',Arial,sans-serif;font-size:30pt;line-height:1;color:#173A2E;text-transform:uppercase}
     .sh-pool{font-family:'Anton',Arial,sans-serif;font-size:14pt;color:#2C6350;text-transform:uppercase}
     .sh-sub{font-size:9pt;color:#555;font-style:italic;margin-bottom:9pt}
@@ -550,6 +550,15 @@
     .sh-a{text-align:right;padding-right:9pt!important}
     .sh-b{text-align:left;padding-left:9pt!important}
     .sh-box{width:13%;border:1.25pt solid #333;height:32pt}
+    .sh-cols{display:flex;gap:13pt;align-items:flex-start}
+    .sh-cols table.sh-d{flex:1 1 0;min-width:0;margin-bottom:0}
+    table.sh-d td{padding:4.5pt 3pt}
+    table.sh-d .sh-box{height:18pt}
+    table.sh-d .sh-tm{font-size:10pt}
+    .sh-rh td{background:#F7F3E6;padding:4pt 7pt!important;
+      border-bottom:1pt solid #2C6350!important;break-after:avoid;
+      page-break-after:avoid;font-family:'Anton',Arial,sans-serif;
+      font-size:11pt;letter-spacing:.07em;text-transform:uppercase;color:#173A2E}
     .sh-ft{border-top:1.5pt solid #2C6350;padding-top:6pt;font-size:8.5pt;color:#333;line-height:1.5}
     .sh-ft b{color:#173A2E}
     table.sh-m{width:100%;border-collapse:collapse;font-size:8pt;table-layout:fixed}
@@ -647,7 +656,7 @@
           <button class="btn" id="printCourts"></button>
           <button class="btn ghost" id="printMaster">Print master schedule (1 page)</button>
         </div>
-        <p class="sub">Net sheets print one net per page with blank score boxes &mdash; tape one to each net. The master is every game on a single landscape page for the desk.</p>
+        <p class="sub">One sheet per division, every game in round order with blank score boxes &mdash; one clipboard per division, and teams take whichever of their nets is free. The master is every game on a single landscape page for the desk.</p>
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-round" aria-controls="p-round" aria-selected="true">By round</button>
           <button class="tab" role="tab" id="tab-court" aria-controls="p-court" aria-selected="false">By net</button>
@@ -751,8 +760,8 @@ const DIV_LABEL = {"comp":"Competitive","social":"Social"};
 const DIV_CUT = {"comp":null,"social":null};
 const PLAN = {"comp":{"nets":[1,2,3],"pi":710,"r0":710,"finalNet":1},"social":{"nets":[4,5,6],"pi":650,"r0":670,"finalNet":4}};
 
-const NET_NOTE = "Nets 1–3 are Competitive and Nets 4–6 are Social, all day. All six run through Round 7; after that Social is into its bracket and Competitive finishes its pool on Nets 1–3.";
-const FMT_NOTES = ["Two divisions: <b>Competitive</b> (8 teams) and <b>Social</b> (7 teams).","Competitive plays on <b>Nets 1–3</b>, Social on <b>Nets 4–6</b>. Neither division changes nets all day.","Both divisions play a <b>full round robin</b> — you play every other team in your division exactly once. That is <b>7 games in Competitive</b> and <b>6 in Social</b>.","Social finishes pool play after Round 7 and goes straight into its bracket. Competitive plays on to Round 10.","Games are to 21, win by 2, hard cap 25. Switch sides at 11.","<b>Every team makes the bracket.</b> Nobody is cut.","Seeded on your record: wins first, then point difference, then points scored. The draw follows that order exactly — <b>top seed plays bottom seed</b>.","<b>Competitive</b> is a clean 8-team draw: quarterfinals, semifinals, final, no byes.","<b>Social</b> has 7 teams into a 4-team draw, so the <b>top seed byes</b> straight into the semifinals and the rest play 2v7, 3v6, 4v5.","Every bracket match is one game to 21. <b>The final is best 2 of 3.</b>","Three a side, with at least <b>one man and one woman</b> on the court at all times.","Rules: <a href=\"https://www.surfandturfvolleyball.net/rules\">surfandturfvolleyball.net/rules</a>"];
+const NET_NOTE = "Nets 1–3 are Competitive and Nets 4–6 are Social, all day. Within your division, play on whichever of your nets is free when your round comes up. All six run through Round 7; after that Social is into its bracket and Competitive finishes its pool on Nets 1–3.";
+const FMT_NOTES = ["Two divisions: <b>Competitive</b> (8 teams) and <b>Social</b> (7 teams).","Competitive plays on <b>Nets 1–3</b>, Social on <b>Nets 4–6</b>. Neither division changes nets all day, and within your division you play on <b>whichever of your nets is free</b> when your round comes up.","Both divisions play a <b>full round robin</b> — you play every other team in your division exactly once. That is <b>7 games in Competitive</b> and <b>6 in Social</b>.","Social finishes pool play after Round 7 and goes straight into its bracket. Competitive plays on to Round 10.","Games are to 21, win by 2, hard cap 25. Switch sides at 11.","<b>Every team makes the bracket.</b> Nobody is cut.","Seeded on your record: wins first, then point difference, then points scored. The draw follows that order exactly — <b>top seed plays bottom seed</b>.","<b>Competitive</b> is a clean 8-team draw: quarterfinals, semifinals, final, no byes.","<b>Social</b> has 7 teams into a 4-team draw, so the <b>top seed byes</b> straight into the semifinals and the rest play 2v7, 3v6, 4v5.","Every bracket match is one game to 21. <b>The final is best 2 of 3.</b>","Three a side, with at least <b>one man and one woman</b> on the court at all times.","Rules: <a href=\"https://www.surfandturfvolleyball.net/rules\">surfandturfvolleyball.net/rules</a>"];
 const TIMELINE = [["8:30 AM","Pool play begins, Rounds 1–7. All six nets busy."],["10:50 AM","Social quarterfinals on Nets 4–6, top seed on a bye · Competitive plays Rounds 8–10 on Nets 1–3."],["11:10 AM","Social semifinals."],["11:30 AM","Social final, best 2 of 3, on Net 4."],["11:50 AM","Competitive quarterfinals on Nets 1–3, two waves of four."],["12:30 PM","Competitive semifinals."],["12:50 PM","Competitive final, best 2 of 3, on Net 1."],["1:30 PM","Awards. A final that goes 2–0 wraps up sooner.","end"]]
 
 const DATA = {"event":{"name":"Setsgiving","subtitle":"Beach · 3v3 · Coed","org":"Surf and Turf","date":"Sunday, November 22, 2026","iso":"2026-11-22","venue":"Oceanside Harbor Beach","surface":"sand","checkin":"7:45 AM","firstServe":"8:30 AM","format":"3v3","startMin":510,"roundMin":20,"finish":"~1:30 PM"},"rounds":["8:30 – 8:50 AM","8:50 – 9:10 AM","9:10 – 9:30 AM","9:30 – 9:50 AM","9:50 – 10:10 AM","10:10 – 10:30 AM","10:30 – 10:50 AM","10:50 – 11:10 AM","11:10 – 11:30 AM","11:30 – 11:50 AM"],"pools":[{"key":"CA","name":"Competitive","div":"comp","courts":[1,2,3],"sharedNets":false,"teams":[{"name":"Stuff My Turkey 🦃","players":"Hady A / Abigail reinard / Aidan A","tier":"S"},{"name":"Anti Limbs","players":"Kyler Moore / Jason Roberts / Ayden Finau","tier":"A"},{"name":"Hippos","players":"Chloe Gallego / Mason Gallego / Dylan Mariano","tier":"A"},{"name":"Chorizo Adobo","players":"Ty / Claire / Antonio","tier":"B"},{"name":"Feast Mode","players":"Austin Davis / Myla Norvell / Sam Alsup","tier":"B"},{"name":"Free Ball Killers","players":"Sheryar Shaikh / Amy Tran / Kalam Park","tier":"B"},{"name":"Just the Tip","players":"Alejandra Gonzalez / Ashton Brockett / Emmanuel Morrell","tier":"B"},{"name":"Shrimps","players":"AnnaBelle Adams / Tyler Smith / Brandon Lord","tier":"B"}]},{"key":"SA","name":"Social","div":"social","courts":[4,5,6],"sharedNets":false,"teams":[{"name":"My Knees Hurt","players":"Sydney Gott / FINLEY Olson / Natalie Thomas","tier":"A"},{"name":"First AED","players":"Emily / Arnel / Dey","tier":"B"},{"name":"Frankie N Friends","players":"Frankie / Julio / Ana","tier":"B"},{"name":"Get Stuffed","players":"Paul Wilson / Melanie Nielson / Trevor Johns","tier":"B"},{"name":"Magazyn","players":"Maggie Cincotta / Hunter Brochinsky / Spencer Paige","tier":"B"},{"name":"The Schwingers","players":"Courtney Schwingle / Gorety Nguyen / Bret Papas","tier":"B"},{"name":"Pumpkin Spike","players":"Evan Jones / Chellie Burets / Chip J or other will fill waiver","tier":"C"}]}],"games":[{"r":1,"ct":1,"pool":"CA","a":"Anti Limbs","b":"Shrimps"},{"r":1,"ct":2,"pool":"CA","a":"Hippos","b":"Chorizo Adobo"},{"r":1,"ct":3,"pool":"CA","a":"Feast Mode","b":"Free Ball Killers"},{"r":2,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Hippos"},{"r":2,"ct":2,"pool":"CA","a":"Anti Limbs","b":"Chorizo Adobo"},{"r":2,"ct":3,"pool":"CA","a":"Just the Tip","b":"Shrimps"},{"r":3,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Feast Mode"},{"r":3,"ct":2,"pool":"CA","a":"Anti Limbs","b":"Free Ball Killers"},{"r":3,"ct":3,"pool":"CA","a":"Chorizo Adobo","b":"Just the Tip"},{"r":4,"ct":1,"pool":"CA","a":"Anti Limbs","b":"Hippos"},{"r":4,"ct":2,"pool":"CA","a":"Feast Mode","b":"Just the Tip"},{"r":4,"ct":3,"pool":"CA","a":"Free Ball Killers","b":"Shrimps"},{"r":5,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Free Ball Killers"},{"r":5,"ct":2,"pool":"CA","a":"Chorizo Adobo","b":"Shrimps"},{"r":6,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Just the Tip"},{"r":6,"ct":2,"pool":"CA","a":"Anti Limbs","b":"Feast Mode"},{"r":6,"ct":3,"pool":"CA","a":"Hippos","b":"Free Ball Killers"},{"r":7,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Shrimps"},{"r":7,"ct":2,"pool":"CA","a":"Hippos","b":"Just the Tip"},{"r":7,"ct":3,"pool":"CA","a":"Chorizo Adobo","b":"Feast Mode"},{"r":8,"ct":1,"pool":"CA","a":"Anti Limbs","b":"Just the Tip"},{"r":8,"ct":2,"pool":"CA","a":"Hippos","b":"Feast Mode"},{"r":8,"ct":3,"pool":"CA","a":"Chorizo Adobo","b":"Free Ball Killers"},{"r":9,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Anti Limbs"},{"r":9,"ct":2,"pool":"CA","a":"Hippos","b":"Shrimps"},{"r":10,"ct":1,"pool":"CA","a":"Stuff My Turkey 🦃","b":"Chorizo Adobo"},{"r":10,"ct":2,"pool":"CA","a":"Feast Mode","b":"Shrimps"},{"r":10,"ct":3,"pool":"CA","a":"Free Ball Killers","b":"Just the Tip"},{"r":1,"ct":4,"pool":"SA","a":"First AED","b":"Pumpkin Spike"},{"r":1,"ct":5,"pool":"SA","a":"Frankie N Friends","b":"The Schwingers"},{"r":1,"ct":6,"pool":"SA","a":"Get Stuffed","b":"Magazyn"},{"r":2,"ct":4,"pool":"SA","a":"My Knees Hurt","b":"Pumpkin Spike"},{"r":2,"ct":5,"pool":"SA","a":"First AED","b":"Magazyn"},{"r":2,"ct":6,"pool":"SA","a":"Frankie N Friends","b":"Get Stuffed"},{"r":3,"ct":4,"pool":"SA","a":"My Knees Hurt","b":"The Schwingers"},{"r":3,"ct":5,"pool":"SA","a":"Pumpkin Spike","b":"Magazyn"},{"r":3,"ct":6,"pool":"SA","a":"First AED","b":"Frankie N Friends"},{"r":4,"ct":4,"pool":"SA","a":"My Knees Hurt","b":"Magazyn"},{"r":4,"ct":5,"pool":"SA","a":"The Schwingers","b":"Get Stuffed"},{"r":4,"ct":6,"pool":"SA","a":"Pumpkin Spike","b":"Frankie N Friends"},{"r":5,"ct":4,"pool":"SA","a":"My Knees Hurt","b":"Get Stuffed"},{"r":5,"ct":5,"pool":"SA","a":"Magazyn","b":"Frankie N Friends"},{"r":5,"ct":6,"pool":"SA","a":"The Schwingers","b":"First AED"},{"r":6,"ct":4,"pool":"SA","a":"My Knees Hurt","b":"Frankie N Friends"},{"r":6,"ct":5,"pool":"SA","a":"Get Stuffed","b":"First AED"},{"r":6,"ct":6,"pool":"SA","a":"The Schwingers","b":"Pumpkin Spike"},{"r":7,"ct":4,"pool":"SA","a":"My Knees Hurt","b":"First AED"},{"r":7,"ct":5,"pool":"SA","a":"Get Stuffed","b":"Pumpkin Spike"},{"r":7,"ct":6,"pool":"SA","a":"Magazyn","b":"The Schwingers"}]};
@@ -835,7 +844,6 @@ function netOwner(ct){
   const ds = [...new Set(keys.map(k => POOL[k].div))];
   return ds.length === 1 ? DIV_LABEL[ds[0]] : keys.map(k => POOL[k].name).join(' / ');
 }
-const netShared = ct => new Set(DATA.games.filter(g => g.ct === ct).map(g => g.pool)).size > 1;
 
 const divOf      = g => POOL[g.pool].div;
 const gamesOfDiv = d => DATA.games.filter(g => divOf(g) === d);
@@ -1282,8 +1290,7 @@ function renderSchedule(){
     const gs = DATA.games.filter(g => g.ct === ct).sort((a,b) => a.r - b.r);
     return '<details class="round" data-acc="by-court"'+(ct === COURTS[0] ? ' open' : '')+'>'+
       '<summary class="round-hd"><b>Net '+ct+'</b>'+ progress(gs) +
-      '<span>'+esc(netOwner(ct))+' &middot; '+gs.length+' games</span>'+
-      '<button class="btn mini" data-print-court="'+ct+'">Print</button></summary>'+
+      '<span>'+esc(netOwner(ct))+' &middot; '+gs.length+' games</span></summary>'+
       '<div class="slots" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">' + gs.map(g =>
         '<div class="slot" data-pool="'+g.pool+'">'+
         '<div class="ct tnum">Round '+g.r+'</div>'+
@@ -2117,26 +2124,61 @@ const sheetHead = () =>
   '<div class="sh-hd"><span class="sh-brand">'+esc(E.org)+' &middot; '+esc(E.name)+'</span>'+
   '<span class="sh-date">'+esc(E.date)+' &middot; '+esc(E.venue)+'</span></div>';
 
-function courtSheet(ct){
-  const gs = DATA.games.filter(g => g.ct === ct).sort((a,b) => a.r - b.r);
-  /* The teams at the foot are the ones actually playing this net, read off
-     the games. A pool roster would be wrong wherever nets are shared. */
-  const names = [...new Set(gs.flatMap(g => [g.a, g.b]))].sort((a,b) => a.localeCompare(b));
+/* One sheet per division, not one per net.
+   A division's nets are interchangeable: the games are fixed, but the net a
+   game lands on is whichever of the division's nets is free when the round
+   comes up. A sheet per net therefore pinned every game to a net nobody was
+   obliged to use, and took six clipboards to say it. One sheet per division
+   in round order is what a clipboard actually gets scanned for - who is up
+   next - and it is two printouts instead of six.
+   This replaced courtSheet, which also carried the only call to netShared. */
+function divisionSheet(div){
+  const keys  = new Set(DATA.pools.filter(p => p.div === div).map(p => p.key));
+  const gs    = DATA.games.filter(g => keys.has(g.pool));
+  const nets  = [...new Set(gs.map(g => g.ct))].sort((a, b) => a - b);
+  const rounds = [...new Set(gs.map(g => g.r))].sort((a, b) => a - b);
+  /* The teams at the foot are read off the games, not off a pool roster, so
+     they stay right however the pools are arranged. */
+  const names = [...new Set(gs.flatMap(g => [g.a, g.b]))].sort((a, b) => a.localeCompare(b));
+
+  /* Two columns, split by games rather than by rounds so the halves come out
+     even. One column ran a division to three printed pages, which is not one
+     clipboard; two columns fit a division on one page and leave the score
+     boxes big enough to write in. Measured with Page.printToPDF, not guessed. */
+  const half = Math.ceil(gs.length / 2);
+  const cols = [[], []];
+  let run = 0;
+  rounds.forEach(r => {
+    cols[run < half ? 0 : 1].push(r);
+    run += gs.filter(g => g.r === r).length;
+  });
+
+  const rowsFor = r => {
+    const ms = gs.filter(g => g.r === r).sort((a, b) => a.ct - b.ct);
+    return '<tr class="sh-rh"><td colspan="4">Round ' + r + ' \u00b7 ' + ms.length +
+             (ms.length === 1 ? ' game' : ' games') + '</td></tr>' +
+      ms.map(g => '<tr><td class="sh-tm sh-a">' + esc(g.a) + '</td>' +
+        '<td class="sh-box"></td><td class="sh-box"></td>' +
+        '<td class="sh-tm sh-b">' + esc(g.b) + '</td></tr>').join('');
+  };
+  const table = rs => '<table class="sh-t sh-d"><thead><tr>' +
+      '<th style="width:36%;text-align:right;padding-right:6pt">Team</th>' +
+      '<th colspan="2" style="width:22%;text-align:center">Score</th>' +
+      '<th style="width:36%;padding-left:6pt">Team</th></tr></thead><tbody>' +
+      rs.map(rowsFor).join('') + '</tbody></table>';
+
   return '<div class="sheet">' + sheetHead() +
-    '<div class="sh-ttl"><span class="sh-ct">Net '+ct+'</span><span class="sh-pool">'+esc(netOwner(ct))+'</span></div>'+
-    '<div class="sh-sub">Pool play &mdash; '+gs.length+' games, '+E.roundMin+' minutes apart. '+
-      (netShared(ct) ? 'Pools share this net, so check the round.' : 'This net never changes pools all day.')+'</div>'+
-    '<table class="sh-t"><thead><tr><th style="width:8%">Rd</th>'+
-      '<th style="width:31%;text-align:right;padding-right:9pt">Team</th>'+
-      '<th colspan="2" style="width:26%;text-align:center">Score</th>'+
-      '<th style="width:31%;padding-left:9pt">Team</th></tr></thead><tbody>'+
-      gs.map(g => '<tr><td class="sh-rd">'+g.r+'</td><td class="sh-tm sh-a">'+esc(g.a)+'</td>'+
-        '<td class="sh-box"></td><td class="sh-box"></td><td class="sh-tm sh-b">'+esc(g.b)+'</td></tr>').join('')+
-    '</tbody></table>'+
-    '<div class="sh-ft"><b>'+esc(netOwner(ct))+' ('+names.length+' teams on this net):</b> '+
-      names.map(t => esc(t)).join(' &nbsp;&middot;&nbsp; ')+
-      '<br>'+esc(RULES)+'</div></div>';
+    '<div class="sh-ttl"><span class="sh-ct">' + esc(DIV_LABEL[div]) + '</span>' +
+      '<span class="sh-pool">' + netSpan(nets) + '</span></div>' +
+    '<div class="sh-sub">Pool play &mdash; ' + gs.length + ' games in round order, ' +
+      E.roundMin + ' minutes a round. ' + netSpan(nets) + ' are this division\'s all day: ' +
+      'play on whichever one is free when your round comes up.</div>' +
+    '<div class="sh-cols">' + cols.filter(c => c.length).map(table).join('') + '</div>' +
+    '<div class="sh-ft" style="margin-top:9pt"><b>' + esc(DIV_LABEL[div]) + ' (' + names.length + ' teams):</b> ' +
+      names.map(t => esc(t)).join(' &nbsp;&middot;&nbsp; ') +
+      '<br>' + esc(RULES) + '</div></div>';
 }
+
 function masterSheet(){
   const head = '<tr><th style="width:7%">Round</th>' + COURTS.map(ct =>
     '<th>Net '+ct+'<br><span style="font-weight:400;font-size:6.5pt">'+
@@ -2153,9 +2195,9 @@ function masterSheet(){
   return '<div class="sheet">' + sheetHead() +
     '<div class="sh-ttl"><span class="sh-ct" style="font-size:22pt">Master schedule</span>'+
       '<span class="sh-pool">Pool play &middot; '+DATA.games.length+' games</span></div>'+
-    '<div class="sh-sub">All six courts, '+DATA.rounds.length+' rounds. '+
+    '<div class="sh-sub">All '+COURTS.length+' nets, '+DATA.rounds.length+' rounds. '+
       DATA.pools.map(p => netLabel(p)+' '+esc(p.name)+' ('+p.teams.length+')').join(' &middot; ')+
-      '. In every pool 4 teams play per round and the rest sit.</div>'+
+      '. A net column is where a game is expected, not where it has to be played.</div>'+
     '<table class="sh-m"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>'+
     '<div class="sh-ft" style="margin-top:8pt">'+esc(RULES)+'</div></div>';
 }
@@ -2179,11 +2221,13 @@ function doPrint(html, landscape){
   window.print();
 }
 window.addEventListener('afterprint', clearPrint);
-const printSheets = list => doPrint(list.map(courtSheet).join(''), false);
 /* Labelled from the schedule. It used to say "all 6 net sheets" with the
    number typed in, and went on saying 6 after the count changed. */
-$('printCourts').textContent = 'Print all ' + COURTS.length + ' net sheets';
-$('printCourts').addEventListener('click', () => printSheets(COURTS));
+$('printCourts').textContent = DIVS.length === 2
+  ? 'Print both division sheets'
+  : 'Print all ' + DIVS.length + ' division sheets';
+$('printCourts').addEventListener('click',
+  () => doPrint(DIVS.map(divisionSheet).join(''), false));
 $('printMaster').addEventListener('click', () => doPrint(masterSheet(), true));
 
 /* ═══ Height reporting ══════════════════════════════════
